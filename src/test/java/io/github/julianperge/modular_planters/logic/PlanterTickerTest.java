@@ -55,9 +55,16 @@ class PlanterTickerTest {
     void readySeedsDrawNoPower() {
         SeedBin<String> b = bin(2);
         b.markReady(0);
-        AdvanceResult r = PlanterTicker.advance(b, Grouping.of(b, Collections.nCopies(2, TWO_MK3)), x -> 75, m -> 512, 512);
+        AtomicInteger asked = new AtomicInteger();
+        AdvanceResult r = PlanterTicker.advance(b, Grouping.of(b, Collections.nCopies(2, TWO_MK3)), x -> {
+            asked.incrementAndGet();
+            return 75;
+        }, m -> 512, 512);
         assertEquals(512, r.energyUsed());
         assertEquals(1, b.progress(1));
+        assertEquals(0, b.progress(0));
+        assertTrue(b.ready(0));
+        assertEquals(1, asked.get());
     }
 
     @Test
