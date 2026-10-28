@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planter Multiblock Layouts</title>
+<style>
+  :root { --bg-primary:#f5f5f7; --bg-secondary:#fff; --bg-tertiary:#e5e5e7; --text-primary:#1d1d1f; --text-secondary:#6e6e73; }
+  @media (prefers-color-scheme: dark) { :root { --bg-primary:#1d1d1f; --bg-secondary:#2d2d2f; --bg-tertiary:#3d3d3f; --text-primary:#f5f5f7; --text-secondary:#a1a1a6; } }
+  body { margin:0; padding:24px 16px; font-family:-apple-system, system-ui, sans-serif; background:var(--bg-primary); color:var(--text-primary); }
+  .subtitle { color:var(--text-secondary); }
+  .cards { display:grid; gap:1rem; }
+  .card { background:var(--bg-secondary); border:1px solid var(--bg-tertiary); border-radius:12px; overflow:hidden; }
+  .card-body { padding:1rem; }
+  .card-body p { color:var(--text-secondary); font-size:.9rem; }
+</style>
+</head>
+<body>
+<h2>Planter multiblock: four layout ideas</h2>
+<p class="subtitle">Drag a model to rotate it and scroll to zoom. Each example is sized for your farm: about 400 seeds, so 7 planter blocks (448 seeds). </p>
+
+<div class="legend">
+  <span><i style="background:#e0a526"></i>Core</span>
+  <span><i style="background:#4caf50"></i>Planter block</span>
+  <span><i style="background:#d9473b"></i>Power</span>
+  <span><i style="background:#8d6e4a"></i>Fertilizer</span>
+  <span><i style="background:#3b82d9"></i>Export</span>
+  <span><i style="background:#8e5bd6"></i>ME (optional)</span>
+  <span><i style="background:#8a8a8e"></i>Frame (does nothing)</span>
+  <span><i style="background:#9fd8e8;opacity:.6"></i>Cloche glass</span>
+</div>
+
+<div class="cards layouts">
+  <div class="card" data-choice="raised-bed">
+    <div class="card-image"><canvas data-layout="raisedBed"></canvas></div>
+    <div class="card-body">
+      <h3>A. Raised bed under a cloche</h3>
+      <p>Your centrifuge idea, refined. Corner legs, a 3x3 bed layer, and a 3x3 glass canopy. Fixed shape with 22 slots, and any part fits any slot, like ModularBees.</p>
+      <ul>
+        <li>Footprint 3x3, height 3</li>
+        <li>Up to 7 planter blocks (448 seeds)</li>
+        <li>The bed center and canopy center can't be clicked, so they take frame or glass</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" data-choice="vertical-farm">
+    <div class="card-image"><canvas data-layout="verticalFarm"></canvas></div>
+    <div class="card-body">
+      <h3>B. Vertical farm</h3>
+      <p>A 2x2 tower. The core sits on the bottom floor, and you add floors of planter blocks on top, finished with a glass roof. Grows upward one floor at a time.</p>
+      <ul>
+        <li>Footprint 2x2, height grows with floors</li>
+        <li>Up to 4 floors above the base (16 slots)</li>
+        <li>Every block has two outside faces, so all of it is clickable</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" data-choice="rosette">
+    <div class="card-image"><canvas data-layout="rosette"></canvas></div>
+    <div class="card-body">
+      <h3>C. Rosette</h3>
+      <p>One block tall. The core is in the center, the IO blocks take the four diagonal corners, and planter blocks grow outward as four arms. From above it reads like a flower or a compass.</p>
+      <ul>
+        <li>Flat, so every block's top face is clickable and you can walk on it</li>
+        <li>Each arm is 0 to 4 planter blocks long (up to 16)</li>
+        <li>Arms can differ in length, so it grows one block at a time</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" data-choice="trellis">
+    <div class="card-image"><canvas data-layout="trellis"></canvas></div>
+    <div class="card-body">
+      <h3>D. Trellis (free form)</h3>
+      <p>Any shape, as long as every part touches the multiblock face to face, linking back to the core. You shape it to fit the space you have. The example winds up a wall.</p>
+      <ul>
+        <li>No fixed shape, capped by part count (for example 24)</li>
+        <li>Reachability is up to how you build it</li>
+        <li>No distinct look of its own</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  .legend { display:flex; flex-wrap:wrap; gap:.4rem 1rem; margin:0 0 1rem; font-size:.85rem; color:var(--text-secondary); }
+  .legend i { display:inline-block; width:.8rem; height:.8rem; border-radius:2px; margin-right:.35rem; vertical-align:-1px; }
+  .layouts { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .layouts .card { cursor: default; }
+  .layouts .card:hover { transform:none; }
+  .layouts .card-image { height: 320px; padding:0; background: var(--bg-tertiary); }
+  .layouts canvas { width:100%; height:100%; display:block; cursor:grab; touch-action:none; }
+  .layouts canvas:active { cursor:grabbing; }
+  .layouts h3 { cursor:pointer; }
+  .layouts ul { margin:.5rem 0 0; padding-left:1.1rem; font-size:.85rem; color:var(--text-secondary); }
+</style>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const COLORS = { C:0xe0a526, P:0x4caf50, E:0xd9473b, F:0x8d6e4a, X:0x3b82d9, M:0x8e5bd6, '#':0x8a8a8e, G:0x9fd8e8 };
+
+// Each layout is a list of [x, y, z, type]. y is up, +z faces the viewer.
+const layouts = {
+  raisedBed: (() => {
+    const b = [];
+    for (const x of [0,2]) for (const z of [0,2]) b.push([x,0,z,'#']);
+    for (let x=0;x<3;x++) for (let z=0;z<3;z++) {
+      let t = 'P';
+      if (x===1 && z===2) t = 'C';
+      if (x===1 && z===1) t = '#';
+      b.push([x,1,z,t]);
+    }
+    const canopy = { '0,2':'E', '2,2':'F', '1,0':'X', '0,0':'M' };
+    for (let x=0;x<3;x++) for (let z=0;z<3;z++) b.push([x,2,z, canopy[x+','+z] || 'G']);
+    return b;
+  })(),
+  verticalFarm: [
+    [0,0,1,'C'],[1,0,1,'E'],[0,0,0,'F'],[1,0,0,'X'],
+    [0,1,1,'P'],[1,1,1,'P'],[0,1,0,'P'],[1,1,0,'P'],
+    [0,2,1,'P'],[1,2,1,'P'],[0,2,0,'P'],[1,2,0,'M'],
+    [0,3,1,'G'],[1,3,1,'G'],[0,3,0,'G'],[1,3,0,'G'],
+  ],
+  rosette: (() => {
+    const b = [[0,0,0,'C'],[-1,0,1,'E'],[1,0,1,'X'],[-1,0,-1,'F'],[1,0,-1,'M']];
+    const arms = [[[0,1],2],[[1,0],2],[[0,-1],2],[[-1,0],1]];
+    for (const [[dx,dz],len] of arms) for (let i=1;i<=len;i++) b.push([dx*i,0,dz*i,'P']);
+    return b;
+  })(),
+  trellis: [
+    [0,0,0,'C'],[1,0,0,'E'],[-1,0,0,'X'],[0,0,-1,'F'],
+    [1,1,0,'P'],[2,1,0,'P'],[2,2,0,'P'],[2,3,0,'P'],[1,3,0,'P'],[0,3,0,'P'],[0,4,0,'P'],
+    [-1,1,0,'#'],[-1,2,0,'M'],
+  ],
+};
+
+function build(canvas, blocks) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 200);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x555566, 1.6));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+  sun.position.set(5, 10, 7);
+  scene.add(sun);
+
+  const geo = new THREE.BoxGeometry(0.96, 0.96, 0.96);
+  const edges = new THREE.EdgesGeometry(geo);
+  const min = new THREE.Vector3(Infinity, Infinity, Infinity), max = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+  for (const [x,y,z,t] of blocks) {
+    const glass = t === 'G';
+    const mat = new THREE.MeshLambertMaterial({ color: COLORS[t], transparent: glass, opacity: glass ? 0.35 : 1, depthWrite: !glass });
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    m.renderOrder = glass ? 1 : 0;
+    scene.add(m);
+    const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, transparent:true, opacity: glass ? 0.25 : 0.45 }));
+    line.position.copy(m.position);
+    scene.add(line);
+    min.min(m.position); max.max(m.position);
+  }
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.MeshLambertMaterial({ color: 0x6b8f4e, transparent:true, opacity:0.18 }));
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = min.y - 0.5;
+  scene.add(ground);
+
+  const center = min.clone().add(max).multiplyScalar(0.5);
+  const size = max.clone().sub(min).length() + 2;
+  camera.position.set(center.x + size * 0.9, center.y + size * 0.7, center.z + size * 1.1);
+  const controls = new OrbitControls(camera, canvas);
+  controls.target.copy(center);
+  controls.enableDamping = true;
+  controls.enablePan = false;
+  controls.update();
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== Math.floor(w * renderer.getPixelRatio())) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+  }
+  renderer.setAnimationLoop(() => { resize(); controls.update(); renderer.render(scene, camera); });
+}
+
+document.querySelectorAll('canvas[data-layout]').forEach(c => build(c, layouts[c.dataset.layout]));
+</script>
+</body>
+</html>

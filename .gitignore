@@ -1,0 +1,13 @@
+build/
+.gradle/
+run/
+runs/
+out/
+.idea/
+*.iml
+.DS_Store
+.recall/
+.superpowers/
+src/generated/resources/.cache/
+docs/
+NOTES.md

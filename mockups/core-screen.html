@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Core screen mockup</title>
+<style>body{font-family:system-ui,sans-serif;background:#f4f4f4;color:#222;padding:16px;margin:0} .split{display:flex;gap:16px;flex-wrap:wrap} .split>.mockup{flex:1;min-width:340px} .mockup{border:1px solid #ccc;border-radius:6px;background:#fff;overflow:auto} .mockup-header{padding:6px 10px;border-bottom:1px solid #ccc;font-size:12px;color:#555} .mockup-body{padding:10px} .subtitle{color:#666}</style></head><body>
+<h2>The core's screen: every planter block in one list</h2>
+<p class="subtitle">Modeled on the Logistics Networks Computer's Node Table. Everything except "list the planter blocks and open any of them" is my guess.</p>
+
+<style>
+  .gui { background:#1d2a22; border:3px solid #55705c; padding:14px; font-family:"Courier New",monospace; color:#cfe8d4; font-size:13px; }
+  .gui .bar { display:flex; justify-content:space-between; align-items:center; border:2px solid #55705c; padding:6px 10px; margin-bottom:10px; }
+  .gui .title { color:#8ff0a4; font-size:16px; letter-spacing:1px; }
+  .gui .pill { border:2px solid #55705c; padding:2px 10px; color:#8ff0a4; }
+  .gui .pill.warn { color:#f0c36b; border-color:#8a7440; }
+  .gui .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+  .gui .stat { border:2px solid #3c5544; padding:6px 8px; }
+  .gui .stat b { display:block; color:#8ff0a4; font-weight:normal; font-size:11px; letter-spacing:1px; }
+  .gui table { width:100%; border-collapse:separate; border-spacing:0 4px; }
+  .gui th { text-align:left; color:#8ff0a4; font-weight:normal; font-size:11px; letter-spacing:1px; padding:4px 8px; border-bottom:2px solid #3c5544; }
+  .gui td { background:#243429; border-top:2px solid #3c5544; border-bottom:2px solid #3c5544; padding:6px 8px; vertical-align:middle; }
+  .gui td:first-child { border-left:2px solid #3c5544; }
+  .gui td:last-child { border-right:2px solid #3c5544; white-space:nowrap; }
+  .gui .seed { display:inline-block; width:14px; height:14px; margin-right:6px; vertical-align:middle; border:1px solid #000; }
+  .gui .ok { color:#8ff0a4; } .gui .warn { color:#f0c36b; } .gui .bad { color:#f08a8a; } .gui .dim { color:#7f9a86; }
+  .gui .btn { display:inline-block; border:2px solid #55705c; padding:1px 6px; margin-left:4px; color:#cfe8d4; }
+  .gui .group td { background:#1d2a22; color:#8ff0a4; border:none; padding:6px 4px 2px; font-size:11px; letter-spacing:1px; }
+  .slots { display:flex; gap:10px; margin:8px 0; }
+  .slot { width:44px; height:44px; background:#8b8b8b; border:2px solid; border-color:#373737 #fff #fff #373737; position:relative; }
+  .slot span { position:absolute; right:3px; bottom:1px; color:#fff; font-size:12px; text-shadow:1px 1px #3f3f3f; font-family:monospace; }
+  .slotlabel { font-size:11px; color:#555; text-align:center; margin-top:2px; }
+  .mcgui { background:#c6c6c6; border:3px solid; border-color:#fff #555 #555 #fff; padding:12px; font-family:"Courier New",monospace; color:#3f3f3f; font-size:13px; }
+  .mcgui .back { display:inline-block; background:#6f6f6f; color:#fff; border:2px solid; border-color:#aaa #333 #333 #aaa; padding:2px 10px; margin-bottom:8px; }
+</style>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Core screen (opened by clicking the core)</div>
+    <div class="mockup-body">
+      <div class="gui">
+        <div class="bar"><span class="title">MODULAR PLANTER CORE</span><span class="pill">FORMED 18 / 24</span></div>
+        <div class="stats">
+          <div class="stat"><b>POWER</b>2.1M / 4M RF<br><span class="dim">-98,304 RF/t</span></div>
+          <div class="stat"><b>FERTILIZER</b>1,240 items</div>
+          <div class="stat"><b>EXPORT</b>37% full</div>
+          <div class="stat"><b>ME</b><span class="ok">Online</span></div>
+        </div>
+        <table>
+          <tr><th>SEED</th><th>GROWING</th><th>UPGRADES</th><th>STATUS</th><th>LOCATION</th><th></th></tr>
+          <tr class="group"><td colspan="6">NICKEL SEEDS (3)</td></tr>
+          <tr><td><span class="seed" style="background:#b9b18a"></span>Nickel Seeds</td><td>64 / 64</td><td>Speed MK3 x2<br><span class="dim">64/64 upgraded</span></td><td class="ok">Growing</td><td class="dim">OVR 104, 65, -220</td><td><span class="btn" title="Highlight in world">[o]</span><span class="btn" title="Open planter block">[open]</span></td></tr>
+          <tr><td><span class="seed" style="background:#b9b18a"></span>Nickel Seeds</td><td>64 / 64</td><td>Speed MK3 x2<br><span class="dim">64/64 upgraded</span></td><td class="ok">Growing</td><td class="dim">OVR 105, 65, -220</td><td><span class="btn">[o]</span><span class="btn">[open]</span></td></tr>
+          <tr><td><span class="seed" style="background:#b9b18a"></span>Nickel Seeds</td><td class="warn">13 / 64</td><td>Speed MK3 x2<br><span class="dim">13 working, 51 idle</span></td><td class="warn">Short on soil</td><td class="dim">OVR 106, 65, -220</td><td><span class="btn">[o]</span><span class="btn">[open]</span></td></tr>
+          <tr class="group"><td colspan="6">IRON SEEDS (1)</td></tr>
+          <tr><td><span class="seed" style="background:#d8d8d8"></span>Iron Seeds</td><td>64 / 64</td><td>Speed MK3, Yield MK1<br><span class="dim">23/64 upgraded</span></td><td class="bad">Paused: export full</td><td class="dim">OVR 104, 66, -221</td><td><span class="btn">[o]</span><span class="btn">[open]</span></td></tr>
+          <tr class="group"><td colspan="6">EMPTY (1)</td></tr>
+          <tr><td class="dim">No seed</td><td class="dim">0</td><td class="dim">-</td><td class="dim">Idle</td><td class="dim">OVR 105, 66, -221</td><td><span class="btn">[o]</span><span class="btn">[open]</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">After clicking [open]: that planter block's own screen</div>
+    <div class="mockup-body">
+      <div class="mcgui">
+        <span class="back">&lt; Back to core</span>
+        <div><b>Planter Block</b> <span style="color:#777">OVR 106, 65, -220</span></div>
+        <div class="slots">
+          <div><div class="slot" style="background:#b9b18a"><span>64</span></div><div class="slotlabel">Seeds</div></div>
+          <div><div class="slot" style="background:#7a5a3a"><span>13</span></div><div class="slotlabel">Soil</div></div>
+          <div><div class="slot" style="background:#6fb3d9"><span>64</span></div><div class="slotlabel">Module</div></div>
+          <div><div class="slot" style="background:#6fb3d9"><span>64</span></div><div class="slotlabel">Module</div></div>
+        </div>
+        <div>13 working, 51 idle: add soil to grow the rest</div>
+        <div style="color:#777;margin-top:4px">Same screen you get by clicking the block in the world. Changes apply the same way.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:18px">
+  <h3>What's in the mockup</h3>
+  <ul>
+    <li><b>Yours:</b> the core's screen lists every planter block and opens any of them, like the LN Computer's Node Table.</li>
+    <li><b>My guess:</b> rows are grouped by seed type, the way LN groups nodes by label, so 5 nickel blocks fold into one heading.</li>
+    <li><b>My guess:</b> each row shows how many seeds are growing, module coverage, a status (growing, short on soil, paused for power or a full export), and the block's position.</li>
+    <li><b>My guess:</b> <code>[o]</code> outlines that planter block in the world so you can find it, like LN's lamp button.</li>
+    <li><b>My guess:</b> the top shows the shared totals: formed state and part count, stored power and draw, fertilizer, export fill, and ME status.</li>
+    <li><b>My guess:</b> the planter block's screen gets a "Back to core" button when you opened it from the core.</li>
+  </ul>
+</div>
+</body></html>
