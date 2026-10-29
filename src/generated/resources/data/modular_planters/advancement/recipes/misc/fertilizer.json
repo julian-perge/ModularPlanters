@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_fertilizer_spreader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "agritechevolved:fertilizer_spreader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "modular_planters:fertilizer"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_fertilizer_spreader"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "modular_planters:fertilizer"
+    ]
+  }
+}

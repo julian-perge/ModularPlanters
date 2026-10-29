@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:bone_block",
+    "I": "minecraft:iron_block",
+    "S": "agritechevolved:fertilizer_spreader"
+  },
+  "pattern": [
+    "IBI",
+    "BSB",
+    "IBI"
+  ],
+  "result": {
+    "id": "modular_planters:fertilizer"
+  }
+}

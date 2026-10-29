@@ -1,0 +1,9 @@
+{
+  "block.modular_planters.core": "Modular Planter Core",
+  "block.modular_planters.export": "Modular Planter Export Block",
+  "block.modular_planters.fertilizer": "Modular Planter Fertilizer Block",
+  "block.modular_planters.frame": "Modular Planter Frame",
+  "block.modular_planters.planter": "Modular Planter Block",
+  "block.modular_planters.power": "Modular Planter Power Block",
+  "itemGroup.modular_planters": "Modular Planters"
+}

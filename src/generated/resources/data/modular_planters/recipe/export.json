@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": "minecraft:hopper",
+    "I": "minecraft:iron_block",
+    "S": "agritechevolved:silo"
+  },
+  "pattern": [
+    "IHI",
+    "HSH",
+    "IHI"
+  ],
+  "result": {
+    "id": "modular_planters:export"
+  }
+}

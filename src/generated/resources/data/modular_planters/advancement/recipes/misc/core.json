@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_cloche_dome": {
+      "conditions": {
+        "items": [
+          {
+            "items": "agritechevolved:cloche_dome"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "modular_planters:core"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_cloche_dome"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "modular_planters:core"
+    ]
+  }
+}

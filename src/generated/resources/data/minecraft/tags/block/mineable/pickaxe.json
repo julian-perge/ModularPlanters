@@ -1,0 +1,10 @@
+{
+  "values": [
+    "modular_planters:core",
+    "modular_planters:frame",
+    "modular_planters:power",
+    "modular_planters:fertilizer",
+    "modular_planters:export",
+    "modular_planters:planter"
+  ]
+}

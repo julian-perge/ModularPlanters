@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "modular_planters:frame",
+    "I": "agritechevolved:infused_farmland"
+  },
+  "pattern": [
+    "FFF",
+    "FIF",
+    "FFF"
+  ],
+  "result": {
+    "id": "modular_planters:planter"
+  }
+}

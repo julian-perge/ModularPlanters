@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_silo": {
+      "conditions": {
+        "items": [
+          {
+            "items": "agritechevolved:silo"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "modular_planters:export"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_silo"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "modular_planters:export"
+    ]
+  }
+}
