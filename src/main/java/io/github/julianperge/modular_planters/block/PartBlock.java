@@ -23,7 +23,10 @@ public class PartBlock extends Block {
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
-        CoreFinder.notifyCores(level, pos);
+        // A state change on the same block, such as a planter turning ACTIVE on or off, can't change the structure, so cores are only told about new blocks.
+        if (!oldState.is(state.getBlock())) {
+            CoreFinder.notifyCores(level, pos);
+        }
     }
 
     @Override

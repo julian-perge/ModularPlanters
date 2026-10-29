@@ -142,6 +142,7 @@ public class PlanterBlockEntity extends BlockEntity {
         if (result.pausedForPower()) {
             paused = PlanterStatus.PAUSED_FOR_POWER;
         } else {
+            // This take can't fail, because advance was given ctx.power().stored() and only charges what that covers.
             ctx.power().tryTake(result.energyUsed());
             lastDraw = result.energyUsed();
         }

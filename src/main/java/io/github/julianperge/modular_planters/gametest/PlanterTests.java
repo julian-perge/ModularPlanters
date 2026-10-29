@@ -94,7 +94,7 @@ public final class PlanterTests {
         return planter.getBlockState().getValue(PlanterBlock.ACTIVE);
     }
 
-    // Every GameTest running side by side shares the event bus, so each listener checks its own test's planter position, and this removes the listener once its test passes or fails.
+    // Every GameTest running side by side shares the event bus, so each caller's listener must check its own test's planter position, and this removes the listener once its test passes or fails.
     private static <T extends Event> void listen(GameTestHelper helper, Class<T> type, Consumer<T> listener) {
         NeoForge.EVENT_BUS.addListener(type, listener);
         helper.testInfo.addListener(new GameTestListener() {

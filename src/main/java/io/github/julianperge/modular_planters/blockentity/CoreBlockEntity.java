@@ -131,6 +131,7 @@ public class CoreBlockEntity extends BlockEntity {
         setChanged();
     }
 
+    // No scan runs once the core is gone, so the core stops its planters here, or they would stay ACTIVE and GROWING.
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         if (level != null && multiblock != null) {
