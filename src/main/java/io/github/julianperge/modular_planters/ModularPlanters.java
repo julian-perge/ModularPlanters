@@ -1,9 +1,12 @@
 package io.github.julianperge.modular_planters;
 
 import io.github.julianperge.modular_planters.gametest.MPTestRegistration;
+import io.github.julianperge.modular_planters.registry.MPBlockEntities;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import io.github.julianperge.modular_planters.registry.MPCreativeTab;
+import io.github.julianperge.modular_planters.registry.MPDataComponents;
 import io.github.julianperge.modular_planters.registry.MPItems;
+import io.github.julianperge.modular_planters.registry.MPMenus;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -17,6 +20,10 @@ public class ModularPlanters {
     public ModularPlanters(IEventBus modEventBus, ModContainer modContainer) {
         MPBlocks.BLOCKS.register(modEventBus);
         MPItems.ITEMS.register(modEventBus);
+        MPBlockEntities.TYPES.register(modEventBus);
+        MPDataComponents.COMPONENTS.register(modEventBus);
+        MPMenus.MENUS.register(modEventBus);
+        modEventBus.addListener(MPBlockEntities::registerCapabilities);
         MPCreativeTab.TABS.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.SERVER, MPConfig.SPEC);
         if (GameTestHooks.isGametestEnabled()) {

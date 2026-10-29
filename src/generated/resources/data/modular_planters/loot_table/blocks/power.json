@@ -11,6 +11,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "modular_planters:stored_energy"
+              ],
+              "source": "block_entity"
+            }
+          ],
           "name": "modular_planters:power"
         }
       ],

@@ -18,6 +18,8 @@ public class MPLang extends LanguageProvider {
         addBlock(MPBlocks.POWER, "Modular Planter Power Block");
         addBlock(MPBlocks.FERTILIZER, "Modular Planter Fertilizer Block");
         addBlock(MPBlocks.EXPORT, "Modular Planter Export Block");
+        add("container.modular_planters.fertilizer", "Fertilizer Storage");
+        add("container.modular_planters.export", "Export Storage");
         addBlock(MPBlocks.PLANTER, "Modular Planter Block");
     }
 }

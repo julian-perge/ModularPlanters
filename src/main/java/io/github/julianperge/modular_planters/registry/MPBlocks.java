@@ -1,7 +1,10 @@
 package io.github.julianperge.modular_planters.registry;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.github.julianperge.modular_planters.block.ExportBlock;
+import io.github.julianperge.modular_planters.block.FertilizerBlock;
 import io.github.julianperge.modular_planters.block.PartBlock;
+import io.github.julianperge.modular_planters.block.PowerBlock;
 import io.github.julianperge.modular_planters.logic.PartType;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -15,12 +18,12 @@ public final class MPBlocks {
             BLOCKS.registerBlock("core", properties -> new PartBlock(properties, PartType.CORE), MPBlocks::metal);
     public static final DeferredBlock<PartBlock> FRAME =
             BLOCKS.registerBlock("frame", properties -> new PartBlock(properties, PartType.FRAME), MPBlocks::metal);
-    public static final DeferredBlock<PartBlock> POWER =
-            BLOCKS.registerBlock("power", properties -> new PartBlock(properties, PartType.POWER), MPBlocks::metal);
-    public static final DeferredBlock<PartBlock> FERTILIZER =
-            BLOCKS.registerBlock("fertilizer", properties -> new PartBlock(properties, PartType.FERTILIZER), MPBlocks::metal);
-    public static final DeferredBlock<PartBlock> EXPORT =
-            BLOCKS.registerBlock("export", properties -> new PartBlock(properties, PartType.EXPORT), MPBlocks::metal);
+    public static final DeferredBlock<PowerBlock> POWER =
+            BLOCKS.registerBlock("power", PowerBlock::new, MPBlocks::metal);
+    public static final DeferredBlock<FertilizerBlock> FERTILIZER =
+            BLOCKS.registerBlock("fertilizer", FertilizerBlock::new, MPBlocks::metal);
+    public static final DeferredBlock<ExportBlock> EXPORT =
+            BLOCKS.registerBlock("export", ExportBlock::new, MPBlocks::metal);
     public static final DeferredBlock<PartBlock> PLANTER =
             BLOCKS.registerBlock("planter", properties -> new PartBlock(properties, PartType.PLANTER), MPBlocks::metal);
 

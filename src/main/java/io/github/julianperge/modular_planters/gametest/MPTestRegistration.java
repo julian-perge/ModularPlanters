@@ -31,6 +31,7 @@ public final class MPTestRegistration {
     private static Map<String, TestCase> cases() {
         Map<String, TestCase> cases = new LinkedHashMap<>();
         RecipeTests.register(cases);
+        StorageTests.register(cases);
         return cases;
     }
 

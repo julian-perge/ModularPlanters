@@ -5,5 +5,7 @@
   "block.modular_planters.frame": "Modular Planter Frame",
   "block.modular_planters.planter": "Modular Planter Block",
   "block.modular_planters.power": "Modular Planter Power Block",
+  "container.modular_planters.export": "Export Storage",
+  "container.modular_planters.fertilizer": "Fertilizer Storage",
   "itemGroup.modular_planters": "Modular Planters"
 }
