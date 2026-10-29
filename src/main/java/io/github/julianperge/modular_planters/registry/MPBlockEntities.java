@@ -5,6 +5,7 @@ import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
+import io.github.julianperge.modular_planters.multiblock.DoorwayHandlers;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -29,6 +30,8 @@ public final class MPBlockEntities {
     }
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, CORE.get(), (be, side) -> DoorwayHandlers.energy(be));
+        event.registerBlockEntity(Capabilities.Item.BLOCK, CORE.get(), (be, side) -> DoorwayHandlers.items(be));
         event.registerBlockEntity(Capabilities.Energy.BLOCK, POWER.get(), (be, side) -> be.externalHandler());
         event.registerBlockEntity(Capabilities.Item.BLOCK, FERTILIZER.get(), (be, side) -> be.externalHandler());
         event.registerBlockEntity(Capabilities.Item.BLOCK, EXPORT.get(), (be, side) -> be.externalHandler());

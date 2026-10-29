@@ -33,6 +33,7 @@ public final class MPTestRegistration {
         RecipeTests.register(cases);
         StructureTests.register(cases);
         StorageTests.register(cases);
+        DoorwayTests.register(cases);
         return cases;
     }
 
