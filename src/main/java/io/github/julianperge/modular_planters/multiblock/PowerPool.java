@@ -8,15 +8,21 @@ import java.util.List;
 
 public final class PowerPool {
     private final List<PowerBlockEntity> blocks;
+    private final Runnable onStale;
     private final EnergyHandler insertView = new InsertView();
 
-    public PowerPool(List<PowerBlockEntity> inOrder) {
+    public PowerPool(List<PowerBlockEntity> inOrder, Runnable onStale) {
         this.blocks = List.copyOf(inOrder);
+        this.onStale = onStale;
+    }
+
+    private List<PowerBlockEntity> live() {
+        return LiveBlocks.of(blocks, onStale);
     }
 
     public long stored() {
         long total = 0;
-        for (PowerBlockEntity block : blocks) {
+        for (PowerBlockEntity block : live()) {
             total += block.stored();
         }
         return total;
@@ -24,7 +30,7 @@ public final class PowerPool {
 
     public long capacity() {
         long total = 0;
-        for (PowerBlockEntity block : blocks) {
+        for (PowerBlockEntity block : live()) {
             total += block.capacity();
         }
         return total;
@@ -35,7 +41,7 @@ public final class PowerPool {
             return false;
         }
         long remaining = amount;
-        for (PowerBlockEntity block : blocks) {
+        for (PowerBlockEntity block : live()) {
             int taken = (int) Math.min(remaining, block.stored());
             if (taken > 0) {
                 block.setStored(block.stored() - taken);
@@ -63,7 +69,7 @@ public final class PowerPool {
         @Override
         public int insert(int amount, TransactionContext transaction) {
             int inserted = 0;
-            for (PowerBlockEntity block : blocks) {
+            for (PowerBlockEntity block : live()) {
                 if (inserted == amount) {
                     break;
                 }

@@ -4,6 +4,7 @@ import com.misterd.agritechevolved.datamap.FertilizerData;
 import io.github.julianperge.modular_planters.ate.AteBridge;
 import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -14,16 +15,21 @@ import java.util.List;
 
 public final class FertilizerPool {
     private final List<FertilizerBlockEntity> blocks;
-    private final ResourceHandler<ItemResource> insertView;
+    private final Runnable onStale;
+    private final ResourceHandler<ItemResource> insertView = new DelegatingResourceHandler<>(
+            () -> new CombinedResourceHandler<>(live().stream().map(FertilizerBlockEntity::externalHandler).toList()));
 
-    public FertilizerPool(List<FertilizerBlockEntity> inOrder) {
+    public FertilizerPool(List<FertilizerBlockEntity> inOrder, Runnable onStale) {
         this.blocks = List.copyOf(inOrder);
-        this.insertView = new CombinedResourceHandler<>(
-                blocks.stream().map(FertilizerBlockEntity::externalHandler).toList());
+        this.onStale = onStale;
+    }
+
+    private List<FertilizerBlockEntity> live() {
+        return LiveBlocks.of(blocks, onStale);
     }
 
     public ItemResource selected() {
-        for (FertilizerBlockEntity block : blocks) {
+        for (FertilizerBlockEntity block : live()) {
             ItemStacksResourceHandler storage = block.storage();
             for (int slot = 0; slot < storage.size(); slot++) {
                 ItemResource resource = storage.getResource(slot);
@@ -41,7 +47,7 @@ public final class FertilizerPool {
             return 0;
         }
         long total = 0;
-        for (FertilizerBlockEntity block : blocks) {
+        for (FertilizerBlockEntity block : live()) {
             ItemStacksResourceHandler storage = block.storage();
             for (int slot = 0; slot < storage.size(); slot++) {
                 if (storage.getResource(slot).equals(selected)) {
@@ -64,7 +70,7 @@ public final class FertilizerPool {
         }
         try (Transaction tx = Transaction.openRoot()) {
             int remaining = count;
-            for (FertilizerBlockEntity block : blocks) {
+            for (FertilizerBlockEntity block : live()) {
                 if (remaining == 0) {
                     break;
                 }

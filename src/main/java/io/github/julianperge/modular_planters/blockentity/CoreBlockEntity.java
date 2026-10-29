@@ -106,9 +106,9 @@ public class CoreBlockEntity extends BlockEntity {
             outputs = null;
             return;
         }
-        power = new PowerPool(blockEntities(level, multiblock.power(), PowerBlockEntity.class));
-        fertilizer = new FertilizerPool(blockEntities(level, multiblock.fertilizer(), FertilizerBlockEntity.class));
-        outputs = new OutputSink(blockEntities(level, multiblock.export(), ExportBlockEntity.class));
+        power = new PowerPool(blockEntities(level, multiblock.power(), PowerBlockEntity.class), this::markDirty);
+        fertilizer = new FertilizerPool(blockEntities(level, multiblock.fertilizer(), FertilizerBlockEntity.class), this::markDirty);
+        outputs = new OutputSink(blockEntities(level, multiblock.export(), ExportBlockEntity.class), this::markDirty);
     }
 
     private static <T extends BlockEntity> List<T> blockEntities(Level level, List<BlockPos> positions, Class<T> type) {

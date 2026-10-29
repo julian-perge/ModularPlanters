@@ -1,15 +1,21 @@
 package io.github.julianperge.modular_planters.gametest;
 
+import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
+import io.github.julianperge.modular_planters.multiblock.FertilizerPool;
+import io.github.julianperge.modular_planters.multiblock.OutputSink;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -29,6 +35,12 @@ public final class DoorwayTests {
                 new TestCase(20, DoorwayTests::coreExtractComesFromExportBlocks));
         into.put("core_capabilities_follow_the_structure",
                 new TestCase(20, DoorwayTests::coreCapabilitiesFollowTheStructure));
+        into.put("output_sink_returns_the_remainder", new TestCase(20, DoorwayTests::outputSinkReturnsTheRemainder));
+        into.put("output_sink_room_counts_stacks_together",
+                new TestCase(20, DoorwayTests::outputSinkRoomCountsStacksTogether));
+        into.put("fertilizer_consume_takes_nothing_when_short",
+                new TestCase(20, DoorwayTests::fertilizerConsumeTakesNothingWhenShort));
+        into.put("pools_skip_a_removed_block", new TestCase(20, DoorwayTests::poolsSkipARemovedBlock));
     }
 
     private static void placeFormedLine(GameTestHelper helper, int powerBlocks) {
@@ -121,6 +133,75 @@ public final class DoorwayTests {
                         "items after the break");
                 helper.succeed();
             });
+        });
+    }
+
+    private static void fillExportExcept(GameTestHelper helper, int free) {
+        ExportBlockEntity export = helper.getBlockEntity(exportPos(1), ExportBlockEntity.class);
+        int fill = ExportBlockEntity.SLOTS * 64 - free;
+        helper.assertValueEqual(
+                ResourceHandlerUtil.insertStacking(export.storage(), ItemResource.of(Items.WHEAT), fill, null), fill,
+                "pre-filled wheat");
+    }
+
+    private static void outputSinkReturnsTheRemainder(GameTestHelper helper) {
+        placeFormedLine(helper, 1);
+        helper.runAfterDelay(1, () -> {
+            fillExportExcept(helper, 5);
+            OutputSink outputs = helper.getBlockEntity(CORE, CoreBlockEntity.class).outputs();
+            ItemStack left = outputs.insert(new ItemStack(Items.WHEAT, 10));
+            helper.assertValueEqual(left.getCount(), 5, "remainder count");
+            helper.assertTrue(left.is(Items.WHEAT), "remainder item");
+            helper.succeed();
+        });
+    }
+
+    private static void outputSinkRoomCountsStacksTogether(GameTestHelper helper) {
+        placeFormedLine(helper, 1);
+        helper.runAfterDelay(1, () -> {
+            fillExportExcept(helper, 64);
+            OutputSink outputs = helper.getBlockEntity(CORE, CoreBlockEntity.class).outputs();
+            helper.assertTrue(outputs.hasRoomFor(List.of(new ItemStack(Items.WHEAT, 40))), "room for one stack");
+            helper.assertTrue(!outputs.hasRoomFor(List.of(new ItemStack(Items.WHEAT, 40), new ItemStack(Items.WHEAT, 40))),
+                    "no room for both stacks");
+            helper.assertTrue(outputs.hasRoomFor(List.of(new ItemStack(Items.WHEAT, 40))), "nothing was kept by the simulation");
+            helper.succeed();
+        });
+    }
+
+    private static void fertilizerConsumeTakesNothingWhenShort(GameTestHelper helper) {
+        placeFormedLine(helper, 1);
+        helper.runAfterDelay(1, () -> {
+            try (Transaction tx = Transaction.openRoot()) {
+                helper.getBlockEntity(fertilizerPos(1), FertilizerBlockEntity.class).storage()
+                        .insert(ItemResource.of(Items.BONE_MEAL), 10, tx);
+                tx.commit();
+            }
+            FertilizerPool fertilizer = helper.getBlockEntity(CORE, CoreBlockEntity.class).fertilizer();
+            helper.assertTrue(!fertilizer.consume(11), "consume 11 of 10");
+            helper.assertValueEqual(fertilizer.available(), 10, "bone meal left");
+            helper.assertTrue(fertilizer.consume(10), "consume 10 of 10");
+            helper.assertValueEqual(fertilizer.available(), 0, "bone meal after consuming");
+            helper.succeed();
+        });
+    }
+
+    private static void poolsSkipARemovedBlock(GameTestHelper helper) {
+        BlockPos removed = CORE.west();
+        placeFormedLine(helper, 1);
+        helper.setBlock(removed, MPBlocks.POWER.get());
+        helper.runAfterDelay(1, () -> {
+            EnergyHandler energy = helper.requireCapability(Capabilities.Energy.BLOCK, CORE, null);
+            PowerBlockEntity removedBlock = helper.getBlockEntity(removed, PowerBlockEntity.class);
+            PowerBlockEntity kept = helper.getBlockEntity(CORE.east(), PowerBlockEntity.class);
+            helper.getLevel().destroyBlock(helper.absolutePos(removed), true);
+            try (Transaction tx = Transaction.openRoot()) {
+                helper.assertValueEqual(energy.insert(5_000_000, tx), 4_000_000, "inserted energy");
+                tx.commit();
+            }
+            helper.assertValueEqual(removedBlock.stored(), 0, "removed block");
+            helper.assertValueEqual(kept.stored(), 4_000_000, "remaining block");
+            helper.succeed();
         });
     }
 }

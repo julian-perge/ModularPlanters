@@ -3,6 +3,7 @@ package io.github.julianperge.modular_planters.multiblock;
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -15,12 +16,17 @@ import java.util.List;
 
 public final class OutputSink {
     private final List<ExportBlockEntity> blocks;
-    private final ResourceHandler<ItemResource> extractView;
+    private final Runnable onStale;
+    private final ResourceHandler<ItemResource> extractView = new DelegatingResourceHandler<>(
+            () -> new CombinedResourceHandler<>(live().stream().map(ExportBlockEntity::externalHandler).toList()));
 
-    public OutputSink(List<ExportBlockEntity> inOrder) {
+    public OutputSink(List<ExportBlockEntity> inOrder, Runnable onStale) {
         this.blocks = List.copyOf(inOrder);
-        this.extractView = new CombinedResourceHandler<>(
-                blocks.stream().map(ExportBlockEntity::externalHandler).toList());
+        this.onStale = onStale;
+    }
+
+    private List<ExportBlockEntity> live() {
+        return LiveBlocks.of(blocks, onStale);
     }
 
     public boolean hasRoomFor(List<ItemStack> stacks) {
@@ -45,7 +51,7 @@ public final class OutputSink {
     public int fillPercent() {
         long stored = 0;
         long capacity = 0;
-        for (ExportBlockEntity block : blocks) {
+        for (ExportBlockEntity block : live()) {
             ItemStacksResourceHandler storage = block.storage();
             for (int slot = 0; slot < storage.size(); slot++) {
                 stored += storage.getAmountAsLong(slot);
@@ -61,7 +67,7 @@ public final class OutputSink {
         }
         ItemResource resource = ItemResource.of(stack);
         int remaining = stack.getCount();
-        for (ExportBlockEntity block : blocks) {
+        for (ExportBlockEntity block : live()) {
             if (remaining == 0) {
                 break;
             }

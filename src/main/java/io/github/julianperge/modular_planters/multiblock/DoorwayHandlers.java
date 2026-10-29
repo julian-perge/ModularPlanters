@@ -2,6 +2,7 @@ package io.github.julianperge.modular_planters.multiblock;
 
 import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -22,6 +23,7 @@ public final class DoorwayHandlers {
         if (fertilizer == null || outputs == null) {
             return null;
         }
-        return new CombinedResourceHandler<>(fertilizer.insertView(), outputs.extractView());
+        return new DelegatingResourceHandler<>(
+                () -> new CombinedResourceHandler<>(fertilizer.insertView(), outputs.extractView()));
     }
 }
