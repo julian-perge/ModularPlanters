@@ -34,6 +34,7 @@ public final class MPTestRegistration {
         StructureTests.register(cases);
         StorageTests.register(cases);
         DoorwayTests.register(cases);
+        AteBridgeTests.register(cases);
         return cases;
     }
 
