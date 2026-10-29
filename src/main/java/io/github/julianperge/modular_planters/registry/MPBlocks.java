@@ -5,6 +5,7 @@ import io.github.julianperge.modular_planters.block.CoreBlock;
 import io.github.julianperge.modular_planters.block.ExportBlock;
 import io.github.julianperge.modular_planters.block.FertilizerBlock;
 import io.github.julianperge.modular_planters.block.PartBlock;
+import io.github.julianperge.modular_planters.block.PlanterBlock;
 import io.github.julianperge.modular_planters.block.PowerBlock;
 import io.github.julianperge.modular_planters.logic.PartType;
 import net.minecraft.world.level.block.SoundType;
@@ -25,8 +26,8 @@ public final class MPBlocks {
             BLOCKS.registerBlock("fertilizer", FertilizerBlock::new, MPBlocks::metal);
     public static final DeferredBlock<ExportBlock> EXPORT =
             BLOCKS.registerBlock("export", ExportBlock::new, MPBlocks::metal);
-    public static final DeferredBlock<PartBlock> PLANTER =
-            BLOCKS.registerBlock("planter", properties -> new PartBlock(properties, PartType.PLANTER), MPBlocks::metal);
+    public static final DeferredBlock<PlanterBlock> PLANTER =
+            BLOCKS.registerBlock("planter", PlanterBlock::new, MPBlocks::metal);
 
     private MPBlocks() {
     }

@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.blockentity;
 
 import io.github.julianperge.modular_planters.MPConfig;
+import io.github.julianperge.modular_planters.ate.AteBridge;
 import io.github.julianperge.modular_planters.block.PartBlock;
 import io.github.julianperge.modular_planters.logic.PartType;
 import io.github.julianperge.modular_planters.logic.Problem;
@@ -10,9 +11,11 @@ import io.github.julianperge.modular_planters.multiblock.FertilizerPool;
 import io.github.julianperge.modular_planters.multiblock.Multiblock;
 import io.github.julianperge.modular_planters.multiblock.OutputSink;
 import io.github.julianperge.modular_planters.multiblock.PowerPool;
+import io.github.julianperge.modular_planters.multiblock.TickContext;
 import io.github.julianperge.modular_planters.registry.MPBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,6 +44,22 @@ public class CoreBlockEntity extends BlockEntity {
     public static void serverTick(Level level, BlockPos pos, BlockState state, CoreBlockEntity core) {
         if (core.dirty || level.getGameTime() % RESCAN_INTERVAL == 0) {
             core.scan(level);
+        }
+        if (level instanceof ServerLevel serverLevel) {
+            core.tickPlanters(serverLevel);
+        }
+    }
+
+    // The pools are null while the core waits for an unloaded chunk, and the planters then keep their progress without ticking.
+    private void tickPlanters(ServerLevel level) {
+        if (multiblock == null || power == null || fertilizer == null || outputs == null || !allPartsLoaded()) {
+            return;
+        }
+        TickContext context = new TickContext(level, level.getRandom(), AteBridge.numbers(), power, fertilizer, outputs);
+        for (BlockPos pos : multiblock.planters()) {
+            if (level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
+                planter.tickFromCore(context);
+            }
         }
     }
 
@@ -101,11 +120,31 @@ public class CoreBlockEntity extends BlockEntity {
             fertilizer = null;
             outputs = null;
         } else {
+            Multiblock previous = multiblock;
             multiblock = result.formed() ? Multiblock.from(result) : null;
+            if (previous != null) {
+                stopPlanters(level, previous.planters(), multiblock == null ? List.of() : multiblock.planters());
+            }
             buildPools(level);
         }
         level.invalidateCapabilities(worldPosition);
         setChanged();
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (level != null && multiblock != null) {
+            stopPlanters(level, multiblock.planters(), List.of());
+        }
+    }
+
+    private static void stopPlanters(Level level, List<BlockPos> planters, List<BlockPos> stillFormed) {
+        for (BlockPos pos : planters) {
+            if (!stillFormed.contains(pos) && level.isLoaded(pos)
+                    && level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
+                planter.stopFromCore();
+            }
+        }
     }
 
     private void buildPools(Level level) {

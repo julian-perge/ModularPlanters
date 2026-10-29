@@ -4,6 +4,7 @@ import io.github.julianperge.modular_planters.ModularPlanters;
 import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
+import io.github.julianperge.modular_planters.blockentity.PlanterBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
 import io.github.julianperge.modular_planters.multiblock.DoorwayHandlers;
 import net.minecraft.core.registries.Registries;
@@ -25,6 +26,8 @@ public final class MPBlockEntities {
             TYPES.register("fertilizer", () -> new BlockEntityType<>(FertilizerBlockEntity::new, MPBlocks.FERTILIZER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ExportBlockEntity>> EXPORT =
             TYPES.register("export", () -> new BlockEntityType<>(ExportBlockEntity::new, MPBlocks.EXPORT.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PlanterBlockEntity>> PLANTER =
+            TYPES.register("planter", () -> new BlockEntityType<>(PlanterBlockEntity::new, MPBlocks.PLANTER.get()));
 
     private MPBlockEntities() {
     }
