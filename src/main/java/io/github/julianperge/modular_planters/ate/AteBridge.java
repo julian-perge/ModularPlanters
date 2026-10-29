@@ -62,7 +62,7 @@ public final class AteBridge {
         return ModuleKind.fromItemId(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
     }
 
-    // Mirrors AdvancedPlanterBlockEntity.getSoilGrowthModifier.
+    // This follows AdvancedPlanterBlockEntity.getSoilGrowthModifier, so a soil grows seeds at the same speed here as in a single planter.
     public static float soilModifier(ItemStack soil) {
         if (soil.isEmpty()) {
             return 1.0f;
@@ -75,7 +75,7 @@ public final class AteBridge {
         return resource.typeHolder().getData(ATEDataMaps.FERTILIZERS);
     }
 
-    // Mirrors AdvancedPlanterBlockEntity.refreshRecipeCacheIfNeeded: crop recipes win over tree recipes.
+    // This follows AdvancedPlanterBlockEntity.refreshRecipeCacheIfNeeded, which tries crop recipes before tree recipes.
     public static Optional<PlantRecipe> recipe(ServerLevel level, ItemStack seed) {
         if (seed.isEmpty()) {
             return Optional.empty();
@@ -92,7 +92,7 @@ public final class AteBridge {
         return tree.map(holder -> new PlantRecipe(holder.value().getDrops(), holder.value()::matchesSoil));
     }
 
-    // Mirrors AdvancedPlanterBlockEntity.getValidSoils, which refreshes only when AgritechEvolved.RECIPE_REVISION changes.
+    // This follows AdvancedPlanterBlockEntity.getValidSoils, whose soil set refreshes only when AgritechEvolved.RECIPE_REVISION changes.
     public static boolean isSoilForAnyRecipe(ServerLevel level, ItemStack soil) {
         if (soil.isEmpty()) {
             return false;
@@ -118,7 +118,7 @@ public final class AteBridge {
         return cachedSoils.contains(soil.getItem());
     }
 
-    // Mirrors AdvancedPlanterBlockEntity.getHarvestDrops, except that an entry whose rolled count is 0 is skipped.
+    // This follows AdvancedPlanterBlockEntity.getHarvestDrops, except that an entry whose rolled count is 0 is skipped.
     public static List<ItemStack> rollDrops(List<DropEntry> drops, RandomSource random) {
         List<ItemStack> rolled = new ArrayList<>();
         for (DropEntry entry : drops) {
