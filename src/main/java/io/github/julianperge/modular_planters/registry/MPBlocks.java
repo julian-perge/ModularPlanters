@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.registry;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.github.julianperge.modular_planters.block.CoreBlock;
 import io.github.julianperge.modular_planters.block.ExportBlock;
 import io.github.julianperge.modular_planters.block.FertilizerBlock;
 import io.github.julianperge.modular_planters.block.PartBlock;
@@ -14,8 +15,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class MPBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ModularPlanters.MOD_ID);
 
-    public static final DeferredBlock<PartBlock> CORE =
-            BLOCKS.registerBlock("core", properties -> new PartBlock(properties, PartType.CORE), MPBlocks::metal);
+    public static final DeferredBlock<CoreBlock> CORE =
+            BLOCKS.registerBlock("core", CoreBlock::new, MPBlocks::metal);
     public static final DeferredBlock<PartBlock> FRAME =
             BLOCKS.registerBlock("frame", properties -> new PartBlock(properties, PartType.FRAME), MPBlocks::metal);
     public static final DeferredBlock<PowerBlock> POWER =

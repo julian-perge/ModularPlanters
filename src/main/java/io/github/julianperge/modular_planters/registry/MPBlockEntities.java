@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.registry;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
@@ -15,6 +16,8 @@ public final class MPBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> TYPES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ModularPlanters.MOD_ID);
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CoreBlockEntity>> CORE =
+            TYPES.register("core", () -> new BlockEntityType<>(CoreBlockEntity::new, MPBlocks.CORE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PowerBlockEntity>> POWER =
             TYPES.register("power", () -> new BlockEntityType<>(PowerBlockEntity::new, MPBlocks.POWER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FertilizerBlockEntity>> FERTILIZER =
