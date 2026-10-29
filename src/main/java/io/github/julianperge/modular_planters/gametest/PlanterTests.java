@@ -35,7 +35,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public final class PlanterTests {
     private static final int ROUND_ENERGY = 4 * 512 * 87;
-    private static final int FULL_EXPORT = ExportBlockEntity.SLOTS * 64;
+    static final int FULL_EXPORT = ExportBlockEntity.SLOTS * 64;
 
     private PlanterTests() {
     }
@@ -52,19 +52,19 @@ public final class PlanterTests {
         into.put("extra_drops_are_held_not_voided", new TestCase(180, PlanterTests::extraDropsAreHeldNotVoided));
     }
 
-    private static PlanterBlockEntity planter(GameTestHelper helper, Fixtures.Rig rig, int index) {
+    static PlanterBlockEntity planter(GameTestHelper helper, Fixtures.Rig rig, int index) {
         return helper.getBlockEntity(rig.planters().get(index), PlanterBlockEntity.class);
     }
 
-    private static PowerBlockEntity power(GameTestHelper helper, Fixtures.Rig rig) {
+    static PowerBlockEntity power(GameTestHelper helper, Fixtures.Rig rig) {
         return helper.getBlockEntity(rig.power(), PowerBlockEntity.class);
     }
 
-    private static ItemStacksResourceHandler export(GameTestHelper helper, Fixtures.Rig rig) {
+    static ItemStacksResourceHandler export(GameTestHelper helper, Fixtures.Rig rig) {
         return helper.getBlockEntity(rig.export(), ExportBlockEntity.class).storage();
     }
 
-    private static int count(ItemStacksResourceHandler storage, Item item) {
+    static int count(ItemStacksResourceHandler storage, Item item) {
         int total = 0;
         for (int slot = 0; slot < storage.size(); slot++) {
             if (storage.getResource(slot).is(item)) {
@@ -74,11 +74,11 @@ public final class PlanterTests {
         return total;
     }
 
-    private static int count(List<ItemStack> stacks, Item item) {
+    static int count(List<ItemStack> stacks, Item item) {
         return stacks.stream().filter(stack -> stack.is(item)).mapToInt(ItemStack::getCount).sum();
     }
 
-    private static void fillExport(GameTestHelper helper, Fixtures.Rig rig, int amount) {
+    static void fillExport(GameTestHelper helper, Fixtures.Rig rig, int amount) {
         helper.assertValueEqual(ResourceHandlerUtil.insertStacking(export(helper, rig), ItemResource.of(Items.COBBLESTONE),
                 amount, null), amount, "pre-filled cobblestone");
     }
@@ -90,12 +90,12 @@ public final class PlanterTests {
         }
     }
 
-    private static boolean active(PlanterBlockEntity planter) {
+    static boolean active(PlanterBlockEntity planter) {
         return planter.getBlockState().getValue(PlanterBlock.ACTIVE);
     }
 
     // Every GameTest running side by side shares the event bus, so each caller's listener must check its own test's planter position, and this removes the listener once its test passes or fails.
-    private static <T extends Event> void listen(GameTestHelper helper, Class<T> type, Consumer<T> listener) {
+    static <T extends Event> void listen(GameTestHelper helper, Class<T> type, Consumer<T> listener) {
         NeoForge.EVENT_BUS.addListener(type, listener);
         helper.testInfo.addListener(new GameTestListener() {
             @Override

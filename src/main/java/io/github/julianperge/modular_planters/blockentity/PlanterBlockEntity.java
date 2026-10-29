@@ -22,12 +22,14 @@ import io.github.julianperge.modular_planters.multiblock.OutputSink;
 import io.github.julianperge.modular_planters.multiblock.TickContext;
 import io.github.julianperge.modular_planters.registry.MPBlockEntities;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -53,6 +55,11 @@ public class PlanterBlockEntity extends BlockEntity {
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
+            ItemStack current = getResource(index).toStack(getAmountAsInt(index));
+            if (index == SOIL && !previousContents.isEmpty() && !current.isEmpty()
+                    && !ItemStack.isSameItem(previousContents, current)) {
+                seeds.resetAll();
+            }
             setChanged();
         }
     };
@@ -278,8 +285,32 @@ public class PlanterBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (level == null) {
+            return;
+        }
+        for (SeedBin.Combo<ItemStack> combo : seeds.combos()) {
+            dropAll(pos, combo.seed().copyWithCount(combo.count()));
+        }
+        seeds.clear();
+        for (int slot = 0; slot < soilAndModules.size(); slot++) {
+            dropAll(pos, soilAndModules.getResource(slot).toStack(soilAndModules.getAmountAsInt(slot)));
+            soilAndModules.set(slot, ItemResource.EMPTY, 0);
+        }
+        heldOutputs.forEach(stack -> dropAll(pos, stack));
+        heldOutputs.clear();
+    }
+
+    private void dropAll(BlockPos pos, ItemStack stack) {
+        while (!stack.isEmpty()) {
+            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack.split(stack.getMaxStackSize()));
+        }
+    }
+
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+        output.putString("status", status.name());
         ValueOutput.ValueOutputList bin = output.childrenList("seeds");
         for (int i = 0; i < seeds.size(); i++) {
             ValueOutput entry = bin.addChild();
@@ -296,9 +327,13 @@ public class PlanterBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        String savedStatus = input.getStringOr("status", "");
+        status = Arrays.stream(PlanterStatus.values()).filter(value -> value.name().equals(savedStatus)).findFirst()
+                .orElse(PlanterStatus.IDLE);
         seeds.clear();
-        input.childrenListOrEmpty("seeds").stream().forEach(entry -> entry.read("seed", ItemStack.CODEC).ifPresent(
-                seed -> seeds.restore(seed, entry.getIntOr("progress", 0), entry.getBooleanOr("ready", false))));
+        input.childrenListOrEmpty("seeds").stream().limit(SeedBin.CAPACITY).forEach(entry -> entry.read("seed", ItemStack.CODEC)
+                .ifPresent(seed -> seeds.restore(seed, Math.max(0, entry.getIntOr("progress", 0)),
+                        entry.getBooleanOr("ready", false))));
         soilAndModules.deserialize(input.childOrEmpty("soil_and_modules"));
         clocheRemainders.load(input.read("cloche_remainders", REMAINDERS_CODEC).orElse(Map.of()));
         heldOutputs.clear();
