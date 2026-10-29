@@ -67,7 +67,7 @@ public final class AteBridge {
         if (soil.isEmpty()) {
             return 1.0f;
         }
-        SoilModifierData data = soil.getItem().builtInRegistryHolder().getData(ATEDataMaps.SOIL_MODIFIERS);
+        SoilModifierData data = soil.typeHolder().getData(ATEDataMaps.SOIL_MODIFIERS);
         return data != null ? data.growthModifier() : 1.0f;
     }
 
@@ -93,6 +93,8 @@ public final class AteBridge {
     }
 
     // This follows AdvancedPlanterBlockEntity.getValidSoils, whose soil set refreshes only when AgritechEvolved.RECIPE_REVISION changes.
+    // Ingredient.items() is deprecated, but NeoForge's replacement getValues() throws on custom ingredients, and ATE lists soils with items() too.
+    @SuppressWarnings("deprecation")
     public static boolean isSoilForAnyRecipe(ServerLevel level, ItemStack soil) {
         if (soil.isEmpty()) {
             return false;
