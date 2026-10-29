@@ -29,6 +29,7 @@ public final class StorageTests {
     public static void register(Map<String, TestCase> into) {
         into.put("power_accepts_any_rate_and_refuses_extract",
                 new TestCase(20, StorageTests::powerAcceptsAnyRateAndRefusesExtract));
+        into.put("power_rolls_back_aborted_insert", new TestCase(20, StorageTests::powerRollsBackAbortedInsert));
         into.put("power_keeps_energy_when_broken", new TestCase(20, StorageTests::powerKeepsEnergyWhenBroken));
         into.put("fertilizer_block_accepts_only_fertilizer",
                 new TestCase(20, StorageTests::fertilizerBlockAcceptsOnlyFertilizer));
@@ -47,6 +48,18 @@ public final class StorageTests {
         try (Transaction tx = Transaction.openRoot()) {
             helper.assertValueEqual(energy.extract(1, tx), 0, "extracted energy");
         }
+        helper.succeed();
+    }
+
+    private static void powerRollsBackAbortedInsert(GameTestHelper helper) {
+        helper.setBlock(POS, MPBlocks.POWER.get());
+        PowerBlockEntity power = helper.getBlockEntity(POS, PowerBlockEntity.class);
+        EnergyHandler energy = helper.requireCapability(Capabilities.Energy.BLOCK, POS, null);
+        int before = power.stored();
+        try (Transaction tx = Transaction.openRoot()) {
+            helper.assertValueEqual(energy.insert(1000, tx), 1000, "inserted energy");
+        }
+        helper.assertValueEqual(power.stored(), before, "stored energy after abort");
         helper.succeed();
     }
 

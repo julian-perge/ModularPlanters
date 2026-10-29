@@ -10,6 +10,6 @@ public final class AteBridge {
     }
 
     public static @Nullable FertilizerData fertilizer(ItemResource resource) {
-        return resource.getItem().builtInRegistryHolder().getData(ATEDataMaps.FERTILIZERS);
+        return resource.typeHolder().getData(ATEDataMaps.FERTILIZERS);
     }
 }
