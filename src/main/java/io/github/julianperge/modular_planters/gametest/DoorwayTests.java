@@ -41,6 +41,7 @@ public final class DoorwayTests {
         into.put("fertilizer_consume_takes_nothing_when_short",
                 new TestCase(20, DoorwayTests::fertilizerConsumeTakesNothingWhenShort));
         into.put("pools_skip_a_removed_block", new TestCase(20, DoorwayTests::poolsSkipARemovedBlock));
+        into.put("pools_take_a_replaced_block", new TestCase(20, DoorwayTests::poolsTakeAReplacedBlock));
     }
 
     private static void placeFormedLine(GameTestHelper helper, int powerBlocks) {
@@ -202,6 +203,32 @@ public final class DoorwayTests {
             helper.assertValueEqual(removedBlock.stored(), 0, "removed block");
             helper.assertValueEqual(kept.stored(), 4_000_000, "remaining block");
             helper.succeed();
+        });
+    }
+
+    private static void poolsTakeAReplacedBlock(GameTestHelper helper) {
+        BlockPos replaced = CORE.west();
+        placeFormedLine(helper, 1);
+        helper.setBlock(replaced, MPBlocks.POWER.get());
+        helper.runAfterDelay(1, () -> {
+            helper.getLevel().destroyBlock(helper.absolutePos(replaced), true);
+            helper.setBlock(replaced, MPBlocks.POWER.get());
+            EnergyHandler stale = helper.requireCapability(Capabilities.Energy.BLOCK, CORE, null);
+            try (Transaction tx = Transaction.openRoot()) {
+                stale.insert(1000, tx);
+            }
+            helper.runAfterDelay(2, () -> {
+                EnergyHandler energy = helper.requireCapability(Capabilities.Energy.BLOCK, CORE, null);
+                try (Transaction tx = Transaction.openRoot()) {
+                    helper.assertValueEqual(energy.insert(5_000_000, tx), 5_000_000, "inserted energy");
+                    tx.commit();
+                }
+                helper.assertValueEqual(helper.getBlockEntity(replaced, PowerBlockEntity.class).stored(), 4_000_000,
+                        "replaced block");
+                helper.assertValueEqual(helper.getBlockEntity(CORE.east(), PowerBlockEntity.class).stored(), 1_000_000,
+                        "other block");
+                helper.succeed();
+            });
         });
     }
 }

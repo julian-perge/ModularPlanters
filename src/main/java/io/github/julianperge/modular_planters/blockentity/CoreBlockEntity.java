@@ -32,6 +32,7 @@ public class CoreBlockEntity extends BlockEntity {
     private @Nullable FertilizerPool fertilizer;
     private @Nullable OutputSink outputs;
     private boolean dirty = true;
+    private boolean poolsStale;
 
     public CoreBlockEntity(BlockPos pos, BlockState state) {
         super(MPBlockEntities.CORE.get(), pos, state);
@@ -45,6 +46,12 @@ public class CoreBlockEntity extends BlockEntity {
 
     public void markDirty() {
         dirty = true;
+    }
+
+    // A pooled block was removed, and a replacement at the same position gives an equal scan result, so the next scan must rebuild the pools anyway.
+    private void markPoolsStale() {
+        dirty = true;
+        poolsStale = true;
     }
 
     public ScanResult<BlockPos> lastScan() {
@@ -79,10 +86,12 @@ public class CoreBlockEntity extends BlockEntity {
 
     private void scan(Level level) {
         dirty = false;
+        boolean rebuild = poolsStale;
+        poolsStale = false;
         ScanResult<BlockPos> result = StructureScanner.scan(worldPosition,
                 pos -> Arrays.stream(Direction.values()).map(pos::relative).toList(),
                 pos -> typeAt(level, pos), MPConfig.PART_CAP.get());
-        if (result.equals(lastScan)) {
+        if (result.equals(lastScan) && !rebuild) {
             return;
         }
         lastScan = result;
@@ -106,9 +115,9 @@ public class CoreBlockEntity extends BlockEntity {
             outputs = null;
             return;
         }
-        power = new PowerPool(blockEntities(level, multiblock.power(), PowerBlockEntity.class), this::markDirty);
-        fertilizer = new FertilizerPool(blockEntities(level, multiblock.fertilizer(), FertilizerBlockEntity.class), this::markDirty);
-        outputs = new OutputSink(blockEntities(level, multiblock.export(), ExportBlockEntity.class), this::markDirty);
+        power = new PowerPool(blockEntities(level, multiblock.power(), PowerBlockEntity.class), this::markPoolsStale);
+        fertilizer = new FertilizerPool(blockEntities(level, multiblock.fertilizer(), FertilizerBlockEntity.class), this::markPoolsStale);
+        outputs = new OutputSink(blockEntities(level, multiblock.export(), ExportBlockEntity.class), this::markPoolsStale);
     }
 
     private static <T extends BlockEntity> List<T> blockEntities(Level level, List<BlockPos> positions, Class<T> type) {
