@@ -22,6 +22,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class MPTestRegistration {
     public static final Identifier STRUCTURE = id("empty");
 
+    // The mod constructor loads this class before any registry is filled, which runs every tests class's register method and static fields, so a tests class must call get() on mod registry objects only inside its test methods.
     private static final Map<String, TestCase> CASES = cases();
 
     private MPTestRegistration() {
