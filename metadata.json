@@ -1,0 +1,64 @@
+{
+  "cli_version": "0.12.2",
+  "checkpoint_id": "01M670BEFG73X10FHNVG50EC58",
+  "strategy": "manual-commit",
+  "branch": "plan-2-me-block",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "build.gradle",
+    "src/generated/resources/assets/modular_planters/blockstates/me.json",
+    "src/generated/resources/assets/modular_planters/items/me.json",
+    "src/generated/resources/assets/modular_planters/lang/en_us.json",
+    "src/generated/resources/assets/modular_planters/models/block/me.json",
+    "src/generated/resources/data/minecraft/tags/block/mineable/pickaxe.json",
+    "src/generated/resources/data/modular_planters/advancement/recipes/misc/me.json",
+    "src/generated/resources/data/modular_planters/loot_table/blocks/me.json",
+    "src/generated/resources/data/modular_planters/recipe/me.json",
+    "src/main/java/io/github/julianperge/modular_planters/datagen/MPBlockTags.java",
+    "src/main/java/io/github/julianperge/modular_planters/datagen/MPLoot.java",
+    "src/main/java/io/github/julianperge/modular_planters/datagen/MPModels.java",
+    "src/main/java/io/github/julianperge/modular_planters/datagen/MPRecipes.java",
+    "src/main/java/io/github/julianperge/modular_planters/gametest/Ae2AbsentTests.java",
+    "src/main/java/io/github/julianperge/modular_planters/gametest/Ae2Tests.java",
+    "src/main/java/io/github/julianperge/modular_planters/gametest/MPTestRegistration.java",
+    "src/main/resources/assets/modular_planters/textures/block/me_side.png",
+    "src/test/java/io/github/julianperge/modular_planters/data/ConditionalDataTest.java"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 40,
+    "cache_creation_tokens": 301132,
+    "cache_read_tokens": 4319625,
+    "output_tokens": 9777,
+    "api_call_count": 17,
+    "subagent_tokens": {
+      "input_tokens": 226,
+      "cache_creation_tokens": 516982,
+      "cache_read_tokens": 13867889,
+      "output_tokens": 165186,
+      "api_call_count": 114
+    }
+  },
+  "redaction": {
+    "replacements": 0,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 0,
+      "credentialed_uri": 0,
+      "entropy": 0,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
