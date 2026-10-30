@@ -28,7 +28,7 @@ So one Logistics Networks node on the core, or one cable or pipe, runs the whole
 
 ### Core screen
 
-The core screen shows the formed state and part count, the reason when the multiblock is not formed, stored power and draw, fertilizer stored, and how full the export blocks are. It lists every planter block with its seed, growing count, module coverage, status and position. Each row has an Outline button that shows a glowing outline of that block to you only, and an Open button that opens the planter block's screen remotely. The server checks that you are within 4 blocks of the core and that the planter block belongs to that core's formed multiblock.
+The core screen shows the formed state and part count, the reason when the multiblock is not formed, stored power and draw, fertilizer stored, and how full the export blocks are. It lists every planter block with its seed, growing count, module coverage, status and position. Each row has an Outline toggle that shows or hides a glowing outline of that block, for you only, and an Open button that opens the planter block's screen remotely. The server checks that you are within 4 blocks of the core and that the planter block belongs to that core's formed multiblock.
 
 ## Building rules
 
@@ -37,13 +37,14 @@ The core screen shows the formed state and part count, the reason when the multi
 - At most 24 parts, not counting the core. Frames count. The cap is in the server config.
 - If the connected parts reach a second core, neither core forms. The core screen names the problem block and its position.
 - When the shape breaks, planter blocks stop and every block keeps its contents.
+- If a connected part is in an unloaded chunk, the multiblock pauses until the chunk loads, and the core screen says so.
 
 ## How a planter block grows
 
 - Growing seeds G is the smaller of the seed count and the soil count. Seeds past that stay idle.
 - One module covers one seed. Module 1 covers the first seeds in the bin and module 2 does the same, so seeds fill both modules first.
 - Seeds with the same modules and the same seed data grow as a group. Each seed levels on its own, as it would in its own Powered Planter.
-- Growth time, power and fertilizer follow ATE's formulas and are read from ATE's live config. Power is drawn per tick for each growing seed. If the power blocks can't cover a planter block's full draw, that planter block pauses for the tick.
+- Growth time, power and fertilizer follow ATE's formulas and are read from ATE's live config. Power is drawn each tick for every seed that is still growing. If the power blocks can't cover a planter block's full draw, its seeds stop growing for that tick. Seeds that are already ready still harvest.
 - Fertilizer is taken from the first non-empty slot of the fertilizer blocks. A group counts as fertilized only when there is enough for all its seeds.
 - When there is no room in the export blocks, planter blocks wait. Nothing is voided.
 - Breaking a block drops everything it holds.
