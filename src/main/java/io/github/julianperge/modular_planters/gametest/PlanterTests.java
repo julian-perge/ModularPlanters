@@ -13,6 +13,7 @@ import io.github.julianperge.modular_planters.logic.SeedBin;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -26,6 +27,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
@@ -52,6 +55,14 @@ public final class PlanterTests {
                 new TestCase(150, PlanterTests::fertilizerIsReservedInPositionOrder));
         into.put("waits_for_export_room", new TestCase(160, PlanterTests::waitsForExportRoom));
         into.put("extra_drops_are_held_not_voided", new TestCase(180, PlanterTests::extraDropsAreHeldNotVoided));
+        into.put("active_stays_on_while_power_flickers",
+                new TestCase(100, PlanterTests::activeStaysOnWhilePowerFlickers));
+        into.put("planter_goes_idle_without_a_core_tick",
+                new TestCase(160, PlanterTests::planterGoesIdleWithoutACoreTick));
+        into.put("null_fertilizer_data_grows_unfertilized",
+                new TestCase(160, PlanterTests::nullFertilizerDataGrowsUnfertilized));
+        into.put("pre_harvest_listener_can_empty_or_resize_a_drop",
+                new TestCase(300, PlanterTests::preHarvestListenerCanEmptyOrResizeADrop));
     }
 
     static PlanterBlockEntity planter(GameTestHelper helper, Fixtures.Rig rig, int index) {
@@ -191,13 +202,14 @@ public final class PlanterTests {
         PlanterBlockEntity planter = planter(helper, rig, 0);
         Fixtures.plant(planter, 4, 4, 4);
         power(helper, rig).setStored(2047);
-        helper.runAfterDelay(20, () -> {
-            helper.assertValueEqual(planter.status(), PlanterStatus.PAUSED_FOR_POWER, "status");
-            helper.assertFalse(active(planter), "active while paused for power");
-            helper.assertValueEqual(power(helper, rig).stored(), 2047, "stored energy");
-            assertProgress(helper, planter, 0, 0);
-            helper.succeed();
-        });
+        helper.startSequence()
+                .thenExecuteAfter(20, () -> {
+                    helper.assertValueEqual(planter.status(), PlanterStatus.PAUSED_FOR_POWER, "status");
+                    helper.assertValueEqual(power(helper, rig).stored(), 2047, "stored energy");
+                    assertProgress(helper, planter, 0, 0);
+                })
+                .thenWaitUntil(() -> helper.assertFalse(active(planter), "active while paused for power"))
+                .thenSucceed();
     }
 
     private static void powerGoesToPlantersInPositionOrder(GameTestHelper helper) {
@@ -369,6 +381,93 @@ public final class PlanterTests {
                 })
                 .thenExecute(() -> helper.assertTrue(helper.getTick() - extractedAt.get() <= 2,
                         "held outputs moved within 2 ticks"))
+                .thenSucceed();
+    }
+
+    private static void activeStaysOnWhilePowerFlickers(GameTestHelper helper) {
+        Fixtures.Rig rig = Fixtures.rig(helper, 1);
+        PlanterBlockEntity planter = planter(helper, rig, 0);
+        Fixtures.plant(planter, 4, 4, 4);
+        PowerBlockEntity power = power(helper, rig);
+        power.setStored(0);
+        AtomicInteger paused = new AtomicInteger();
+        helper.onEachTick(() -> {
+            if (helper.getTick() % 2 == 0) {
+                power.setStored(2048);
+            }
+            if (planter.status() == PlanterStatus.PAUSED_FOR_POWER) {
+                paused.incrementAndGet();
+            }
+        });
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(active(planter), "active once growing"))
+                .thenExecuteFor(10, () -> helper.assertTrue(active(planter), "active while power flickers"))
+                .thenExecute(() -> helper.assertTrue(paused.get() > 0, "the planter paused for power at least once"))
+                .thenSucceed();
+    }
+
+    private static void planterGoesIdleWithoutACoreTick(GameTestHelper helper) {
+        Fixtures.Rig rig = Fixtures.rig(helper, 1);
+        PlanterBlockEntity planter = planter(helper, rig, 0);
+        Fixtures.plant(planter, 4, 4, 4);
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    helper.assertValueEqual(planter.status(), PlanterStatus.GROWING, "status");
+                    helper.assertTrue(active(planter), "active while growing");
+                })
+                .thenExecute(() -> helper.getLevel().setBlock(helper.absolutePos(rig.core()),
+                        Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS))
+                .thenExecuteAfter(PlanterBlockEntity.STALE_TICKS + PlanterBlockEntity.ACTIVE_OFF_DELAY + 5, () -> {
+                    helper.assertValueEqual(planter.status(), PlanterStatus.IDLE, "status without a core");
+                    helper.assertFalse(active(planter), "active without a core");
+                })
+                .thenSucceed();
+    }
+
+    private static void nullFertilizerDataGrowsUnfertilized(GameTestHelper helper) {
+        Fixtures.Rig rig = Fixtures.rig(helper, 1);
+        BlockPos fertilizerPos = new BlockPos(1, 1, 0);
+        helper.setBlock(fertilizerPos, MPBlocks.FERTILIZER.get());
+        ItemStacksResourceHandler fertilizer = helper.getBlockEntity(fertilizerPos, FertilizerBlockEntity.class).storage();
+        fertilizer.set(0, ItemResource.of(Items.DIRT), 4);
+        Fixtures.plant(planter(helper, rig, 0), 4, 4, 4);
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(count(export(helper, rig), Items.WHEAT) > 0, "wheat in the export"))
+                .thenExecute(() -> {
+                    helper.assertTrue(helper.getTick() >= 85, "grew unfertilized, at tick " + helper.getTick());
+                    helper.assertValueEqual(count(export(helper, rig), Items.WHEAT), 4, "exported wheat");
+                    helper.assertValueEqual(count(fertilizer, Items.DIRT), 4, "items without fertilizer data are not consumed");
+                })
+                .thenSucceed();
+    }
+
+    private static void preHarvestListenerCanEmptyOrResizeADrop(GameTestHelper helper) {
+        Fixtures.Rig rig = Fixtures.rig(helper, 1);
+        PlanterBlockEntity planter = planter(helper, rig, 0);
+        BlockPos at = helper.absolutePos(rig.planters().getFirst());
+        AtomicInteger pre = new AtomicInteger();
+        AtomicBoolean empty = new AtomicBoolean(true);
+        listen(helper, PlanterPreHarvestEvent.class, event -> {
+            if (event.getPlanter().getBlockPos().equals(at)) {
+                pre.incrementAndGet();
+                event.setSeed(empty.get() ? ItemStack.EMPTY : new ItemStack(Items.WHEAT_SEEDS, 3));
+            }
+        });
+        Fixtures.plant(planter, 4, 4, 4);
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(pre.get() >= 4, "first round harvested"))
+                .thenExecute(() -> {
+                    helper.assertValueEqual(count(export(helper, rig), Items.WHEAT), 0, "wheat from emptied seeds");
+                    helper.assertValueEqual(planter.seeds().size(), 4, "seeds kept after an empty replacement");
+                    empty.set(false);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(pre.get() >= 8, "second round harvested"))
+                .thenExecute(() -> {
+                    helper.assertValueEqual(planter.seeds().size(), 4, "seeds kept after a resized replacement");
+                    for (int i = 0; i < 4; i++) {
+                        helper.assertValueEqual(planter.seeds().seed(i).getCount(), 1, "count of seed " + i);
+                    }
+                })
                 .thenSucceed();
     }
 }

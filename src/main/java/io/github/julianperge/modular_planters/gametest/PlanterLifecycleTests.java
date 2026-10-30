@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -40,9 +41,12 @@ public final class PlanterLifecycleTests {
                 new TestCase(150, PlanterLifecycleTests::changingSoilTypeResetsProgress));
         into.put("changing_soil_count_keeps_progress",
                 new TestCase(150, PlanterLifecycleTests::changingSoilCountKeepsProgress));
+        into.put("soil_swap_through_empty_resets_progress",
+                new TestCase(20, PlanterLifecycleTests::soilSwapThroughEmptyResetsProgress));
+        into.put("planter_load_clamps_bad_values", new TestCase(20, PlanterLifecycleTests::planterLoadClampsBadValues));
     }
 
-    private static void holdTwoStacksOfCobblestone(GameTestHelper helper, Fixtures.Rig rig, PlanterBlockEntity planter) {
+    private static void holdTwoStacksOfCobblestone(GameTestHelper helper, Fixtures.Rig rig) {
         BlockPos at = helper.absolutePos(rig.planters().getFirst());
         PlanterTests.fillExport(helper, rig, PlanterTests.FULL_EXPORT - 2 * 64);
         PlanterTests.listen(helper, PlanterPostHarvestEvent.class, event -> {
@@ -63,7 +67,7 @@ public final class PlanterLifecycleTests {
         Fixtures.Rig rig = Fixtures.rig(helper, 1);
         PlanterBlockEntity planter = PlanterTests.planter(helper, rig, 0);
         BlockPos at = helper.absolutePos(rig.planters().getFirst());
-        holdTwoStacksOfCobblestone(helper, rig, planter);
+        holdTwoStacksOfCobblestone(helper, rig);
         PlanterTests.listen(helper, PlanterPreHarvestEvent.class, event -> {
             if (event.getPlanter().getBlockPos().equals(at)) {
                 event.setSeed(named("levelled"));
@@ -107,6 +111,7 @@ public final class PlanterLifecycleTests {
                         helper.assertTrue(ItemStack.matches(copy.heldOutputs().get(i), planter.heldOutputs().get(i)),
                                 "held stack " + i);
                     }
+                    helper.assertTrue(planter.status() != PlanterStatus.IDLE, "the saved planter is not idle");
                     helper.assertValueEqual(copy.status(), planter.status(), "status");
                 })
                 .thenSucceed();
@@ -133,7 +138,7 @@ public final class PlanterLifecycleTests {
     private static void breakingPlanterDropsEverything(GameTestHelper helper) {
         Fixtures.Rig rig = Fixtures.rig(helper, 1);
         PlanterBlockEntity planter = PlanterTests.planter(helper, rig, 0);
-        holdTwoStacksOfCobblestone(helper, rig, planter);
+        holdTwoStacksOfCobblestone(helper, rig);
         planter.seeds().add(new ItemStack(Items.WHEAT_SEEDS), 3);
         planter.seeds().add(named("custom"), 2);
         Fixtures.plant(planter, 0, 5, 4);
@@ -181,9 +186,8 @@ public final class PlanterLifecycleTests {
                 .thenWaitUntil(() -> helper.assertValueEqual(planter.seeds().progress(0), 40, "progress"))
                 .thenExecute(() -> helper.destroyBlock(rig.power()))
                 .thenWaitUntil(() -> helper.assertValueEqual(planter.status(), PlanterStatus.IDLE, "status"))
+                .thenWaitUntil(() -> helper.assertTrue(!PlanterTests.active(planter), "planter is inactive"))
                 .thenExecute(() -> {
-                    helper.assertTrue(!PlanterTests.active(planter),
-                            "planter is inactive");
                     helper.assertValueEqual(planter.seeds().size(), 4, "seeds kept");
                     for (int i = 0; i < 4; i++) {
                         helper.assertValueEqual(planter.seeds().progress(i), 40, "progress of seed " + i);
@@ -235,7 +239,7 @@ public final class PlanterLifecycleTests {
         Fixtures.Rig rig = Fixtures.rig(helper, 2);
         PlanterBlockEntity holding = PlanterTests.planter(helper, rig, 0);
         PlanterBlockEntity growing = PlanterTests.planter(helper, rig, 1);
-        holdTwoStacksOfCobblestone(helper, rig, holding);
+        holdTwoStacksOfCobblestone(helper, rig);
         Fixtures.plant(holding, 4, 4, 4);
         List<Snapshot> before = new ArrayList<>();
         helper.startSequence()
@@ -253,6 +257,10 @@ public final class PlanterLifecycleTests {
                     for (PlanterBlockEntity planter : List.of(holding, growing)) {
                         helper.assertValueEqual(planter.status(), PlanterStatus.IDLE, "status after the core is broken");
                         helper.assertValueEqual(planter.lastDraw(), 0L, "draw after the core is broken");
+                    }
+                })
+                .thenWaitUntil(() -> {
+                    for (PlanterBlockEntity planter : List.of(holding, growing)) {
                         helper.assertTrue(!PlanterTests.active(planter), "inactive after the core is broken");
                     }
                 })
@@ -273,9 +281,9 @@ public final class PlanterLifecycleTests {
                 .thenWaitUntil(() -> helper.assertValueEqual(planter.seeds().progress(0), 40, "progress"))
                 .thenExecute(() -> planter.soilAndModules().set(PlanterBlockEntity.SOIL,
                         ItemResource.of(Items.FARMLAND), 4))
-                .thenExecuteAfter(1, () -> {
+                .thenExecute(() -> {
                     for (int i = 0; i < 4; i++) {
-                        helper.assertTrue(planter.seeds().progress(i) <= 1, "progress of seed " + i + " is reset");
+                        helper.assertValueEqual(planter.seeds().progress(i), 0, "progress of seed " + i + " right after the swap");
                     }
                 })
                 .thenSucceed();
@@ -295,5 +303,48 @@ public final class PlanterLifecycleTests {
                     }
                 })
                 .thenSucceed();
+    }
+
+    private static void soilSwapThroughEmptyResetsProgress(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, MPBlocks.PLANTER.get());
+        PlanterBlockEntity planter = helper.getBlockEntity(pos, PlanterBlockEntity.class);
+        Fixtures.plant(planter, 4, 4, 0);
+        for (int i = 0; i < 4; i++) {
+            planter.seeds().advance(i);
+        }
+        helper.assertValueEqual(planter.seeds().progress(0), 1, "progress before the swap");
+        planter.soilAndModules().set(PlanterBlockEntity.SOIL, ItemResource.EMPTY, 0);
+        helper.assertValueEqual(planter.seeds().progress(0), 1, "progress with the soil removed");
+        planter.soilAndModules().set(PlanterBlockEntity.SOIL, ItemResource.of(Items.FARMLAND), 4);
+        for (int i = 0; i < 4; i++) {
+            helper.assertValueEqual(planter.seeds().progress(i), 0, "progress of seed " + i + " after the swap");
+        }
+        helper.succeed();
+    }
+
+    private static void planterLoadClampsBadValues(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(1, 1, 1);
+        helper.setBlock(pos, MPBlocks.PLANTER.get());
+        PlanterBlockEntity planter = helper.getBlockEntity(pos, PlanterBlockEntity.class);
+        planter.seeds().add(new ItemStack(Items.WHEAT_SEEDS), 1);
+        ServerLevel level = helper.getLevel();
+        CompoundTag tag = planter.saveWithFullMetadata(level.registryAccess());
+        CompoundTag entry = tag.getListOrEmpty("seeds").getCompoundOrEmpty(0).copy();
+        entry.putInt("progress", -5);
+        ListTag bad = new ListTag();
+        for (int i = 0; i < SeedBin.CAPACITY + 5; i++) {
+            bad.add(entry.copy());
+        }
+        tag.put("seeds", bad);
+        BlockEntity loaded = BlockEntity.loadStatic(planter.getBlockPos(), planter.getBlockState(), tag,
+                level.registryAccess());
+        helper.assertTrue(loaded instanceof PlanterBlockEntity, "the tag loads a planter");
+        SeedBin<ItemStack> seeds = ((PlanterBlockEntity) loaded).seeds();
+        helper.assertValueEqual(seeds.size(), SeedBin.CAPACITY, "seeds after the cap");
+        for (int i = 0; i < seeds.size(); i++) {
+            helper.assertValueEqual(seeds.progress(i), 0, "progress of seed " + i);
+        }
+        helper.succeed();
     }
 }

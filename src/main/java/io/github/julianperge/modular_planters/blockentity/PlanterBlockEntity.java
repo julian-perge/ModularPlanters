@@ -32,6 +32,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,6 +45,8 @@ import org.jspecify.annotations.Nullable;
 
 public class PlanterBlockEntity extends BlockEntity {
     public static final int SOIL = 0, MODULE_1 = 1, MODULE_2 = 2;
+    public static final int ACTIVE_OFF_DELAY = 20;
+    public static final int STALE_TICKS = 40;
 
     // A planter block holds at most what one harvest of one group did not fit, so this allows 256 full stacks for each of a group's 64 seeds, far more than any recipe and harvest event add.
     private static final int HELD_OUTPUTS_CAP = SeedBin.CAPACITY * 256;
@@ -60,16 +63,22 @@ public class PlanterBlockEntity extends BlockEntity {
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
             ItemStack current = getResource(index).toStack(getAmountAsInt(index));
-            if (index == SOIL && !previousContents.isEmpty() && !current.isEmpty()
-                    && !ItemStack.isSameItem(previousContents, current)) {
-                seeds.resetAll();
+            if (index == SOIL && !current.isEmpty()) {
+                if (!lastSoil.isEmpty() && !ItemStack.isSameItem(lastSoil, current)) {
+                    seeds.resetAll();
+                }
+                lastSoil = current.copyWithCount(1);
             }
             setChanged();
         }
     };
     private final RemainderLedger<String> clocheRemainders = new RemainderLedger<>();
     private final List<ItemStack> heldOutputs = new ArrayList<>();
+    // The last non-empty soil is kept so that emptying the soil slot and then adding a different soil still resets progress.
+    private ItemStack lastSoil = ItemStack.EMPTY;
     private PlanterStatus status = PlanterStatus.IDLE;
+    private int ticksSinceCore;
+    private int inactiveTicks;
     private long lastDraw;
     private long lastWanted;
     private int growing;
@@ -115,7 +124,20 @@ public class PlanterBlockEntity extends BlockEntity {
         return upgraded;
     }
 
+    public static void serverTick(Level level, BlockPos pos, BlockState state, PlanterBlockEntity planter) {
+        if (planter.ticksSinceCore <= STALE_TICKS && ++planter.ticksSinceCore > STALE_TICKS) {
+            planter.stopFromCore();
+        }
+        boolean wantActive = planter.status == PlanterStatus.GROWING || planter.status == PlanterStatus.SHORT_ON_SOIL;
+        planter.inactiveTicks = wantActive ? 0 : Math.min(planter.inactiveTicks + 1, ACTIVE_OFF_DELAY);
+        boolean active = state.getValue(PlanterBlock.ACTIVE);
+        if (wantActive != active && (wantActive || planter.inactiveTicks >= ACTIVE_OFF_DELAY)) {
+            level.setBlock(pos, state.setValue(PlanterBlock.ACTIVE, wantActive), Block.UPDATE_ALL);
+        }
+    }
+
     public void tickFromCore(TickContext ctx) {
+        ticksSinceCore = 0;
         lastDraw = 0;
         lastWanted = 0;
         boolean holding = false;
@@ -279,6 +301,7 @@ public class PlanterBlockEntity extends BlockEntity {
         }
 
         if (fertilized) {
+            // The claim made at the start of this tick guarantees these items are there, so the result is ignored.
             ctx.fertilizer().consume(1);
         }
         seeds.reset(index);
@@ -301,11 +324,6 @@ public class PlanterBlockEntity extends BlockEntity {
 
     private void setStatus(PlanterStatus next) {
         status = next;
-        boolean active = next == PlanterStatus.GROWING || next == PlanterStatus.SHORT_ON_SOIL;
-        BlockState state = getBlockState();
-        if (level != null && state.getValue(PlanterBlock.ACTIVE) != active) {
-            level.setBlock(worldPosition, state.setValue(PlanterBlock.ACTIVE, active), Block.UPDATE_ALL);
-        }
     }
 
     @Override
@@ -335,6 +353,9 @@ public class PlanterBlockEntity extends BlockEntity {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putString("status", status.name());
+        if (!lastSoil.isEmpty()) {
+            output.store("last_soil", ItemStack.CODEC, lastSoil);
+        }
         ValueOutput.ValueOutputList bin = output.childrenList("seeds");
         for (int i = 0; i < seeds.size(); i++) {
             ValueOutput entry = bin.addChild();
@@ -359,6 +380,9 @@ public class PlanterBlockEntity extends BlockEntity {
                 .ifPresent(seed -> seeds.restore(seed, Math.max(0, entry.getIntOr("progress", 0)),
                         entry.getBooleanOr("ready", false))));
         soilAndModules.deserialize(input.childOrEmpty("soil_and_modules"));
+        ItemStack savedSoil = soilAndModules.getResource(SOIL).toStack();
+        lastSoil = input.read("last_soil", ItemStack.CODEC)
+                .orElse(savedSoil.isEmpty() ? ItemStack.EMPTY : savedSoil.copyWithCount(1));
         clocheRemainders.load(input.read("cloche_remainders", REMAINDERS_CODEC).orElse(Map.of()));
         heldOutputs.clear();
         input.listOrEmpty("held_outputs", ItemStack.CODEC).stream().limit(HELD_OUTPUTS_CAP).forEach(heldOutputs::add);

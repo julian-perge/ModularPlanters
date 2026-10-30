@@ -1,5 +1,6 @@
 package io.github.julianperge.modular_planters.gametest;
 
+import io.github.julianperge.modular_planters.MPConfig;
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
@@ -9,11 +10,14 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
@@ -31,6 +35,9 @@ public final class StorageTests {
                 new TestCase(20, StorageTests::powerAcceptsAnyRateAndRefusesExtract));
         into.put("power_rolls_back_aborted_insert", new TestCase(20, StorageTests::powerRollsBackAbortedInsert));
         into.put("power_keeps_energy_when_broken", new TestCase(20, StorageTests::powerKeepsEnergyWhenBroken));
+        into.put("power_keeps_energy_above_a_lowered_cap",
+                new TestCase(20, StorageTests::powerKeepsEnergyAboveALoweredCap));
+        into.put("power_survives_save_and_load", new TestCase(20, StorageTests::powerSurvivesSaveAndLoad));
         into.put("fertilizer_block_accepts_only_fertilizer",
                 new TestCase(20, StorageTests::fertilizerBlockAcceptsOnlyFertilizer));
         into.put("export_block_refuses_outside_insert", new TestCase(20, StorageTests::exportBlockRefusesOutsideInsert));
@@ -78,6 +85,40 @@ public final class StorageTests {
         PowerBlockEntity placed = helper.getBlockEntity(placedAt, PowerBlockEntity.class);
         placed.applyComponentsFromItemStack(dropped);
         helper.assertValueEqual(placed.stored(), 123_456, "stored energy after placing");
+        helper.succeed();
+    }
+
+    private static PowerBlockEntity saveAndLoad(GameTestHelper helper, PowerBlockEntity power) {
+        ServerLevel level = helper.getLevel();
+        CompoundTag tag = power.saveWithFullMetadata(level.registryAccess());
+        BlockEntity loaded = BlockEntity.loadStatic(power.getBlockPos(), power.getBlockState(), tag, level.registryAccess());
+        helper.assertTrue(loaded instanceof PowerBlockEntity, "the saved tag loads a power block");
+        return (PowerBlockEntity) loaded;
+    }
+
+    private static void powerKeepsEnergyAboveALoweredCap(GameTestHelper helper) {
+        helper.setBlock(POS, MPBlocks.POWER.get());
+        PowerBlockEntity power = helper.getBlockEntity(POS, PowerBlockEntity.class);
+        power.setStored(4_000_000);
+        int original = MPConfig.POWER_BLOCK_BUFFER.get();
+        try {
+            MPConfig.POWER_BLOCK_BUFFER.set(1_000_000);
+            PowerBlockEntity loaded = saveAndLoad(helper, power);
+            helper.assertValueEqual(loaded.stored(), 4_000_000, "stored energy above the lowered cap");
+            try (Transaction tx = Transaction.openRoot()) {
+                helper.assertValueEqual(loaded.externalHandler().insert(1, tx), 0, "inserted energy above the cap");
+            }
+        } finally {
+            MPConfig.POWER_BLOCK_BUFFER.set(original);
+        }
+        helper.succeed();
+    }
+
+    private static void powerSurvivesSaveAndLoad(GameTestHelper helper) {
+        helper.setBlock(POS, MPBlocks.POWER.get());
+        PowerBlockEntity power = helper.getBlockEntity(POS, PowerBlockEntity.class);
+        power.setStored(123_456);
+        helper.assertValueEqual(saveAndLoad(helper, power).stored(), 123_456, "stored energy after a save and load");
         helper.succeed();
     }
 

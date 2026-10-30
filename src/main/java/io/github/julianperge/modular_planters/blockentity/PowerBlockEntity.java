@@ -27,7 +27,8 @@ public class PowerBlockEntity extends BlockEntity {
     }
 
     public void setStored(int stored) {
-        this.stored = Math.max(0, Math.min(stored, capacity()));
+        // Energy already above a lowered cap stays and can be drawn down, but nothing can raise it above the larger of the cap and the current amount.
+        this.stored = Math.max(0, Math.min(stored, Math.max(capacity(), this.stored)));
         setChanged();
     }
 
@@ -48,7 +49,7 @@ public class PowerBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        stored = Math.min(input.getIntOr("stored", 0), capacity());
+        stored = Math.max(0, input.getIntOr("stored", 0));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class PowerBlockEntity extends BlockEntity {
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
         super.applyImplicitComponents(components);
-        stored = Math.min(components.getOrDefault(MPDataComponents.STORED_ENERGY.get(), 0), capacity());
+        stored = Math.max(0, components.getOrDefault(MPDataComponents.STORED_ENERGY.get(), 0));
     }
 
     private final class ExternalHandler extends SnapshotJournal<Integer> implements EnergyHandler {
@@ -91,7 +92,7 @@ public class PowerBlockEntity extends BlockEntity {
 
         @Override
         public int insert(int amount, TransactionContext transaction) {
-            int accepted = Math.min(amount, capacity() - stored);
+            int accepted = Math.min(amount, Math.max(0, capacity() - stored));
             if (accepted <= 0) {
                 return 0;
             }
