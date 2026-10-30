@@ -132,7 +132,9 @@ public final class SeedBinSlot extends Slot {
     }
 
     // Vanilla calls this with an empty stack after a take, which needs no change because the bin was already updated.
-    // On the server any other stack throws instead of being ignored, because ignoring would void the stack the caller just handed over; PlanterMenu handles every click type that could reach this.
+    // On the server any other stack throws before anything changes, because ignoring it would void a stack that the caller already took from somewhere else.
+    // Ignoring it could also duplicate seeds, because Inventory Essentials' Ctrl+click sets a one-item stack here, shift-clicks the slot, and then gives the player the rest of the shown stack while the bin still holds those seeds.
+    // PlanterMenu handles every vanilla click type that could reach this, so only clicks from other mods, such as that Ctrl+click, reach the throw, and the server logs the error and skips that click.
     @Override
     public void set(ItemStack stack) {
         if (!stack.isEmpty() && authoritative()) {

@@ -19,6 +19,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -61,6 +62,8 @@ public final class MenuTests {
         into.put("menu_stays_valid_only_in_range_of_a_standing_planter", new TestCase(20, MenuTests::menuStaysValidOnlyInRange));
         into.put("combos_payload_survives_the_codec", new TestCase(20, MenuTests::combosPayloadSurvivesTheCodec));
         into.put("right_click_moves_one_seed_each_way", new TestCase(20, MenuTests::rightClickMovesOneSeedEachWay));
+        into.put("single_transfer_set_throws_without_changing_seeds",
+                new TestCase(20, MenuTests::singleTransferSetThrowsWithoutChangingSeeds));
     }
 
     private record Rig(PlanterBlockEntity planter, Player player, PlanterMenu menu) {
@@ -311,6 +314,37 @@ public final class MenuTests {
         rig.menu().clicked(PlanterMenu.SEED, 1, ContainerInput.THROW, rig.player());
         helper.assertValueEqual(rig.planter().seeds().size(), 0, "bin size after Ctrl+Q");
         helper.assertValueEqual(droppedSeeds(helper), 5, "dropped after Ctrl+Q");
+        helper.succeed();
+    }
+
+    // This replays ServerInventoryTransfers.singleTransfer from Inventory Essentials 26.1.2.7 for a slot that shows more than one item.
+    private static void singleTransferAsInventoryEssentials(Rig rig, Slot slot) {
+        ItemStack clicked = slot.getItem();
+        ItemStack rest = clicked.copy();
+        clicked.setCount(1);
+        slot.set(clicked);
+        rest.shrink(1);
+        rig.menu().clicked(slot.index, 0, ContainerInput.QUICK_MOVE, rig.player());
+        if (!slot.hasItem()) {
+            slot.set(rest);
+        } else if (!rig.player().addItem(rest)) {
+            rig.player().drop(rest, false);
+        }
+    }
+
+    private static void singleTransferSetThrowsWithoutChangingSeeds(GameTestHelper helper) {
+        Rig rig = rig(helper);
+        rig.planter().seeds().add(seeds(1), 3);
+        rig.planter().seeds().add(named(1), 2);
+        boolean threw = false;
+        try {
+            singleTransferAsInventoryEssentials(rig, rig.menu().getSlot(PlanterMenu.SEED));
+        } catch (IllegalStateException expected) {
+            threw = true;
+        }
+        helper.assertTrue(threw, "the seed slot's set throws on the server");
+        helper.assertValueEqual(rig.planter().seeds().size(), 5, "bin size");
+        helper.assertValueEqual(total(rig, Items.WHEAT_SEEDS), 5, "seeds in total");
         helper.succeed();
     }
 
