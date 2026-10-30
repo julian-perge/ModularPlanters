@@ -1,0 +1,9 @@
+recall where we last left off with this minecraft mod implementation. I have also installed the entire-cli tool, brain, and graph, for easier and faster code searching. I have not committed those files yet, but I did create the github repo and added the remote.
+
+---
+
+yes to 1,3, start writing plan 2. For recall, is recall still needed at this point if the entire-cli is now enabled?
+
+---
+
+subagent-driven, commits approved for plan 2
