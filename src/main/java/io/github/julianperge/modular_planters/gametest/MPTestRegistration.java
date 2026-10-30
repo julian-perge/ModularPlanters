@@ -43,6 +43,9 @@ public final class MPTestRegistration {
         MeLinkTests.register(cases);
         if (ModList.get().isLoaded("ae2")) {
             Ae2Tests.register(cases);
+            if (ModList.get().isLoaded("appflux")) {
+                AppliedFluxTests.register(cases);
+            }
         }
         return cases;
     }

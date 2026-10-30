@@ -94,8 +94,9 @@ public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNo
         if (key == null || grid == null || !mainNode.isActive()) {
             return 0;
         }
-        return StorageHelper.poweredInsert(grid.getEnergyService(), grid.getStorageService().getInventory(), key,
-                amount, source, simulate ? Actionable.SIMULATE : Actionable.MODULATE);
+        return Math.min(amount, StorageHelper.poweredInsert(grid.getEnergyService(),
+                grid.getStorageService().getInventory(), key, amount, source,
+                simulate ? Actionable.SIMULATE : Actionable.MODULATE));
     }
 
     @Override
@@ -105,13 +106,19 @@ public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNo
         if (key == null || grid == null || !mainNode.isActive()) {
             return 0;
         }
-        return StorageHelper.poweredExtraction(grid.getEnergyService(), grid.getStorageService().getInventory(), key,
-                amount, source, simulate ? Actionable.SIMULATE : Actionable.MODULATE);
+        return Math.min(amount, StorageHelper.poweredExtraction(grid.getEnergyService(),
+                grid.getStorageService().getInventory(), key, amount, source,
+                simulate ? Actionable.SIMULATE : Actionable.MODULATE));
     }
 
     @Override
     public long extractEnergy(long amount, boolean simulate) {
-        return 0;
+        IGrid grid = mainNode.getGrid();
+        if (!Ae2Integration.APPLIED_FLUX || grid == null || !mainNode.isActive()) {
+            return 0;
+        }
+        return Math.min(amount, FluxBridge.extractFe(grid.getStorageService().getInventory(), amount,
+                simulate ? Actionable.SIMULATE : Actionable.MODULATE, source));
     }
 
     @Override
