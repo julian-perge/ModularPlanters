@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static io.github.julianperge.modular_planters.logic.PartType.CORE;
 import static io.github.julianperge.modular_planters.logic.PartType.EXPORT;
+import static io.github.julianperge.modular_planters.logic.PartType.FERTILIZER;
 import static io.github.julianperge.modular_planters.logic.PartType.FRAME;
 import static io.github.julianperge.modular_planters.logic.PartType.ME;
 import static io.github.julianperge.modular_planters.logic.PartType.PLANTER;
@@ -120,5 +121,41 @@ class StructureScannerTest {
         ScanResult<P> r = scan(world);
         assertEquals(Problem.WAITING_FOR_CHUNKS, r.problem());
         assertEquals(unloaded, r.problemPos());
+    }
+    @Test void singleMeStillForms() {
+        ScanResult<P> r = scan(line(POWER, EXPORT, PLANTER, ME));
+        assertTrue(r.formed());
+        assertEquals(1, r.parts().get(ME).size());
+    }
+    @Test void singleFertilizerStillForms() {
+        ScanResult<P> r = scan(line(POWER, EXPORT, PLANTER, FERTILIZER));
+        assertTrue(r.formed());
+        assertEquals(1, r.parts().get(FERTILIZER).size());
+    }
+    @Test void waitingForChunksBeatsMissingParts() {
+        Map<P, PartType> world = line(PLANTER);
+        P unloaded = new P(2, 0, 0);
+        world.put(unloaded, UNLOADED);
+        ScanResult<P> r = scan(world);
+        assertEquals(Problem.WAITING_FOR_CHUNKS, r.problem());
+        assertEquals(unloaded, r.problemPos());
+    }
+    @Test void partReachedByTwoPathsCountsOnce() {
+        Map<P, PartType> world = new HashMap<>();
+        world.put(ORIGIN, CORE);
+        world.put(new P(1, 0, 0), POWER);
+        world.put(new P(0, 1, 0), EXPORT);
+        world.put(new P(1, 1, 0), PLANTER);
+        ScanResult<P> r = scan(world);
+        assertTrue(r.formed());
+        assertEquals(3, r.partCount());
+        assertEquals(1, r.parts().get(PLANTER).size());
+    }
+    @Test void tooManyPartsStopsCountingAtCapPlusOne() {
+        List<PartType> parts = new ArrayList<>(List.of(POWER, EXPORT, PLANTER));
+        parts.addAll(Collections.nCopies(40, FRAME));
+        ScanResult<P> r = scan(line(parts));
+        assertEquals(Problem.TOO_MANY_PARTS, r.problem());
+        assertEquals(CAP + 1, r.partCount());
     }
 }

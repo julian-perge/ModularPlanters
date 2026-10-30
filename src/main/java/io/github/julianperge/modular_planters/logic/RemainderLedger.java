@@ -11,9 +11,17 @@ public final class RemainderLedger<K> {
     private final Map<K, Long> remainders = new HashMap<>();
 
     public int addAndTakeWhole(K item, long micros) {
+        if (micros < 0) {
+            throw new IllegalArgumentException("micros must not be negative: " + micros);
+        }
         long total = remainders.getOrDefault(item, 0L) + micros;
         long whole = total / ONE_ITEM;
-        remainders.put(item, total - whole * ONE_ITEM);
+        long left = total - whole * ONE_ITEM;
+        if (left == 0) {
+            remainders.remove(item);
+        } else {
+            remainders.put(item, left);
+        }
         return (int) whole;
     }
 
@@ -23,6 +31,10 @@ public final class RemainderLedger<K> {
 
     public void load(Map<K, Long> saved) {
         remainders.clear();
-        remainders.putAll(saved);
+        saved.forEach((item, micros) -> {
+            if (micros > 0) {
+                remainders.put(item, micros);
+            }
+        });
     }
 }

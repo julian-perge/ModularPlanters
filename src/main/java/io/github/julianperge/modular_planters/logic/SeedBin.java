@@ -59,9 +59,10 @@ public final class SeedBin<S> {
         List<Integer> counts = new ArrayList<>();
         for (Entry<S> entry : entries) {
             int found = -1;
-            for (int i = 0; i < seeds.size() && found < 0; i++) {
+            for (int i = 0; i < seeds.size(); i++) {
                 if (sameData.test(seeds.get(i), entry.seed)) {
                     found = i;
+                    break;
                 }
             }
             if (found < 0) {
@@ -86,6 +87,7 @@ public final class SeedBin<S> {
         return added;
     }
 
+    // Restore skips CAPACITY and copyOne because it rebuilds entries that were already checked when they were saved.
     public void restore(S seed, int progress, boolean ready) {
         entries.add(new Entry<>(seed, progress, ready));
     }
@@ -125,7 +127,7 @@ public final class SeedBin<S> {
     }
 
     public void resetFrom(int fromIndex) {
-        for (int i = fromIndex; i < entries.size(); i++) {
+        for (int i = Math.max(0, fromIndex); i < entries.size(); i++) {
             reset(i);
         }
     }

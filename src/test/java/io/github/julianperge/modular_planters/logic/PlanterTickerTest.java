@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PlanterTickerTest {
@@ -91,6 +92,58 @@ class PlanterTickerTest {
     }
 
     @Test
+    void multiGroupPlanterPausesAsAWhole() {
+        SeedBin<String> b = bin(2);
+        b.add("b", 2);
+        List<Group> g = Grouping.of(b, Collections.nCopies(4, ModuleSet.EMPTY));
+        assertEquals(2, g.size());
+        AdvanceResult r = PlanterTicker.advance(b, g, x -> 10, m -> 10, 39);
+        assertEquals(new AdvanceResult(0, true, 40), r);
+        for (int i = 0; i < 4; i++) {
+            assertEquals(0, b.progress(i));
+        }
+    }
+
+    @Test
+    void emptyGroupListUsesNothing() {
+        SeedBin<String> b = bin(0);
+        assertEquals(new AdvanceResult(0, false, 0), PlanterTicker.advance(b, List.of(), x -> 10, m -> 10, 0));
+    }
+
+    @Test
+    void allReadyGroupsNeedNoEnergy() {
+        SeedBin<String> b = bin(2);
+        b.markReady(0);
+        b.markReady(1);
+        List<Group> g = Grouping.of(b, Collections.nCopies(2, ModuleSet.EMPTY));
+        assertEquals(new AdvanceResult(0, false, 0), PlanterTicker.advance(b, g, x -> 10, m -> 10, 0));
+    }
+
+    @Test
+    void groupsAtDifferentProgress() {
+        SeedBin<String> b = bin(1);
+        PlanterTicker.advance(b, Grouping.of(b, Collections.nCopies(1, ModuleSet.EMPTY)), x -> 5, m -> 1, 1);
+        b.add("a", 1);
+        List<Group> g = Grouping.of(b, Collections.nCopies(2, ModuleSet.EMPTY));
+        assertEquals(2, g.size());
+        AdvanceResult r = PlanterTicker.advance(b, g, x -> 5, m -> 3, 6);
+        assertEquals(new AdvanceResult(6, false, 6), r);
+        assertEquals(2, b.progress(0));
+        assertEquals(1, b.progress(1));
+    }
+
+    @Test
+    void growthTimeChangingBetweenTicks() {
+        SeedBin<String> b = bin(1);
+        List<ModuleSet> one = List.of(ModuleSet.EMPTY);
+        PlanterTicker.advance(b, Grouping.of(b, one), x -> 10, m -> 1, 1);
+        PlanterTicker.advance(b, Grouping.of(b, one), x -> 10, m -> 1, 1);
+        assertFalse(b.ready(0));
+        PlanterTicker.advance(b, Grouping.of(b, one), x -> 3, m -> 1, 1);
+        assertTrue(b.ready(0));
+    }
+
+    @Test
     void aFullPlanterBlockMatches64PoweredPlanters() {
         int harvests = assertMatchesPoweredPlanters(64, 64, ModuleKind.SPEED_MK3, 64, ModuleKind.SPEED_MK3, 64, 1.75f, 1200);
         assertEquals(1024, harvests);
@@ -101,8 +154,6 @@ class PlanterTickerTest {
         assertMatchesPoweredPlanters(64, 13, ModuleKind.SPEED_MK3, 23, ModuleKind.YIELD_MK1, 10, 1.75f, 2400);
     }
 
-    // Runs one planter block and one Powered Planter per growing seed side by side, asserts that
-    // their harvests and energy agree, and returns the harvest count.
     private static int assertMatchesPoweredPlanters(int seeds, int soil, ModuleKind m1, int m1Count,
                                                     ModuleKind m2, int m2Count, float soilModifier, int ticks) {
         int growing = Coverage.growing(seeds, soil);

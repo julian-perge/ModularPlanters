@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SeedBinTest {
@@ -62,5 +63,61 @@ class SeedBinTest {
         b.restore("a", 40, true);
         assertEquals(40, b.progress(0));
         assertTrue(b.ready(0));
+    }
+    @Test void resetFromNegativeResetsAll() {
+        SeedBin<String> b = bin();
+        b.add("a", 2);
+        b.advance(0); b.advance(1); b.markReady(1);
+        b.resetFrom(-1);
+        assertEquals(0, b.progress(0));
+        assertEquals(0, b.progress(1));
+        assertFalse(b.ready(1));
+    }
+    @Test void resetAllZeroesProgress() {
+        SeedBin<String> b = bin();
+        b.add("a", 2);
+        b.advance(0); b.advance(0); b.advance(1); b.markReady(1);
+        b.resetAll();
+        assertEquals(0, b.progress(0));
+        assertEquals(0, b.progress(1));
+        assertFalse(b.ready(1));
+    }
+    @Test void replaceSeedKeepsOrder() {
+        SeedBin<String> b = bin();
+        b.add("a", 1); b.add("b", 1); b.add("c", 1);
+        b.replaceSeed(1, "x");
+        assertEquals("a", b.seed(0));
+        assertEquals("x", b.seed(1));
+        assertEquals("c", b.seed(2));
+    }
+    @Test void markReadyThenClear() {
+        SeedBin<String> b = bin();
+        b.add("a", 2);
+        b.markReady(0);
+        assertTrue(b.ready(0));
+        b.clear();
+        assertEquals(0, b.size());
+        b.add("a", 1);
+        assertFalse(b.ready(0));
+    }
+    @Test void copyOneAppliesPerSeed() {
+        SeedBin<String> b = new SeedBin<>(String::equals, s -> s + "'");
+        b.add("a", 2);
+        assertEquals("a'", b.seed(0));
+        assertEquals("a'", b.seed(1));
+        b.restore("z", 0, false);
+        assertEquals("z", b.seed(2));
+    }
+    @Test void groupingSplitsOnReady() {
+        SeedBin<String> b = bin();
+        b.add("a", 3);
+        b.markReady(1);
+        List<Group> g = Grouping.of(b, empty(3));
+        assertEquals(2, g.size());
+        assertEquals(List.of(0, 2), g.get(0).seeds());
+        assertEquals(List.of(1), g.get(1).seeds());
+    }
+    @Test void moduleKindWithCountZeroIsUnmodified() {
+        assertEquals(empty(3), Coverage.assign(3, ModuleKind.SPEED_MK3, 0, ModuleKind.YIELD_MK1, 0));
     }
 }

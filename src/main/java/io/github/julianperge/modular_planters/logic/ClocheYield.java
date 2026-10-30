@@ -11,7 +11,8 @@ public final class ClocheYield {
     }
 
     // Returns the part of one drop's cloche yield bonus that ATE's rounding throws away, capped at the
-    // cloche's own share, in millionths of an item. The rule is in the "Built-in cloche" section of
+    // cloche's own share, in millionths of an item. The modifier and r stay float on purpose so r rounds
+    // the way ATE's count does, while the bonus math runs in double. The rule is in the "Built-in cloche" section of
     // docs/superpowers/specs/2026-10-28-modular-planters-design.md.
     public static long keptMicros(int count, float fertilizerYield, float moduleYield, double clocheYield) {
         float modifier = fertilizerYield * moduleYield * (float) clocheYield;

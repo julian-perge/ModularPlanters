@@ -1,7 +1,7 @@
 package io.github.julianperge.modular_planters.logic;
 
-// One Powered Planter reduced to the numbers in Agritech: Evolved's AdvancedPlanterBlockEntity.tick.
-// A planter that has reached its growth time harvests in that same tick and starts over.
+// This reduces one Powered Planter to the numbers in Agritech: Evolved's AdvancedPlanterBlockEntity.tick,
+// and it assumes the planter always has room for its outputs and enough power to run every tick.
 final class ReferencePoweredPlanter {
     int ticks;
     long energyUsed;
