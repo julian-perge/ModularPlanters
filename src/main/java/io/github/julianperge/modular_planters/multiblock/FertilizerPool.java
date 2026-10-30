@@ -3,6 +3,9 @@ package io.github.julianperge.modular_planters.multiblock;
 import com.misterd.agritechevolved.datamap.FertilizerData;
 import io.github.julianperge.modular_planters.ate.AteBridge;
 import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -127,8 +130,15 @@ public final class FertilizerPool {
             inserted = insertInto(live, filter, taken, tx);
             tx.commit();
         }
+        // The insert fits because the room was measured just before and the ME call in between adds nothing to these blocks, so returning the rest to ME and dropping what ME refuses at the first block only keeps the items if another mod breaks that.
         if (inserted < taken) {
-            me.insertItem(filter, taken - inserted, false);
+            int left = taken - inserted - (int) me.insertItem(filter, taken - inserted, false);
+            ItemStack lost = filter.toStack(left);
+            BlockPos pos = live.getFirst().getBlockPos();
+            while (!lost.isEmpty()) {
+                Containers.dropItemStack(live.getFirst().getLevel(), pos.getX(), pos.getY(), pos.getZ(),
+                        lost.split(lost.getMaxStackSize()));
+            }
         }
     }
 
