@@ -1,9 +1,11 @@
 package io.github.julianperge.modular_planters.client;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.github.julianperge.modular_planters.ae2.client.Ae2Client;
 import io.github.julianperge.modular_planters.registry.MPMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
@@ -18,5 +20,8 @@ public final class ModularPlantersClient {
         event.register(MPMenus.EXPORT.get(), StorageScreen::new);
         event.register(MPMenus.PLANTER.get(), PlanterScreen::new);
         event.register(MPMenus.CORE.get(), CoreScreen::new);
+        if (ModList.get().isLoaded("ae2")) {
+            Ae2Client.registerScreens(event);
+        }
     }
 }

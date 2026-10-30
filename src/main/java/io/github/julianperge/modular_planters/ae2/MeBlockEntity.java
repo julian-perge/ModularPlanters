@@ -11,10 +11,16 @@ import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.storage.StorageHelper;
+import io.github.julianperge.modular_planters.ate.AteBridge;
 import io.github.julianperge.modular_planters.multiblock.MeLink;
 import io.github.julianperge.modular_planters.multiblock.MeStatus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -22,7 +28,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
-public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNodeHost, IActionHost {
+public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNodeHost, IActionHost, MenuProvider {
     private final IManagedGridNode mainNode = GridHelper.createManagedNode(this,
                     (MeBlockEntity owner, IGridNode node) -> owner.setChanged())
             .setFlags(GridFlags.REQUIRE_CHANNEL)
@@ -30,6 +36,7 @@ public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNo
             .setIdlePowerUsage(1.0)
             .setVisualRepresentation(Ae2Integration.ME_ITEM.get());
     private final IActionSource source = IActionSource.ofMachine(this);
+    private ItemResource fertilizerFilter = ItemResource.EMPTY;
 
     public MeBlockEntity(BlockPos pos, BlockState state) {
         super(Ae2Integration.ME_BLOCK_ENTITY.get(), pos, state);
@@ -61,12 +68,14 @@ public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNo
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         mainNode.serialize(output);
+        output.store("filter", ItemResource.OPTIONAL_CODEC, fertilizerFilter);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         mainNode.deserialize(input);
+        fertilizerFilter = input.read("filter", ItemResource.OPTIONAL_CODEC).orElse(ItemResource.EMPTY);
     }
 
     @Override
@@ -123,6 +132,25 @@ public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNo
 
     @Override
     public ItemResource fertilizerFilter() {
-        return ItemResource.EMPTY;
+        return fertilizerFilter;
+    }
+
+    public boolean setFertilizerFilter(ItemResource filter) {
+        if (!filter.isEmpty() && AteBridge.fertilizer(filter) == null) {
+            return false;
+        }
+        fertilizerFilter = filter;
+        setChanged();
+        return true;
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("block.modular_planters.me");
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+        return new MeMenu(id, inventory, this);
     }
 }

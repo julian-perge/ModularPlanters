@@ -60,5 +60,12 @@ public class MPLang extends LanguageProvider {
         add("modular_planters.problem.missing_power", "Needs a power block");
         add("modular_planters.problem.missing_export", "Needs an export block");
         add("modular_planters.problem.missing_planter", "Needs a planter block");
+        add("block.modular_planters.me", "Modular Planter ME Block");
+        add("modular_planters.screen.me.filter", "Fertilizer from ME");
+        add("modular_planters.screen.me.status", "Status: %s");
+        add("modular_planters.me_status.none", "None");
+        add("modular_planters.me_status.offline", "Offline");
+        add("modular_planters.me_status.no_channel", "No channel");
+        add("modular_planters.me_status.online", "Online");
     }
 }
