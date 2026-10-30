@@ -2,7 +2,7 @@
 
 A NeoForge addon for Agritech: Evolved (ATE) that replaces many Powered Planters with a few multiblocks. A planter block with N growing seeds produces and draws what N Powered Planters would, and one connection to the core runs the whole multiblock.
 
-It targets Minecraft 26.1.2 and NeoForge 26.1.2.121. ATE 2.2.0 or newer is required. The block that connects a multiblock to an AE2 network (with Applied Flux support) is planned for a later release and is not in this version.
+It targets Minecraft 26.1.2 and NeoForge 26.1.2.121. ATE 2.2.0 or newer is required. An optional ME block connects a multiblock to an AE2 network, with Applied Flux support. It needs AE2 and does not exist without it.
 
 ## Blocks
 
@@ -14,6 +14,7 @@ It targets Minecraft 26.1.2 and NeoForge 26.1.2.121. ATE 2.2.0 or newer is requi
 | Export | 54 slots that hold outputs until something pulls them out. Only the multiblock can insert. Anything can extract. |
 | Planter | Grows one seed type, up to 64 seeds. It has a seed slot, a soil slot and two module slots. |
 | Frame | Connects parts and does nothing else. |
+| ME | Connects the multiblock to an AE2 network. It exists only when AE2 is installed. See AE2 and Applied Flux below. |
 
 Fertilizer and export blocks drop their contents when broken.
 
@@ -66,8 +67,31 @@ These are shaped crafting recipes shipped as datapack JSON, so a pack can replac
 | Power | `IRI` `RCR` `IRI` | C = ATE Capacitor Tier 3, R = block of redstone, I = block of iron |
 | Fertilizer | `IBI` `BSB` `IBI` | S = ATE Fertilizer Spreader, B = bone block, I = block of iron |
 | Export | `IHI` `HSH` `IHI` | S = ATE Silo, H = hopper, I = block of iron |
+| ME | `IFI` `FXF` `IFI` | X = any ME Interface (`#ae2:interface`), F = fluix crystal (`#c:gems/fluix`), I = block of iron. Exists only when AE2 is installed. |
 
 A planter block costs 8 frames, so 64 Powered Planters plus 8 blocks of iron and one Infused Farmland.
+
+## AE2 and Applied Flux
+
+The mod runs without AE2, Applied Flux, or both. Without AE2 there is no ME block. Without Applied Flux the ME block does not touch power.
+
+### ME block
+
+- A multiblock can have at most one ME block. A second one stops the multiblock from forming. The ME block uses one AE2 channel.
+- Harvests go into ME first and whatever ME does not take goes into the export blocks. When ME is offline (no power or no channel), everything goes to the export blocks.
+- Every `me_interval` ticks the ME block moves the export blocks' contents into ME and tops the fertilizer blocks up from ME with the fertilizer set in its filter slot.
+- Item moves cost AE energy, the same as an ME Interface.
+- The core screen shows the ME status: None, Offline, No channel or Online.
+
+### Fertilizer filter
+
+The filter slot is a ghost slot. Click it with a fertilizer to set it, or with an empty hand to clear it. No item is used up. Only ATE fertilizers are accepted. The top-up fills free room in the fertilizer blocks even when they hold another fertilizer, and the first fertilizer found is still the one planters use.
+
+### Applied Flux
+
+With Applied Flux installed, the ME block refills the power blocks from ME every tick with what the planter blocks asked for the tick before. That includes planter blocks that paused for power. The refill is capped by free room, so the power blocks are never filled ahead of need.
+
+A Flux Accessor placed against the core or a power block also charges it, with or without an ME block.
 
 ## Logistics Networks
 
@@ -93,6 +117,7 @@ Example with ATE's default numbers: one full planter block of 64 nickel seeds wi
 |---|---|---|
 | `part_cap` | 24 | Most parts in one multiblock, not counting the core |
 | `power_block_buffer` | 4,000,000 | RF each power block holds |
+| `me_interval` | 20 | Ticks between ME item moves and fertilizer top-ups (1 to 1200) |
 
 ATE's numbers are never copied into this config. They are read from ATE.
 
