@@ -45,6 +45,9 @@ import org.jspecify.annotations.Nullable;
 public class PlanterBlockEntity extends BlockEntity {
     public static final int SOIL = 0, MODULE_1 = 1, MODULE_2 = 2;
 
+    // A planter block holds at most what one harvest of one group did not fit, so this allows 256 full stacks for each of a group's 64 seeds, far more than any recipe and harvest event add.
+    private static final int HELD_OUTPUTS_CAP = SeedBin.CAPACITY * 256;
+
     private static final Codec<Map<String, Long>> REMAINDERS_CODEC = Codec.unboundedMap(Codec.STRING, Codec.LONG);
 
     private final SeedBin<ItemStack> seeds = new SeedBin<>(ItemStack::isSameItemSameComponents, s -> s.copyWithCount(1));
@@ -350,6 +353,6 @@ public class PlanterBlockEntity extends BlockEntity {
         soilAndModules.deserialize(input.childOrEmpty("soil_and_modules"));
         clocheRemainders.load(input.read("cloche_remainders", REMAINDERS_CODEC).orElse(Map.of()));
         heldOutputs.clear();
-        input.listOrEmpty("held_outputs", ItemStack.CODEC).stream().forEach(heldOutputs::add);
+        input.listOrEmpty("held_outputs", ItemStack.CODEC).stream().limit(HELD_OUTPUTS_CAP).forEach(heldOutputs::add);
     }
 }
