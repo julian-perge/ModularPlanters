@@ -46,6 +46,8 @@ public final class MPTestRegistration {
             if (ModList.get().isLoaded("appflux")) {
                 AppliedFluxTests.register(cases);
             }
+        } else {
+            Ae2AbsentTests.register(cases);
         }
         return cases;
     }

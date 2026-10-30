@@ -5,6 +5,10 @@
     "modular_planters:power",
     "modular_planters:fertilizer",
     "modular_planters:export",
-    "modular_planters:planter"
+    "modular_planters:planter",
+    {
+      "id": "modular_planters:me",
+      "required": false
+    }
   ]
 }

@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.datagen;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.github.julianperge.modular_planters.ae2.Ae2Integration;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -21,6 +22,7 @@ public class MPBlockTags extends BlockTagsProvider {
                 .add(MPBlocks.POWER.get())
                 .add(MPBlocks.FERTILIZER.get())
                 .add(MPBlocks.EXPORT.get())
-                .add(MPBlocks.PLANTER.get());
+                .add(MPBlocks.PLANTER.get())
+                .addOptional(Ae2Integration.ME_BLOCK.get());
     }
 }

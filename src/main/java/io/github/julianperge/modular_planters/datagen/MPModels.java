@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.datagen;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.github.julianperge.modular_planters.ae2.Ae2Integration;
 import io.github.julianperge.modular_planters.block.PlanterBlock;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -48,6 +49,7 @@ public class MPModels extends ModelProvider {
         blockModels.createTrivialBlock(MPBlocks.FERTILIZER.get(), cubeTopBottom("fertilizer_top", "fertilizer_side", "fertilizer_side"));
         blockModels.createTrivialBlock(MPBlocks.EXPORT.get(), cubeTopBottom("export_top", "export_side", "export_side"));
         createPlanter(blockModels, MPBlocks.PLANTER.get());
+        blockModels.createTrivialBlock(Ae2Integration.ME_BLOCK.get(), cubeTopBottom("frame_side", "me_side", "frame_side"));
     }
 
     private static void createPlanter(BlockModelGenerators blockModels, Block planter) {

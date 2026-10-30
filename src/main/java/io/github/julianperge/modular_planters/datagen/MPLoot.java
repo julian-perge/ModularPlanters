@@ -1,5 +1,6 @@
 package io.github.julianperge.modular_planters.datagen;
 
+import io.github.julianperge.modular_planters.ae2.Ae2Integration;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import io.github.julianperge.modular_planters.registry.MPDataComponents;
 import java.util.Set;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
 public class MPLoot extends BlockLootSubProvider {
     public MPLoot(HolderLookup.Provider registries) {
@@ -32,6 +34,7 @@ public class MPLoot extends BlockLootSubProvider {
         dropSelf(MPBlocks.FERTILIZER.get());
         dropSelf(MPBlocks.EXPORT.get());
         dropSelf(MPBlocks.PLANTER.get());
+        add(Ae2Integration.ME_BLOCK.get(), block -> createSingleItemTable(block).withCondition(new ModLoadedCondition("ae2")));
     }
 
     @Override

@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "ae2"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "#c:gems/fluix",
+    "I": "minecraft:iron_block",
+    "X": "#ae2:interface"
+  },
+  "pattern": [
+    "IFI",
+    "FXF",
+    "IFI"
+  ],
+  "result": {
+    "id": "modular_planters:me"
+  }
+}

@@ -46,8 +46,9 @@ public final class Ae2Tests {
                 new TestCase(200, Ae2Tests::breakingMeBlockFallsBackToExport));
         into.put("second_me_block_stops_forming", new TestCase(40, Ae2Tests::secondMeBlockStopsForming));
         into.put("filter_clicks_never_move_items", new TestCase(20, Ae2Tests::filterClicksNeverMoveItems));
-        into.put("filter_survives_save_and_drops_nothing",
-                new TestCase(20, Ae2Tests::filterSurvivesSaveAndDropsNothing));
+        into.put("filter_survives_save_and_drops_no_bone_meal",
+                new TestCase(20, Ae2Tests::filterSurvivesSaveAndDropsNoBoneMeal));
+        into.put("me_block_drops_itself", new TestCase(20, Ae2Tests::meBlockDropsItself));
         into.put("fertilizer_tops_up_from_me", new TestCase(100, Ae2Tests::fertilizerTopsUpFromMe));
     }
 
@@ -185,7 +186,7 @@ public final class Ae2Tests {
         helper.succeed();
     }
 
-    private static void filterSurvivesSaveAndDropsNothing(GameTestHelper helper) {
+    private static void filterSurvivesSaveAndDropsNoBoneMeal(GameTestHelper helper) {
         helper.setBlock(LONE_ME, Ae2Integration.ME_BLOCK.get());
         MeBlockEntity me = helper.getBlockEntity(LONE_ME, MeBlockEntity.class);
         helper.assertTrue(me.setFertilizerFilter(ItemResource.of(Items.BONE_MEAL)), "bone meal accepted");
@@ -202,6 +203,23 @@ public final class Ae2Tests {
         for (ItemEntity entity : helper.getEntities(EntityType.ITEM, LONE_ME, 2.0)) {
             boneMeal += entity.getItem().is(Items.BONE_MEAL) ? entity.getItem().getCount() : 0;
         }
+        helper.assertValueEqual(boneMeal, 0, "bone meal dropped");
+        helper.succeed();
+    }
+
+    private static void meBlockDropsItself(GameTestHelper helper) {
+        helper.setBlock(LONE_ME, Ae2Integration.ME_BLOCK.get());
+        MeBlockEntity me = helper.getBlockEntity(LONE_ME, MeBlockEntity.class);
+        helper.assertTrue(me.setFertilizerFilter(ItemResource.of(Items.BONE_MEAL)), "bone meal accepted");
+        helper.getLevel().destroyBlock(helper.absolutePos(LONE_ME), true);
+        int meBlocks = 0;
+        int boneMeal = 0;
+        for (ItemEntity entity : helper.getEntities(EntityType.ITEM, LONE_ME, 2.0)) {
+            ItemStack stack = entity.getItem();
+            meBlocks += stack.is(Ae2Integration.ME_ITEM.get()) ? stack.getCount() : 0;
+            boneMeal += stack.is(Items.BONE_MEAL) ? stack.getCount() : 0;
+        }
+        helper.assertValueEqual(meBlocks, 1, "ME blocks dropped");
         helper.assertValueEqual(boneMeal, 0, "bone meal dropped");
         helper.succeed();
     }

@@ -2,15 +2,21 @@ package io.github.julianperge.modular_planters.datagen;
 
 import com.misterd.agritechevolved.block.ATEBlocks;
 import com.misterd.agritechevolved.item.ATEItems;
+import io.github.julianperge.modular_planters.ae2.Ae2Integration;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
 public class MPRecipes extends RecipeProvider {
     private MPRecipes(HolderLookup.Provider registries, RecipeOutput output) {
@@ -77,6 +83,18 @@ public class MPRecipes extends RecipeProvider {
                 .define('I', Items.IRON_BLOCK)
                 .unlockedBy("has_silo", has(ATEBlocks.SILO))
                 .save(output);
+
+        TagKey<Item> aeInterface = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("ae2", "interface"));
+        TagKey<Item> fluix = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "gems/fluix"));
+        shaped(RecipeCategory.MISC, Ae2Integration.ME_ITEM)
+                .pattern("IFI")
+                .pattern("FXF")
+                .pattern("IFI")
+                .define('X', aeInterface)
+                .define('F', fluix)
+                .define('I', Items.IRON_BLOCK)
+                .unlockedBy("has_interface", has(aeInterface))
+                .save(output.withConditions(new ModLoadedCondition("ae2")));
     }
 
     public static class Runner extends RecipeProvider.Runner {
