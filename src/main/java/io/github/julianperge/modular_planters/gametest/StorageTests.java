@@ -123,10 +123,16 @@ public final class StorageTests {
                     .insert(ItemResource.of(Items.WHEAT), 10, tx);
             tx.commit();
         }
+        FertilizerBlockEntity fertilizer = helper.getBlockEntity(POS, FertilizerBlockEntity.class);
+        ExportBlockEntity export = helper.getBlockEntity(exportPos, ExportBlockEntity.class);
         helper.getLevel().destroyBlock(helper.absolutePos(POS), true);
         helper.getLevel().destroyBlock(helper.absolutePos(exportPos), true);
         helper.assertValueEqual(dropped(helper, POS, Items.BONE_MEAL), 32, "dropped bone meal");
         helper.assertValueEqual(dropped(helper, exportPos, Items.WHEAT), 10, "dropped wheat");
+        fertilizer.preRemoveSideEffects(fertilizer.getBlockPos(), fertilizer.getBlockState());
+        export.preRemoveSideEffects(export.getBlockPos(), export.getBlockState());
+        helper.assertValueEqual(dropped(helper, POS, Items.BONE_MEAL), 32, "bone meal after a second removal call");
+        helper.assertValueEqual(dropped(helper, exportPos, Items.WHEAT), 10, "wheat after a second removal call");
         helper.succeed();
     }
 

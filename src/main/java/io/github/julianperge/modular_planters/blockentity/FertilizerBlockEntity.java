@@ -72,6 +72,9 @@ public class FertilizerBlockEntity extends BlockEntity implements MenuProvider {
                 contents.set(slot, storage.getResource(slot).toStack(storage.getAmountAsInt(slot)));
             }
             Containers.dropContents(level, pos, contents);
+            for (int slot = 0; slot < SLOTS; slot++) {
+                storage.set(slot, ItemResource.EMPTY, 0);
+            }
         }
     }
 
