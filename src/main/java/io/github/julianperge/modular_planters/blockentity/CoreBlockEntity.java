@@ -7,6 +7,7 @@ import io.github.julianperge.modular_planters.logic.PartType;
 import io.github.julianperge.modular_planters.logic.Problem;
 import io.github.julianperge.modular_planters.logic.ScanResult;
 import io.github.julianperge.modular_planters.logic.StructureScanner;
+import io.github.julianperge.modular_planters.multiblock.DoorwayHandlers;
 import io.github.julianperge.modular_planters.multiblock.FertilizerPool;
 import io.github.julianperge.modular_planters.multiblock.MeLink;
 import io.github.julianperge.modular_planters.multiblock.MeStatus;
@@ -21,6 +22,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class CoreBlockEntity extends BlockEntity {
     private @Nullable FertilizerPool fertilizer;
     private @Nullable OutputSink outputs;
     private @Nullable MeLink me;
+    private @Nullable ResourceHandler<ItemResource> items;
     private boolean dirty = true;
     private boolean poolsStale;
     private long wantedLastTick;
@@ -46,7 +50,7 @@ public class CoreBlockEntity extends BlockEntity {
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CoreBlockEntity core) {
-        if (core.dirty || level.getGameTime() % RESCAN_INTERVAL == 0) {
+        if (core.dirty || (level.getGameTime() + core.tickOffset()) % RESCAN_INTERVAL == 0) {
             core.scan(level);
         }
         if (level instanceof ServerLevel serverLevel) {
@@ -73,7 +77,7 @@ public class CoreBlockEntity extends BlockEntity {
             }
         }
         wantedLastTick = wanted;
-        if (link != null && level.getGameTime() % MPConfig.ME_INTERVAL.get() == 0) {
+        if (link != null && (level.getGameTime() + tickOffset()) % MPConfig.ME_INTERVAL.get() == 0) {
             outputs.moveExportsInto(link);
             fertilizer.topUpFrom(link);
         }
@@ -89,6 +93,11 @@ public class CoreBlockEntity extends BlockEntity {
             return null;
         }
         return me.online() ? me : null;
+    }
+
+    // Cores spread their rescans and ME transfers over different ticks by position, so many cores don't all work on the same tick.
+    public int tickOffset() {
+        return Math.floorMod(worldPosition.hashCode(), RESCAN_INTERVAL);
     }
 
     public void markDirty() {
@@ -119,6 +128,10 @@ public class CoreBlockEntity extends BlockEntity {
 
     public @Nullable OutputSink outputs() {
         return outputs;
+    }
+
+    public @Nullable ResourceHandler<ItemResource> items() {
+        return items;
     }
 
     public MeStatus meStatus() {
@@ -152,6 +165,7 @@ public class CoreBlockEntity extends BlockEntity {
             fertilizer = null;
             outputs = null;
             me = null;
+            items = null;
         } else {
             Multiblock previous = multiblock;
             multiblock = result.formed() ? Multiblock.from(result) : null;
@@ -187,6 +201,7 @@ public class CoreBlockEntity extends BlockEntity {
             fertilizer = null;
             outputs = null;
             me = null;
+            items = null;
             return;
         }
         power = new PowerPool(blockEntities(level, multiblock.power(), PowerBlockEntity.class), this::markPoolsStale);
@@ -194,6 +209,7 @@ public class CoreBlockEntity extends BlockEntity {
         BlockPos mePos = multiblock.me();
         me = mePos != null && level.getBlockEntity(mePos) instanceof MeLink link ? link : null;
         outputs = new OutputSink(blockEntities(level, multiblock.export(), ExportBlockEntity.class), me, this::markPoolsStale);
+        items = DoorwayHandlers.items(fertilizer, outputs);
     }
 
     private static <T extends BlockEntity> List<T> blockEntities(Level level, List<BlockPos> positions, Class<T> type) {

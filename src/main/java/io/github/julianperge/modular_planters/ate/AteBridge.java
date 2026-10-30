@@ -13,8 +13,10 @@ import com.misterd.agritechevolved.util.ATETags;
 import io.github.julianperge.modular_planters.logic.AteNumbers;
 import io.github.julianperge.modular_planters.logic.ModuleKind;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -27,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
@@ -38,6 +41,23 @@ public final class AteBridge {
     }
 
     public record PlantRecipe(List<DropEntry> drops, Predicate<ItemStack> soilMatches) {
+    }
+
+    // ATE raises RECIPE_REVISION when recipes reload, so the memo forgets every recipe it holds when the revision changes.
+    public static final class RecipeMemo {
+        private final Map<Item, Optional<PlantRecipe>> recipes = new HashMap<>();
+        private int revision = -1;
+
+        public Optional<PlantRecipe> get(Level level, ItemStack seed) {
+            if (seed.isEmpty() || !(level instanceof ServerLevel server)) {
+                return Optional.empty();
+            }
+            if (revision != AgritechEvolved.RECIPE_REVISION) {
+                recipes.clear();
+                revision = AgritechEvolved.RECIPE_REVISION;
+            }
+            return recipes.computeIfAbsent(seed.getItem(), item -> recipe(server, seed));
+        }
     }
 
     public static AteNumbers numbers() {

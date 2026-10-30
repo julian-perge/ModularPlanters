@@ -284,7 +284,8 @@ public final class PlanterMenu extends AbstractContainerMenu {
 
     private boolean stillInCoreStructure() {
         Level level = planter.getLevel();
-        if (level == null || !(level.getBlockEntity(anchor) instanceof CoreBlockEntity core) || core.multiblock() == null) {
+        if (level == null || !(level.getBlockEntity(anchor) instanceof CoreBlockEntity core) || core.multiblock() == null
+                || !core.lastScan().formed()) {
             return false;
         }
         return core.multiblock().planters().contains(planter.getBlockPos());

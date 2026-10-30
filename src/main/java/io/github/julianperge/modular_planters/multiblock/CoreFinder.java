@@ -17,15 +17,18 @@ public final class CoreFinder {
     private CoreFinder() {
     }
 
-    public static void notifyCores(Level level, BlockPos changed) {
+    // Only part blocks count against the search limit, so the air around a large multiblock can't use it up before the core is reached.
+    public static int notifyCores(Level level, BlockPos changed) {
         if (level.isClientSide()) {
-            return;
+            return 0;
         }
+        int marked = 0;
+        int queued = 0;
         Set<BlockPos> seen = new HashSet<>();
         seen.add(changed);
         Deque<BlockPos> queue = new ArrayDeque<>();
         queue.add(changed);
-        while (!queue.isEmpty() && seen.size() < SEARCH_LIMIT) {
+        while (!queue.isEmpty()) {
             BlockPos current = queue.remove();
             for (Direction direction : Direction.values()) {
                 BlockPos next = current.relative(direction);
@@ -34,9 +37,14 @@ public final class CoreFinder {
                 }
                 if (level.getBlockEntity(next) instanceof CoreBlockEntity core) {
                     core.markDirty();
+                    marked++;
                 }
-                queue.add(next);
+                if (queued < SEARCH_LIMIT) {
+                    queue.add(next);
+                    queued++;
+                }
             }
         }
+        return marked;
     }
 }

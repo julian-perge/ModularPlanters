@@ -39,6 +39,7 @@ The core screen shows the formed state and part count, the reason when the multi
 - If the connected parts reach a second core, neither core forms. The core screen names the problem block and its position.
 - When the shape breaks, planter blocks stop and every block keeps its contents.
 - If a connected part is in an unloaded chunk, the multiblock pauses until the chunk loads, and the core screen says so.
+- The core can't tell what is in an unloaded chunk, so a multiblock built against the edge of the loaded area also pauses until the next chunk loads, even when no part is in it.
 
 ## How a planter block grows
 

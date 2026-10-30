@@ -18,16 +18,27 @@ import java.util.List;
 public final class FertilizerPool {
     private final List<FertilizerBlockEntity> blocks;
     private final Runnable onStale;
-    private final ResourceHandler<ItemResource> insertView = new DelegatingResourceHandler<>(
-            () -> new CombinedResourceHandler<>(live().stream().map(FertilizerBlockEntity::externalHandler).toList()));
+    private final ResourceHandler<ItemResource> allBlocks;
+    private final ResourceHandler<ItemResource> insertView = new DelegatingResourceHandler<>(this::liveHandler);
 
     public FertilizerPool(List<FertilizerBlockEntity> inOrder, Runnable onStale) {
         this.blocks = List.copyOf(inOrder);
         this.onStale = onStale;
+        this.allBlocks = new CombinedResourceHandler<>(blocks.stream().map(FertilizerBlockEntity::externalHandler).toList());
     }
 
     private List<FertilizerBlockEntity> live() {
         return LiveBlocks.of(blocks, onStale);
+    }
+
+    boolean allLive() {
+        return LiveBlocks.allLive(blocks, onStale);
+    }
+
+    // A combined handler fixes its slot count when it is built, so a removed block needs a new one until the core rebuilds the pool.
+    private ResourceHandler<ItemResource> liveHandler() {
+        return allLive() ? allBlocks
+                : new CombinedResourceHandler<>(live().stream().map(FertilizerBlockEntity::externalHandler).toList());
     }
 
     public ItemResource selected() {

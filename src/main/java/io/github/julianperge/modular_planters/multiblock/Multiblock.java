@@ -14,8 +14,15 @@ public record Multiblock(
         List<BlockPos> export,
         List<BlockPos> planters,
         List<BlockPos> frames,
-        @Nullable BlockPos me
+        @Nullable BlockPos me,
+        List<BlockPos> all
 ) {
+    // The core checks every part is loaded each tick, so the list of all parts is built once here instead of on each check.
+    public Multiblock(List<BlockPos> power, List<BlockPos> fertilizer, List<BlockPos> export, List<BlockPos> planters,
+                      List<BlockPos> frames, @Nullable BlockPos me) {
+        this(power, fertilizer, export, planters, frames, me, allOf(power, fertilizer, export, planters, frames, me));
+    }
+
     public static Multiblock from(ScanResult<BlockPos> scan) {
         List<BlockPos> meParts = sorted(scan, PartType.ME);
         return new Multiblock(
@@ -27,7 +34,8 @@ public record Multiblock(
                 meParts.isEmpty() ? null : meParts.getFirst());
     }
 
-    public List<BlockPos> all() {
+    private static List<BlockPos> allOf(List<BlockPos> power, List<BlockPos> fertilizer, List<BlockPos> export,
+                                        List<BlockPos> planters, List<BlockPos> frames, @Nullable BlockPos me) {
         List<BlockPos> all = new ArrayList<>(power);
         all.addAll(fertilizer);
         all.addAll(export);
@@ -36,7 +44,7 @@ public record Multiblock(
         if (me != null) {
             all.add(me);
         }
-        return all;
+        return List.copyOf(all);
     }
 
     private static List<BlockPos> sorted(ScanResult<BlockPos> scan, PartType type) {

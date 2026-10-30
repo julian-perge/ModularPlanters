@@ -73,6 +73,7 @@ public class PlanterBlockEntity extends BlockEntity {
         }
     };
     private final RemainderLedger<String> clocheRemainders = new RemainderLedger<>();
+    private final AteBridge.RecipeMemo recipes = new AteBridge.RecipeMemo();
     private final List<ItemStack> heldOutputs = new ArrayList<>();
     // The last non-empty soil is kept so that emptying the soil slot and then adding a different soil still resets progress.
     private ItemStack lastSoil = ItemStack.EMPTY;
@@ -150,7 +151,7 @@ public class PlanterBlockEntity extends BlockEntity {
         int soilCount = soilAndModules.getAmountAsInt(SOIL);
         ItemStack soil = soilAndModules.getResource(SOIL).toStack(soilCount);
         Optional<AteBridge.PlantRecipe> recipe = seeds.size() == 0 || soil.isEmpty()
-                ? Optional.empty() : AteBridge.recipe(ctx.level(), seeds.seed(0));
+                ? Optional.empty() : recipes.get(ctx.level(), seeds.seed(0));
         if (recipe.isEmpty() || !recipe.get().soilMatches().test(soil)) {
             if (holding) {
                 setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
@@ -277,7 +278,7 @@ public class PlanterBlockEntity extends BlockEntity {
             seeds.replaceSeed(index, seed.copyWithCount(1));
         }
 
-        List<ItemStack> rolled = AteBridge.recipe(ctx.level(), seed)
+        List<ItemStack> rolled = recipes.get(ctx.level(), seed)
                 .map(recipe -> AteBridge.rollDrops(recipe.drops(), ctx.random()))
                 .orElse(List.of());
         List<ItemStack> drops = new ArrayList<>(rolled.size());

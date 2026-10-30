@@ -26,4 +26,15 @@ final class LiveBlocks {
         }
         return live;
     }
+
+    // This is the check of() makes, without building a list, for handlers that are asked on every transfer.
+    static <T extends BlockEntity> boolean allLive(List<T> blocks, Runnable onStale) {
+        for (T block : blocks) {
+            if (block.isRemoved()) {
+                onStale.run();
+                return false;
+            }
+        }
+        return true;
+    }
 }

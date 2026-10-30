@@ -31,6 +31,9 @@ public final class DoorwayTests {
         into.put("core_energy_goes_to_power_blocks_in_order",
                 new TestCase(20, DoorwayTests::coreEnergyGoesToPowerBlocksInOrder));
         into.put("core_accepts_only_fertilizer", new TestCase(20, DoorwayTests::coreAcceptsOnlyFertilizer));
+        into.put("core_rejects_wheat", new TestCase(20, DoorwayTests::coreRejectsWheat));
+        into.put("doorway_handler_is_cached", new TestCase(20, DoorwayTests::doorwayHandlerIsCached));
+        into.put("doorway_skips_a_removed_block", new TestCase(20, DoorwayTests::doorwaySkipsARemovedBlock));
         into.put("core_extract_comes_from_export_blocks",
                 new TestCase(20, DoorwayTests::coreExtractComesFromExportBlocks));
         into.put("core_capabilities_follow_the_structure",
@@ -101,6 +104,48 @@ public final class DoorwayTests {
             try (Transaction tx = Transaction.openRoot()) {
                 helper.assertValueEqual(fertilizer.storage().extract(ItemResource.of(Items.BONE_MEAL), 64, tx), 64,
                         "bone meal in the fertilizer block");
+            }
+            helper.succeed();
+        });
+    }
+
+    private static void coreRejectsWheat(GameTestHelper helper) {
+        placeFormedLine(helper, 1);
+        helper.runAfterDelay(1, () -> {
+            ResourceHandler<ItemResource> items = helper.requireCapability(Capabilities.Item.BLOCK, CORE, null);
+            try (Transaction tx = Transaction.openRoot()) {
+                helper.assertValueEqual(items.insert(ItemResource.of(Items.WHEAT), 64, tx), 0, "inserted wheat");
+            }
+            helper.succeed();
+        });
+    }
+
+    private static void doorwayHandlerIsCached(GameTestHelper helper) {
+        placeFormedLine(helper, 1);
+        helper.runAfterDelay(1, () -> {
+            ResourceHandler<ItemResource> first = helper.requireCapability(Capabilities.Item.BLOCK, CORE, null);
+            helper.assertTrue(helper.requireCapability(Capabilities.Item.BLOCK, CORE, null) == first,
+                    "A second query should return the same handler");
+            helper.setBlock(CORE.west(), MPBlocks.FRAME.get());
+            helper.runAfterDelay(1, () -> {
+                helper.assertTrue(helper.requireCapability(Capabilities.Item.BLOCK, CORE, null) != first,
+                        "A part change should replace the handler");
+                helper.succeed();
+            });
+        });
+    }
+
+    private static void doorwaySkipsARemovedBlock(GameTestHelper helper) {
+        BlockPos removed = CORE.west();
+        placeFormedLine(helper, 1);
+        helper.setBlock(removed, MPBlocks.FERTILIZER.get());
+        helper.runAfterDelay(1, () -> {
+            ResourceHandler<ItemResource> items = helper.requireCapability(Capabilities.Item.BLOCK, CORE, null);
+            int before = items.size();
+            helper.getLevel().destroyBlock(helper.absolutePos(removed), true);
+            helper.assertValueEqual(items.size(), before - FertilizerBlockEntity.SLOTS, "slots after the break");
+            for (int slot = 0; slot < items.size(); slot++) {
+                helper.assertTrue(items.getResource(slot).isEmpty(), "Slot " + slot + " should be empty");
             }
             helper.succeed();
         });

@@ -18,17 +18,28 @@ public final class OutputSink {
     private final List<ExportBlockEntity> blocks;
     private final @Nullable MeLink me;
     private final Runnable onStale;
-    private final ResourceHandler<ItemResource> extractView = new DelegatingResourceHandler<>(
-            () -> new CombinedResourceHandler<>(live().stream().map(ExportBlockEntity::externalHandler).toList()));
+    private final ResourceHandler<ItemResource> allBlocks;
+    private final ResourceHandler<ItemResource> extractView = new DelegatingResourceHandler<>(this::liveHandler);
 
     public OutputSink(List<ExportBlockEntity> inOrder, @Nullable MeLink me, Runnable onStale) {
         this.blocks = List.copyOf(inOrder);
         this.me = me;
         this.onStale = onStale;
+        this.allBlocks = new CombinedResourceHandler<>(blocks.stream().map(ExportBlockEntity::externalHandler).toList());
     }
 
     private List<ExportBlockEntity> live() {
         return LiveBlocks.of(blocks, onStale);
+    }
+
+    boolean allLive() {
+        return LiveBlocks.allLive(blocks, onStale);
+    }
+
+    // A combined handler fixes its slot count when it is built, so a removed block needs a new one until the core rebuilds the pool.
+    private ResourceHandler<ItemResource> liveHandler() {
+        return allLive() ? allBlocks
+                : new CombinedResourceHandler<>(live().stream().map(ExportBlockEntity::externalHandler).toList());
     }
 
     private @Nullable MeLink liveMe() {

@@ -18,12 +18,13 @@ public final class DoorwayHandlers {
     }
 
     public static @Nullable ResourceHandler<ItemResource> items(CoreBlockEntity core) {
-        FertilizerPool fertilizer = core.fertilizer();
-        OutputSink outputs = core.outputs();
-        if (fertilizer == null || outputs == null) {
-            return null;
-        }
-        return new DelegatingResourceHandler<>(
-                () -> new CombinedResourceHandler<>(fertilizer.insertView(), outputs.extractView()));
+        return core.items();
+    }
+
+    // The core builds this once each time it rebuilds its pools, and a removed fertilizer or export block changes the slot count, so until that rebuild each call combines the views again.
+    public static ResourceHandler<ItemResource> items(FertilizerPool fertilizer, OutputSink outputs) {
+        ResourceHandler<ItemResource> whole = new CombinedResourceHandler<>(fertilizer.insertView(), outputs.extractView());
+        return new DelegatingResourceHandler<>(() -> fertilizer.allLive() && outputs.allLive()
+                ? whole : new CombinedResourceHandler<>(fertilizer.insertView(), outputs.extractView()));
     }
 }
