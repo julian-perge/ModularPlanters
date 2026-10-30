@@ -28,6 +28,7 @@ public class MPLang extends LanguageProvider {
         add("modular_planters.status.paused_for_power", "Paused: not enough power");
         add("modular_planters.status.paused_export_full", "Paused: export full");
         add("modular_planters.screen.working_idle", "%s working, %s idle");
+        add("modular_planters.screen.combo", "%s x %s");
         add("modular_planters.screen.upgraded", "%s/%s seeds upgraded");
     }
 }

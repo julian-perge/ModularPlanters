@@ -9,6 +9,7 @@
   "container.modular_planters.fertilizer": "Fertilizer Storage",
   "container.modular_planters.planter": "Modular Planter",
   "itemGroup.modular_planters": "Modular Planters",
+  "modular_planters.screen.combo": "%s x %s",
   "modular_planters.screen.upgraded": "%s/%s seeds upgraded",
   "modular_planters.screen.working_idle": "%s working, %s idle",
   "modular_planters.status.growing": "Growing",

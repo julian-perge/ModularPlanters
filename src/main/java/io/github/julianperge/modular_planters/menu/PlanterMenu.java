@@ -200,17 +200,32 @@ public final class PlanterMenu extends AbstractContainerMenu {
         return original;
     }
 
-    // Seeds that do not fit in the inventory go back into the bin, which restarts their growth.
+    // Only as many seeds as the inventory has room for are taken, so the seeds that stay in the bin keep their growth progress.
     private ItemStack quickMoveSeeds() {
-        ItemStack run = seedSlot.takeRun(Integer.MAX_VALUE);
-        if (run.isEmpty()) {
+        ItemStack tail = seedSlot.peekTail();
+        int room = roomInInventory(tail);
+        if (tail.isEmpty() || room == 0) {
             return ItemStack.EMPTY;
         }
+        ItemStack run = seedSlot.takeRun(room);
         ItemStack original = run.copy();
         moveItemStackTo(run, PLAYER_START, slots.size(), true);
-        boolean movedAny = run.getCount() != original.getCount();
-        seedSlot.insert(run, run.getCount());
-        return movedAny ? original : ItemStack.EMPTY;
+        seedSlot.giveBack(run);
+        return original;
+    }
+
+    private int roomInInventory(ItemStack stack) {
+        int room = 0;
+        for (int i = PLAYER_START; i < slots.size() && !stack.isEmpty(); i++) {
+            Slot slot = slots.get(i);
+            ItemStack held = slot.getItem();
+            if (held.isEmpty()) {
+                room += slot.mayPlace(stack) ? slot.getMaxStackSize(stack) : 0;
+            } else if (ItemStack.isSameItemSameComponents(held, stack)) {
+                room += Math.max(0, slot.getMaxStackSize(held) - held.getCount());
+            }
+        }
+        return room;
     }
 
     @Override

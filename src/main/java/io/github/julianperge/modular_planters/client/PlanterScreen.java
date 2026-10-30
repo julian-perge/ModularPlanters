@@ -77,7 +77,7 @@ public class PlanterScreen extends AbstractContainerScreen<PlanterMenu> {
         List<Component> lines = new ArrayList<>();
         for (ItemStack combo : seedSlot.combos()) {
             List<Component> tooltip = super.getTooltipFromContainerItem(combo);
-            lines.add(Component.literal(combo.getCount() + " x ").append(combo.getHoverName()));
+            lines.add(Component.translatable("modular_planters.screen.combo", combo.getCount(), combo.getHoverName()));
             lines.addAll(tooltip.subList(Math.min(1, tooltip.size()), tooltip.size()));
         }
         return lines;

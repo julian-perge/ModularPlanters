@@ -106,6 +106,19 @@ public final class SeedBinSlot extends Slot {
         return run.getFirst().copyWithCount(run.size());
     }
 
+    public ItemStack peekTail() {
+        SeedBin<ItemStack> bin = planter.seeds();
+        return bin.size() == 0 ? ItemStack.EMPTY : bin.seed(bin.size() - 1).copy();
+    }
+
+    // Puts seeds that were just taken from the bin back without re-checking mayPlace, so a changed recipe or soil cannot make them vanish.
+    public void giveBack(ItemStack stack) {
+        if (!stack.isEmpty()) {
+            stack.shrink(planter.seeds().add(stack, stack.getCount()));
+            planter.setChanged();
+        }
+    }
+
     @Override
     public ItemStack remove(int amount) {
         return takeRun(amount);
@@ -117,7 +130,8 @@ public final class SeedBinSlot extends Slot {
         return stack;
     }
 
-    // Vanilla calls this with an empty stack after a take, when the bin has already been emptied. Any other stack would replace the bin's seeds without returning them.
+    // Vanilla calls this with an empty stack after a take, which needs no change because the bin was already updated.
+    // On the server any other stack throws instead of being ignored, because ignoring would void the stack the caller just handed over; PlanterMenu handles every click type that could reach this.
     @Override
     public void set(ItemStack stack) {
         if (!stack.isEmpty() && authoritative()) {
