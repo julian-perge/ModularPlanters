@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.12.2",
+  "checkpoint_id": "01M671QEAJMQP4C83T8T0CN1W7",
+  "strategy": "manual-commit",
+  "branch": "plan-2-me-block",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "src/main/java/io/github/julianperge/modular_planters/blockentity/CoreBlockEntity.java",
+    "src/main/java/io/github/julianperge/modular_planters/multiblock/FertilizerPool.java",
+    "src/main/java/io/github/julianperge/modular_planters/multiblock/OutputSink.java"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 14,
+    "cache_creation_tokens": 10048,
+    "cache_read_tokens": 1720554,
+    "output_tokens": 4560,
+    "api_call_count": 5,
+    "subagent_tokens": {
+      "input_tokens": 96,
+      "cache_creation_tokens": 196624,
+      "cache_read_tokens": 3711826,
+      "output_tokens": 43349,
+      "api_call_count": 48
+    }
+  },
+  "redaction": {
+    "replacements": 0,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 0,
+      "credentialed_uri": 0,
+      "entropy": 0,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
