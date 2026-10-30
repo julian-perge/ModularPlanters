@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 
 // Shows the whole seed bin as one stack, but the bin is the only store, so every change goes through insert and takeRun.
 // PlanterMenu handles the click types that would otherwise copy the shown stack out or swap it, because vanilla would duplicate or void seeds there.
+// Creative-mode clone still copies the shown stack onto the cursor, as it does for any slot, and leaves the bin unchanged.
 public final class SeedBinSlot extends Slot {
     private final PlanterBlockEntity planter;
     private final Level level;
@@ -111,7 +112,7 @@ public final class SeedBinSlot extends Slot {
         return bin.size() == 0 ? ItemStack.EMPTY : bin.seed(bin.size() - 1).copy();
     }
 
-    // Puts seeds that were just taken from the bin back without re-checking mayPlace, so a changed recipe or soil cannot make them vanish.
+    // Puts seeds that were just taken from the bin back as new seeds without re-checking mayPlace, so a changed recipe or soil cannot make them vanish, though their growth starts over.
     public void giveBack(ItemStack stack) {
         if (!stack.isEmpty()) {
             stack.shrink(planter.seeds().add(stack, stack.getCount()));
