@@ -157,6 +157,7 @@ public final class CoreMenu extends AbstractContainerMenu {
         return ItemStack.EMPTY;
     }
 
+    // The client menu has no core block entity, so only the server checks that the core still exists and the player is in range.
     @Override
     public boolean stillValid(Player clicker) {
         return core == null || !core.isRemoved() && core.getLevel() == clicker.level()

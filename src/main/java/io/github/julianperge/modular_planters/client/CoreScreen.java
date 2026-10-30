@@ -88,6 +88,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         extractTable(graphics, mouseX, mouseY);
     }
 
+    // The default labels draw the title and the inventory name, and this screen draws its own top bar instead.
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
     }
@@ -120,7 +121,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                 Component.translatable("modular_planters.screen.core.power_value", compact(totals.energyStored()), compact(totals.energyCapacity())),
                 Component.translatable("modular_planters.screen.core.fertilizer_value", count(totals.fertilizerCount())),
                 Component.translatable("modular_planters.screen.core.export_value", totals.exportFillPercent()),
-                Component.translatable("modular_planters.screen.core.planters_value", entries.stream().filter(entry -> !entry.heading()).count())
+                Component.translatable("modular_planters.screen.core.planters_value", builtFrom == null ? 0 : builtFrom.rows().size())
         };
         for (int i = 0; i < labels.length; i++) {
             int x = leftPos + PAD + i * (boxWidth + PAD);
