@@ -17,5 +17,6 @@ public final class ModularPlantersClient {
         event.register(MPMenus.FERTILIZER.get(), StorageScreen::new);
         event.register(MPMenus.EXPORT.get(), StorageScreen::new);
         event.register(MPMenus.PLANTER.get(), PlanterScreen::new);
+        event.register(MPMenus.CORE.get(), CoreScreen::new);
     }
 }

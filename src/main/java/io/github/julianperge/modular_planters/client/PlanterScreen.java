@@ -3,16 +3,20 @@ package io.github.julianperge.modular_planters.client;
 import io.github.julianperge.modular_planters.blockentity.PlanterStatus;
 import io.github.julianperge.modular_planters.menu.PlanterMenu;
 import io.github.julianperge.modular_planters.menu.SeedBinSlot;
+import io.github.julianperge.modular_planters.network.CoreRequestPayload;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class PlanterScreen extends AbstractContainerScreen<PlanterMenu> {
     private static final Identifier BACKGROUND = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
@@ -25,6 +29,16 @@ public class PlanterScreen extends AbstractContainerScreen<PlanterMenu> {
     public PlanterScreen(PlanterMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 176, 114 + ROWS * 18);
         this.inventoryLabelY = imageHeight - 94;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        if (menu.fromCore()) {
+            addRenderableWidget(Button.builder(Component.translatable("modular_planters.screen.back_to_core"),
+                            button -> ClientPacketDistributor.sendToServer(new CoreRequestPayload(CoreRequestPayload.Action.BACK_TO_CORE, Optional.empty())))
+                    .bounds(leftPos + imageWidth - 70, topPos + 3, 64, 12).build());
+        }
     }
 
     // The generic chest background draws a grid of slot frames, so the frames that hold no slot are painted over with the panel color.

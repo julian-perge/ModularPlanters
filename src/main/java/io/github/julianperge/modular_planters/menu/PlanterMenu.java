@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.menu;
 
 import io.github.julianperge.modular_planters.ate.AteBridge;
+import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PlanterBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PlanterStatus;
 import io.github.julianperge.modular_planters.network.SeedBinCombosPayload;
@@ -9,8 +10,10 @@ import io.github.julianperge.modular_planters.registry.MPMenus;
 import java.util.List;
 import java.util.function.IntSupplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -63,9 +66,17 @@ public final class PlanterMenu extends AbstractContainerMenu {
     }
 
     // The planter here only holds the items the server syncs into the slots, because the real one lives on the server.
-    public static PlanterMenu onClient(int id, Inventory inventory, BlockPos pos) {
+    public static PlanterMenu onClient(int id, Inventory inventory, BlockPos pos, boolean fromCore) {
         PlanterBlockEntity detached = new PlanterBlockEntity(pos, MPBlocks.PLANTER.get().defaultBlockState());
-        return new PlanterMenu(id, inventory, detached, pos, false);
+        return new PlanterMenu(id, inventory, detached, pos, fromCore);
+    }
+
+    public static void open(ServerPlayer player, PlanterBlockEntity planter, BlockPos anchor, boolean fromCore) {
+        player.openMenu(new SimpleMenuProvider((id, inventory, opener) -> new PlanterMenu(id, inventory, planter, anchor, fromCore),
+                Component.translatable("container.modular_planters.planter")), buffer -> {
+            buffer.writeBlockPos(planter.getBlockPos());
+            buffer.writeBoolean(fromCore);
+        });
     }
 
     private static DataSlot readOnly(IntSupplier value) {
@@ -265,7 +276,18 @@ public final class PlanterMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player clicker) {
-        return !planter.isRemoved() && clicker.isWithinBlockInteractionRange(anchor, 4.0);
+        if (planter.isRemoved() || !clicker.isWithinBlockInteractionRange(anchor, 4.0)) {
+            return false;
+        }
+        return !fromCore || stillInCoreStructure();
+    }
+
+    private boolean stillInCoreStructure() {
+        Level level = planter.getLevel();
+        if (level == null || !(level.getBlockEntity(anchor) instanceof CoreBlockEntity core) || core.multiblock() == null) {
+            return false;
+        }
+        return core.multiblock().planters().contains(planter.getBlockPos());
     }
 
     private static final class SoilSlot extends ResourceHandlerSlot {

@@ -30,5 +30,35 @@ public class MPLang extends LanguageProvider {
         add("modular_planters.screen.working_idle", "%s working, %s idle");
         add("modular_planters.screen.combo", "%s x %s");
         add("modular_planters.screen.upgraded", "%s/%s seeds upgraded");
+        add("modular_planters.screen.back_to_core", "Back to core");
+        add("container.modular_planters.core", "Modular Planter Core");
+        add("modular_planters.screen.core.formed", "FORMED %s / %s");
+        add("modular_planters.screen.core.problem", "%s (%s, %s, %s)");
+        add("modular_planters.screen.core.power", "POWER");
+        add("modular_planters.screen.core.power_value", "%s / %s RF");
+        add("modular_planters.screen.core.draw", "-%s RF/t");
+        add("modular_planters.screen.core.fertilizer", "FERTILIZER");
+        add("modular_planters.screen.core.fertilizer_value", "%s items");
+        add("modular_planters.screen.core.export", "EXPORT");
+        add("modular_planters.screen.core.export_value", "%s%% full");
+        add("modular_planters.screen.core.planters", "PLANTERS");
+        add("modular_planters.screen.core.planters_value", "%s blocks");
+        add("modular_planters.screen.core.seed", "SEED");
+        add("modular_planters.screen.core.growing", "GROWING");
+        add("modular_planters.screen.core.upgrades", "UPGRADES");
+        add("modular_planters.screen.core.status", "STATUS");
+        add("modular_planters.screen.core.location", "LOCATION");
+        add("modular_planters.screen.core.group", "%s (%s)");
+        add("modular_planters.screen.core.empty", "Empty");
+        add("modular_planters.screen.core.no_planters", "No planter blocks in this structure");
+        add("modular_planters.screen.core.highlight", "Highlight in world");
+        add("modular_planters.screen.core.open", "Open planter block");
+        add("modular_planters.problem.waiting_for_chunks", "Waiting for chunks to load");
+        add("modular_planters.problem.second_core", "Second core in the structure");
+        add("modular_planters.problem.too_many_parts", "Too many parts");
+        add("modular_planters.problem.second_me", "Second ME block in the structure");
+        add("modular_planters.problem.missing_power", "Needs a power block");
+        add("modular_planters.problem.missing_export", "Needs an export block");
+        add("modular_planters.problem.missing_planter", "Needs a planter block");
     }
 }

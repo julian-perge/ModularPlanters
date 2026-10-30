@@ -38,6 +38,7 @@ public final class MPTestRegistration {
         PlanterTests.register(cases);
         PlanterLifecycleTests.register(cases);
         MenuTests.register(cases);
+        CoreScreenTests.register(cases);
         return cases;
     }
 
