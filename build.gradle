@@ -12,6 +12,7 @@ version = mod_version
 group = mod_group_id
 
 repositories {
+    mavenCentral()
     maven {
         url "https://www.cursemaven.com"
         content {
@@ -75,6 +76,17 @@ configurations {
 
 dependencies {
     implementation "curse.maven:agritech-evolved-1287394:9155589"
+
+    compileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
+    compileOnly "curse.maven:applied-flux-965012:${appflux_file}"
+    if (!project.hasProperty('noAe2')) {
+        localRuntime "org.appliedenergistics:appliedenergistics2:${ae2_version}"
+        localRuntime "org.appliedenergistics:guideme:${guideme_version}"
+        if (!project.hasProperty('noAppliedFlux')) {
+            localRuntime "curse.maven:applied-flux-965012:${appflux_file}"
+            localRuntime "curse.maven:glodium-957920:${glodium_file}"
+        }
+    }
 
     testImplementation platform("org.junit:junit-bom:5.13.4")
     testImplementation "org.junit.jupiter:junit-jupiter"

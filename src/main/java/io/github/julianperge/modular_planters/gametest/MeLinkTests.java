@@ -60,11 +60,11 @@ public final class MeLinkTests {
         return helper.getBlockEntity(EXPORT, PowerBlockEntity.class);
     }
 
-    private static void fill(ExportBlockEntity export, Item item, int amount) {
+    static void fill(ExportBlockEntity export, Item item, int amount) {
         ResourceHandlerUtil.insertStacking(export.storage(), ItemResource.of(item), amount, null);
     }
 
-    private static int count(ExportBlockEntity export, Item item) {
+    static int count(ExportBlockEntity export, Item item) {
         ItemStacksResourceHandler storage = export.storage();
         int total = 0;
         for (int slot = 0; slot < storage.size(); slot++) {

@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -40,6 +41,9 @@ public final class MPTestRegistration {
         MenuTests.register(cases);
         CoreScreenTests.register(cases);
         MeLinkTests.register(cases);
+        if (ModList.get().isLoaded("ae2")) {
+            Ae2Tests.register(cases);
+        }
         return cases;
     }
 

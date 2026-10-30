@@ -31,3 +31,17 @@ An Agritech: Evolved addon that builds multiblock planters out of modular blocks
     versionRange="[2.2.0,)"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="ae2"
+    type="optional"
+    versionRange="[26.1.13-beta,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="appflux"
+    type="optional"
+    versionRange="[26.1-1.0.2-neoforge,)"
+    ordering="NONE"
+    side="BOTH"

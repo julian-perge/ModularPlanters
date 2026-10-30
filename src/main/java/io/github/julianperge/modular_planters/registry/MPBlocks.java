@@ -32,7 +32,7 @@ public final class MPBlocks {
     private MPBlocks() {
     }
 
-    private static BlockBehaviour.Properties metal(BlockBehaviour.Properties properties) {
+    public static BlockBehaviour.Properties metal(BlockBehaviour.Properties properties) {
         return properties.strength(3.0f, 6.0f).requiresCorrectToolForDrops().sound(SoundType.METAL);
     }
 }
