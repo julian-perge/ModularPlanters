@@ -133,12 +133,15 @@ public final class CoreMenu extends AbstractContainerMenu {
         }
     }
 
-    // Closing a menu puts the cursor stack back into the inventory, so the stack is held out of the old menu and set on the new one, which syncs it to the client on its next broadcast.
+    // Closing a menu puts the cursor stack back into the inventory, so the stack is held out of the old menu and set on whichever menu is open afterwards, even if opening the new one fails, which syncs it to the client on its next broadcast.
     private static void switchMenu(ServerPlayer player, Runnable open) {
         ItemStack carried = player.containerMenu.getCarried();
         player.containerMenu.setCarried(ItemStack.EMPTY);
-        open.run();
-        player.containerMenu.setCarried(carried);
+        try {
+            open.run();
+        } finally {
+            player.containerMenu.setCarried(carried);
+        }
     }
 
     @Override
