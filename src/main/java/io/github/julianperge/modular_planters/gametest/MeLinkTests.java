@@ -1,8 +1,12 @@
 package io.github.julianperge.modular_planters.gametest;
 
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
+import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
+import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
+import io.github.julianperge.modular_planters.multiblock.FertilizerPool;
 import io.github.julianperge.modular_planters.multiblock.MeStatus;
 import io.github.julianperge.modular_planters.multiblock.OutputSink;
+import io.github.julianperge.modular_planters.multiblock.PowerPool;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +34,34 @@ public final class MeLinkTests {
         into.put("room_counts_me_room", new TestCase(20, MeLinkTests::roomCountsMeRoom));
         into.put("me_partial_room_sends_the_rest_to_export",
                 new TestCase(20, MeLinkTests::mePartialRoomSendsTheRestToExport));
+        into.put("export_move_puts_contents_into_me", new TestCase(20, MeLinkTests::exportMovePutsContentsIntoMe));
+        into.put("export_move_conserves_items_when_me_refuses_part",
+                new TestCase(20, MeLinkTests::exportMoveConservesItemsWhenMeRefusesPart));
+        into.put("export_move_skips_offline_link", new TestCase(20, MeLinkTests::exportMoveSkipsOfflineLink));
+        into.put("top_up_fills_fertilizer_from_me", new TestCase(20, MeLinkTests::topUpFillsFertilizerFromMe));
+        into.put("top_up_ignores_non_fertilizer_filter",
+                new TestCase(20, MeLinkTests::topUpIgnoresNonFertilizerFilter));
+        into.put("refill_takes_only_what_was_wanted", new TestCase(20, MeLinkTests::refillTakesOnlyWhatWasWanted));
+        into.put("refill_is_capped_by_room", new TestCase(20, MeLinkTests::refillIsCappedByRoom));
     }
 
     private static ExportBlockEntity placeExport(GameTestHelper helper) {
         helper.setBlock(EXPORT, MPBlocks.EXPORT.get());
         return helper.getBlockEntity(EXPORT, ExportBlockEntity.class);
+    }
+
+    private static FertilizerBlockEntity placeFertilizer(GameTestHelper helper) {
+        helper.setBlock(EXPORT, MPBlocks.FERTILIZER.get());
+        return helper.getBlockEntity(EXPORT, FertilizerBlockEntity.class);
+    }
+
+    private static PowerBlockEntity placePower(GameTestHelper helper) {
+        helper.setBlock(EXPORT, MPBlocks.POWER.get());
+        return helper.getBlockEntity(EXPORT, PowerBlockEntity.class);
+    }
+
+    private static void fill(ExportBlockEntity export, Item item, int amount) {
+        ResourceHandlerUtil.insertStacking(export.storage(), ItemResource.of(item), amount, null);
     }
 
     private static int count(ExportBlockEntity export, Item item) {
@@ -104,6 +131,89 @@ public final class MeLinkTests {
         }
         helper.assertValueEqual(me.stored(ItemResource.of(Items.WHEAT)), 10L, "wheat in ME");
         helper.assertValueEqual(count(export, Items.WHEAT), 118, "wheat in export");
+        helper.succeed();
+    }
+
+    private static void exportMovePutsContentsIntoMe(GameTestHelper helper) {
+        ExportBlockEntity export = placeExport(helper);
+        fill(export, Items.WHEAT, 64);
+        fill(export, Items.COBBLESTONE, 64);
+        FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 1000);
+        OutputSink sink = new OutputSink(List.of(export), me, () -> {});
+        sink.moveExportsInto(me);
+        helper.assertValueEqual(count(export, Items.WHEAT) + count(export, Items.COBBLESTONE), 0, "export left");
+        helper.assertValueEqual(me.stored(ItemResource.of(Items.WHEAT)), 64L, "wheat in ME");
+        helper.assertValueEqual(me.stored(ItemResource.of(Items.COBBLESTONE)), 64L, "cobblestone in ME");
+        helper.succeed();
+    }
+
+    private static void exportMoveConservesItemsWhenMeRefusesPart(GameTestHelper helper) {
+        ExportBlockEntity export = placeExport(helper);
+        fill(export, Items.WHEAT, 64);
+        FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 1000);
+        me.modulateShortfall = 5;
+        OutputSink sink = new OutputSink(List.of(export), me, () -> {});
+        sink.moveExportsInto(me);
+        helper.assertValueEqual(me.stored(ItemResource.of(Items.WHEAT)), 59L, "wheat in ME");
+        helper.assertValueEqual(count(export, Items.WHEAT), 5, "wheat kept in export");
+        helper.succeed();
+    }
+
+    private static void exportMoveSkipsOfflineLink(GameTestHelper helper) {
+        ExportBlockEntity export = placeExport(helper);
+        fill(export, Items.WHEAT, 64);
+        FakeMeLink me = new FakeMeLink(MeStatus.OFFLINE, 1000);
+        OutputSink sink = new OutputSink(List.of(export), me, () -> {});
+        sink.moveExportsInto(me);
+        helper.assertValueEqual(me.stored(ItemResource.of(Items.WHEAT)), 0L, "wheat in ME");
+        helper.assertValueEqual(count(export, Items.WHEAT), 64, "wheat kept in export");
+        helper.succeed();
+    }
+
+    private static void topUpFillsFertilizerFromMe(GameTestHelper helper) {
+        FertilizerBlockEntity block = placeFertilizer(helper);
+        FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 5000);
+        me.filter = ItemResource.of(Items.BONE_MEAL);
+        me.put(ItemResource.of(Items.BONE_MEAL), 2000);
+        FertilizerPool pool = new FertilizerPool(List.of(block), () -> {});
+        pool.topUpFrom(me);
+        helper.assertValueEqual(pool.available(), 27 * 64, "fertilizer stored");
+        helper.assertValueEqual(me.stored(ItemResource.of(Items.BONE_MEAL)), 2000L - 27 * 64, "bone meal left in ME");
+        helper.succeed();
+    }
+
+    private static void topUpIgnoresNonFertilizerFilter(GameTestHelper helper) {
+        FertilizerBlockEntity block = placeFertilizer(helper);
+        FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 5000);
+        me.filter = ItemResource.of(Items.WHEAT);
+        me.put(ItemResource.of(Items.WHEAT), 64);
+        FertilizerPool pool = new FertilizerPool(List.of(block), () -> {});
+        pool.topUpFrom(me);
+        helper.assertValueEqual(pool.available(), 0, "fertilizer stored");
+        helper.assertValueEqual(me.stored(ItemResource.of(Items.WHEAT)), 64L, "wheat left in ME");
+        helper.succeed();
+    }
+
+    private static void refillTakesOnlyWhatWasWanted(GameTestHelper helper) {
+        PowerBlockEntity block = placePower(helper);
+        FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 0);
+        me.energy = 1_000_000;
+        PowerPool pool = new PowerPool(List.of(block), () -> {});
+        helper.assertValueEqual(pool.refillFrom(me, 5000), 5000L, "moved");
+        helper.assertValueEqual(pool.stored(), 5000L, "stored");
+        helper.assertValueEqual(me.energy, 995_000L, "left in ME");
+        helper.succeed();
+    }
+
+    private static void refillIsCappedByRoom(GameTestHelper helper) {
+        PowerBlockEntity block = placePower(helper);
+        block.setStored(3_999_900);
+        FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 0);
+        me.energy = 1_000_000;
+        PowerPool pool = new PowerPool(List.of(block), () -> {});
+        helper.assertValueEqual(pool.refillFrom(me, 5000), 100L, "moved");
+        helper.assertValueEqual(pool.stored(), 4_000_000L, "stored");
+        helper.assertValueEqual(me.energy, 999_900L, "left in ME");
         helper.succeed();
     }
 }

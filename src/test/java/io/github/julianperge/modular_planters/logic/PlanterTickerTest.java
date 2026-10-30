@@ -34,6 +34,20 @@ class PlanterTickerTest {
     }
 
     @Test
+    void pausedResultReportsTheDrawItWanted() {
+        SeedBin<String> b = bin(4);
+        List<Group> g = Grouping.of(b, Collections.nCopies(4, ModuleSet.EMPTY));
+        assertEquals(new AdvanceResult(0, true, 40), PlanterTicker.advance(b, g, x -> 75, m -> 10, 39));
+    }
+
+    @Test
+    void runningResultWantsWhatItUsed() {
+        SeedBin<String> b = bin(4);
+        List<Group> g = Grouping.of(b, Collections.nCopies(4, ModuleSet.EMPTY));
+        assertEquals(new AdvanceResult(40, false, 40), PlanterTicker.advance(b, g, x -> 75, m -> 10, 40));
+    }
+
+    @Test
     void growthTimeIsAskedOncePerGroupAndNotWhilePaused() {
         SeedBin<String> b = bin(3);
         b.add("b", 1);

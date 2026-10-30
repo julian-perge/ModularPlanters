@@ -62,6 +62,32 @@ public final class OutputSink {
         return extractView;
     }
 
+    // ME cannot join a transaction, so each slot gives up the items inside one, offers them to ME, takes back whatever ME refused, and only then commits, which keeps items from being copied or lost.
+    public void moveExportsInto(MeLink me) {
+        if (!me.online()) {
+            return;
+        }
+        for (ExportBlockEntity block : live()) {
+            ItemStacksResourceHandler storage = block.storage();
+            for (int slot = 0; slot < storage.size(); slot++) {
+                ItemResource resource = storage.getResource(slot);
+                if (resource.isEmpty()) {
+                    continue;
+                }
+                int asked = (int) me.insertItem(resource, storage.getAmountAsInt(slot), true);
+                if (asked == 0) {
+                    continue;
+                }
+                try (Transaction tx = Transaction.openRoot()) {
+                    int taken = storage.extract(slot, resource, asked, tx);
+                    int accepted = (int) me.insertItem(resource, taken, false);
+                    storage.insert(slot, resource, taken - accepted, tx);
+                    tx.commit();
+                }
+            }
+        }
+    }
+
     public int fillPercent() {
         long stored = 0;
         long capacity = 0;

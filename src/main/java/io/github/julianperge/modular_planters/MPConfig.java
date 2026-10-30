@@ -13,6 +13,10 @@ public final class MPConfig {
             .comment("How much energy, in RF, each power block holds.")
             .defineInRange("power_block_buffer", 4_000_000, 1, Integer.MAX_VALUE);
 
+    public static final ModConfigSpec.IntValue ME_INTERVAL = BUILDER
+            .comment("How often, in ticks, the ME block moves export contents into ME and tops up the fertilizer blocks.")
+            .defineInRange("me_interval", 20, 1, 1200);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
 
     private MPConfig() {

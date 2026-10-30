@@ -6,9 +6,11 @@ import io.github.julianperge.modular_planters.blockentity.FertilizerBlockEntity;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -86,6 +88,49 @@ public final class FertilizerPool {
 
     public ResourceHandler<ItemResource> insertView() {
         return insertView;
+    }
+
+    public void topUpFrom(MeLink me) {
+        if (!me.online()) {
+            return;
+        }
+        ItemResource filter = me.fertilizerFilter();
+        if (AteBridge.fertilizer(filter) == null) {
+            return;
+        }
+        List<FertilizerBlockEntity> live = live();
+        int room;
+        // The transaction is never committed, so measuring the room leaves the storage as it was.
+        try (Transaction tx = Transaction.openRoot()) {
+            room = insertInto(live, filter, Integer.MAX_VALUE, tx);
+        }
+        if (room == 0) {
+            return;
+        }
+        int taken = (int) me.extractItem(filter, room, false);
+        if (taken == 0) {
+            return;
+        }
+        int inserted;
+        try (Transaction tx = Transaction.openRoot()) {
+            inserted = insertInto(live, filter, taken, tx);
+            tx.commit();
+        }
+        if (inserted < taken) {
+            me.insertItem(filter, taken - inserted, false);
+        }
+    }
+
+    private static int insertInto(List<FertilizerBlockEntity> blocks, ItemResource resource, int amount,
+                                  TransactionContext transaction) {
+        int inserted = 0;
+        for (FertilizerBlockEntity block : blocks) {
+            if (inserted == amount) {
+                break;
+            }
+            inserted += ResourceHandlerUtil.insertStacking(block.storage(), resource, amount - inserted, transaction);
+        }
+        return inserted;
     }
 
     public Budget budget() {

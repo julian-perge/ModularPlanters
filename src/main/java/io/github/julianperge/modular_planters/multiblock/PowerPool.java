@@ -51,6 +51,31 @@ public final class PowerPool {
         return true;
     }
 
+    public long refillFrom(MeLink me, long wanted) {
+        if (!me.online()) {
+            return 0;
+        }
+        List<PowerBlockEntity> live = live();
+        long room = 0;
+        for (PowerBlockEntity block : live) {
+            room += Math.max(0, block.capacity() - block.stored());
+        }
+        long asked = Math.min(wanted, room);
+        if (asked <= 0) {
+            return 0;
+        }
+        long moved = me.extractEnergy(asked, false);
+        long remaining = moved;
+        for (PowerBlockEntity block : live) {
+            int added = (int) Math.min(remaining, Math.max(0, block.capacity() - block.stored()));
+            if (added > 0) {
+                block.setStored(block.stored() + added);
+                remaining -= added;
+            }
+        }
+        return moved;
+    }
+
     public EnergyHandler insertView() {
         return insertView;
     }
