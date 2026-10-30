@@ -10,8 +10,7 @@ public final class PlanterTicker {
     public record AdvanceResult(long energyUsed, boolean pausedForPower) {
     }
 
-    // A planter short on power does nothing that tick and never asks for a growth time, because the
-    // Powered Planter takes its energy before it posts the processing time event.
+    // A planter short on power advances no seed and asks for no growth time that tick, because the Powered Planter takes its energy before it posts the processing time event, but the caller still harvests the seeds that were already ready.
     public static <S> AdvanceResult advance(SeedBin<S> bin, List<Group> groups, ToIntFunction<Group> growthTime,
                                             ToIntFunction<ModuleSet> powerPerSeed, long energyAvailable) {
         long draw = 0;

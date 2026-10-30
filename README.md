@@ -48,6 +48,7 @@ The core screen shows the formed state and part count, the reason when the multi
 - Fertilizer is taken from the first non-empty slot of the fertilizer blocks. Each tick, planter blocks claim it in position order, and each group claims one item for every one of its seeds or nothing. A group without a claim grows and harvests unfertilized that tick. A claim uses up fertilizer only when its group harvests, so the fertilizer stored speeds up only as many seeds as it can pay for.
 - When there is no room in the export blocks, planter blocks wait. Nothing is voided.
 - Breaking a block drops everything it holds.
+- Picking up the whole seed run and putting it back, or scrolling seeds out and back in one at a time, restarts those seeds' growth. No items are lost.
 
 ### Built-in cloche
 
