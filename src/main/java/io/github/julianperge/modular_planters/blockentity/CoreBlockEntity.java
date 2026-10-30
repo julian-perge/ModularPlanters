@@ -55,7 +55,7 @@ public class CoreBlockEntity extends BlockEntity {
         if (multiblock == null || power == null || fertilizer == null || outputs == null || !allPartsLoaded()) {
             return;
         }
-        TickContext context = new TickContext(level, level.getRandom(), AteBridge.numbers(), power, fertilizer, outputs);
+        TickContext context = new TickContext(level, level.getRandom(), AteBridge.numbers(), power, fertilizer.budget(), outputs);
         for (BlockPos pos : multiblock.planters()) {
             if (level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
                 planter.tickFromCore(context);

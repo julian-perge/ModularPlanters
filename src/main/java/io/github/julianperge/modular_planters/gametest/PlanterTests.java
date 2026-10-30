@@ -48,6 +48,8 @@ public final class PlanterTests {
                 new TestCase(120, PlanterTests::powerGoesToPlantersInPositionOrder));
         into.put("soil_limits_growing_seeds", new TestCase(150, PlanterTests::soilLimitsGrowingSeeds));
         into.put("fertilizer_is_used_per_seed", new TestCase(120, PlanterTests::fertilizerIsUsedPerSeed));
+        into.put("fertilizer_is_reserved_in_position_order",
+                new TestCase(150, PlanterTests::fertilizerIsReservedInPositionOrder));
         into.put("waits_for_export_room", new TestCase(160, PlanterTests::waitsForExportRoom));
         into.put("extra_drops_are_held_not_voided", new TestCase(180, PlanterTests::extraDropsAreHeldNotVoided));
     }
@@ -248,6 +250,47 @@ public final class PlanterTests {
                 .thenExecute(() -> {
                     helper.assertTrue(helper.getTick() <= 75, "harvested by tick 75, at tick " + helper.getTick());
                     helper.assertValueEqual(count(fertilizer, Items.BONE_MEAL), 0, "bone meal left");
+                })
+                .thenSucceed();
+    }
+
+    // The second planter block starts 10 ticks earlier, so without a reservation it would be ready first and take the fertilizer.
+    private static void fertilizerIsReservedInPositionOrder(GameTestHelper helper) {
+        Fixtures.Rig rig = Fixtures.rig(helper, 2);
+        BlockPos fertilizerPos = new BlockPos(1, 1, 0);
+        helper.setBlock(fertilizerPos, MPBlocks.FERTILIZER.get());
+        ItemStacksResourceHandler fertilizer = helper.getBlockEntity(fertilizerPos, FertilizerBlockEntity.class).storage();
+        try (Transaction tx = Transaction.openRoot()) {
+            helper.assertValueEqual(fertilizer.insert(ItemResource.of(Items.BONE_MEAL), 6, tx), 6, "inserted bone meal");
+            tx.commit();
+        }
+        BlockPos firstPos = helper.absolutePos(rig.planters().get(0));
+        BlockPos secondPos = helper.absolutePos(rig.planters().get(1));
+        AtomicLong firstPlanted = new AtomicLong(-1);
+        AtomicLong firstHarvested = new AtomicLong(-1);
+        AtomicLong secondHarvested = new AtomicLong(-1);
+        listen(helper, PlanterPostHarvestEvent.class, event -> {
+            BlockPos at = event.getPlanter().getBlockPos();
+            if (at.equals(firstPos)) {
+                firstHarvested.compareAndSet(-1, helper.getTick());
+            } else if (at.equals(secondPos)) {
+                secondHarvested.compareAndSet(-1, helper.getTick());
+            }
+        });
+        Fixtures.plant(planter(helper, rig, 1), 4, 4, 4);
+        helper.startSequence()
+                .thenExecuteAfter(10, () -> {
+                    Fixtures.plant(planter(helper, rig, 0), 4, 4, 4);
+                    firstPlanted.set(helper.getTick());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(firstHarvested.get() >= 0 && secondHarvested.get() >= 0,
+                        "both planters harvested"))
+                .thenExecute(() -> {
+                    long firstGrowth = firstHarvested.get() - firstPlanted.get();
+                    helper.assertTrue(firstGrowth <= 75, "first planter grew fertilized, in " + firstGrowth + " ticks");
+                    helper.assertTrue(secondHarvested.get() >= 85,
+                            "second planter grew unfertilized, in " + secondHarvested.get() + " ticks");
+                    helper.assertValueEqual(count(fertilizer, Items.BONE_MEAL), 2, "bone meal left after one fertilized harvest");
                 })
                 .thenSucceed();
     }

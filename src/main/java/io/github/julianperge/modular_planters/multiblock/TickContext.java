@@ -5,5 +5,5 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 
 public record TickContext(ServerLevel level, RandomSource random, AteNumbers numbers, PowerPool power,
-                          FertilizerPool fertilizer, OutputSink outputs) {
+                          FertilizerPool.Budget fertilizer, OutputSink outputs) {
 }

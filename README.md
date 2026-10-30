@@ -45,7 +45,7 @@ The core screen shows the formed state and part count, the reason when the multi
 - One module covers one seed. Module 1 covers the first seeds in the bin and module 2 does the same, so seeds fill both modules first.
 - Seeds with the same modules and the same seed data grow as a group. Each seed levels on its own, as it would in its own Powered Planter.
 - Growth time, power and fertilizer follow ATE's formulas and are read from ATE's live config. Power is drawn each tick for every seed that is still growing. If the power blocks can't cover a planter block's full draw, its seeds stop growing for that tick. Seeds that are already ready still harvest.
-- Fertilizer is taken from the first non-empty slot of the fertilizer blocks. A group counts as fertilized only when there is enough for all its seeds.
+- Fertilizer is taken from the first non-empty slot of the fertilizer blocks. Each tick, planter blocks claim it in position order, and each group claims one item for every one of its seeds or nothing. A group without a claim grows and harvests unfertilized that tick. A claim uses up fertilizer only when its group harvests, so the fertilizer stored speeds up only as many seeds as it can pay for.
 - When there is no room in the export blocks, planter blocks wait. Nothing is voided.
 - Breaking a block drops everything it holds.
 

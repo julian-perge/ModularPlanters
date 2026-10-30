@@ -87,4 +87,34 @@ public final class FertilizerPool {
     public ResourceHandler<ItemResource> insertView() {
         return insertView;
     }
+
+    public Budget budget() {
+        FertilizerData data = data();
+        return new Budget(this, data, data == null ? 0 : available());
+    }
+
+    // Every planter block of a core claims from one budget per tick, in the position order the core ticks them, so claims never add up to more than the pool held when the tick started, and a claim takes items only when its group harvests, one per seed.
+    public static final class Budget {
+        private final FertilizerPool pool;
+        private final @Nullable FertilizerData data;
+        private int unclaimed;
+
+        private Budget(FertilizerPool pool, @Nullable FertilizerData data, int unclaimed) {
+            this.pool = pool;
+            this.data = data;
+            this.unclaimed = unclaimed;
+        }
+
+        public @Nullable FertilizerData claim(int seeds) {
+            if (data == null || seeds > unclaimed) {
+                return null;
+            }
+            unclaimed -= seeds;
+            return data;
+        }
+
+        public void consume(int count) {
+            pool.consume(count);
+        }
+    }
 }

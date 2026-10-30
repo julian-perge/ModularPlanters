@@ -24,6 +24,7 @@ import io.github.julianperge.modular_planters.registry.MPBlockEntities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -108,13 +109,11 @@ public class PlanterBlockEntity extends BlockEntity {
 
     public void tickFromCore(TickContext ctx) {
         lastDraw = 0;
+        boolean holding = false;
         if (!heldOutputs.isEmpty()) {
             flushHeldOutputs(ctx.outputs());
             setChanged();
-            if (!heldOutputs.isEmpty()) {
-                setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
-                return;
-            }
+            holding = !heldOutputs.isEmpty();
         }
 
         int soilCount = soilAndModules.getAmountAsInt(SOIL);
@@ -122,6 +121,10 @@ public class PlanterBlockEntity extends BlockEntity {
         Optional<AteBridge.PlantRecipe> recipe = seeds.size() == 0 || soil.isEmpty()
                 ? Optional.empty() : AteBridge.recipe(ctx.level(), seeds.seed(0));
         if (recipe.isEmpty() || !recipe.get().soilMatches().test(soil)) {
+            if (holding) {
+                setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
+                return;
+            }
             seeds.resetAll();
             growing = 0;
             upgraded = 0;
@@ -130,20 +133,35 @@ public class PlanterBlockEntity extends BlockEntity {
             return;
         }
 
-        growing = Coverage.growing(seeds.size(), soilCount);
-        seeds.resetFrom(growing);
+        int nowGrowing = Coverage.growing(seeds.size(), soilCount);
         ModuleKind kind1 = moduleKind(MODULE_1);
         ModuleKind kind2 = moduleKind(MODULE_2);
         int count1 = moduleCount(MODULE_1, kind1);
         int count2 = moduleCount(MODULE_2, kind2);
+        List<Group> groups = Grouping.of(seeds, Coverage.assign(nowGrowing, kind1, count1, kind2, count2));
+
+        // Each group decides once per tick, before any pause, so a paused group still holds its claim and one decision sets both its growth time and its harvest.
+        Map<Group, FertilizerData> fertilized = new HashMap<>();
+        for (Group group : groups) {
+            FertilizerData claimed = ctx.fertilizer().claim(group.size());
+            if (claimed != null) {
+                fertilized.put(group, claimed);
+            }
+        }
+        if (holding) {
+            setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
+            return;
+        }
+
+        growing = nowGrowing;
+        seeds.resetFrom(growing);
         upgraded = Coverage.upgraded(growing, count1, count2);
-        List<Group> groups = Grouping.of(seeds, Coverage.assign(growing, kind1, count1, kind2, count2));
 
         AteNumbers numbers = ctx.numbers();
         float soilModifier = AteBridge.soilModifier(soil);
         PlanterStatus paused = null;
         PlanterTicker.AdvanceResult result = PlanterTicker.advance(seeds, groups,
-                group -> processingTime(ctx, group, soilModifier),
+                group -> processingTime(ctx, group, soilModifier, fertilized.get(group)),
                 modules -> GrowthMath.powerPerSeedTick(numbers, modules),
                 ctx.power().stored());
         if (result.pausedForPower()) {
@@ -158,7 +176,7 @@ public class PlanterBlockEntity extends BlockEntity {
             if (!seeds.ready(group.first())) {
                 continue;
             }
-            FertilizerData fertilizer = fertilizerFor(ctx, group);
+            FertilizerData fertilizer = fertilized.get(group);
             float fertilizerYield = fertilizer != null ? fertilizer.yieldMultiplier() : 1.0f;
             float moduleYield = group.modules().yieldModifier(numbers);
             float modifier = fertilizerYield * moduleYield * (float) numbers.clocheYield();
@@ -202,12 +220,7 @@ public class PlanterBlockEntity extends BlockEntity {
         return kind == ModuleKind.NONE ? 0 : soilAndModules.getAmountAsInt(slot);
     }
 
-    private static @Nullable FertilizerData fertilizerFor(TickContext ctx, Group group) {
-        return ctx.fertilizer().available() >= group.size() ? ctx.fertilizer().data() : null;
-    }
-
-    private int processingTime(TickContext ctx, Group group, float soilModifier) {
-        FertilizerData fertilizer = fertilizerFor(ctx, group);
+    private int processingTime(TickContext ctx, Group group, float soilModifier, @Nullable FertilizerData fertilizer) {
         float fertilizerSpeed = fertilizer != null ? fertilizer.speedMultiplier() : 1.0f;
         int time = GrowthMath.growthTime(ctx.numbers(), soilModifier, group.modules(), fertilizerSpeed);
         return NeoForge.EVENT_BUS.post(new PlanterProcessingTimeEvent(this, seeds.seed(group.first()).copy(), time))
