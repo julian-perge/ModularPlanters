@@ -21,5 +21,13 @@ public class MPLang extends LanguageProvider {
         add("container.modular_planters.fertilizer", "Fertilizer Storage");
         add("container.modular_planters.export", "Export Storage");
         addBlock(MPBlocks.PLANTER, "Modular Planter Block");
+        add("container.modular_planters.planter", "Modular Planter");
+        add("modular_planters.status.idle", "Idle");
+        add("modular_planters.status.growing", "Growing");
+        add("modular_planters.status.short_on_soil", "Short on soil");
+        add("modular_planters.status.paused_for_power", "Paused: not enough power");
+        add("modular_planters.status.paused_export_full", "Paused: export full");
+        add("modular_planters.screen.working_idle", "%s working, %s idle");
+        add("modular_planters.screen.upgraded", "%s/%s seeds upgraded");
     }
 }

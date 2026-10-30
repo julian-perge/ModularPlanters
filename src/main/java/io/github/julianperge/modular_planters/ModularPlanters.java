@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters;
 
 import io.github.julianperge.modular_planters.gametest.MPTestRegistration;
+import io.github.julianperge.modular_planters.network.MPNetwork;
 import io.github.julianperge.modular_planters.registry.MPBlockEntities;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import io.github.julianperge.modular_planters.registry.MPCreativeTab;
@@ -24,6 +25,7 @@ public class ModularPlanters {
         MPDataComponents.COMPONENTS.register(modEventBus);
         MPMenus.MENUS.register(modEventBus);
         modEventBus.addListener(MPBlockEntities::registerCapabilities);
+        modEventBus.addListener(MPNetwork::register);
         MPCreativeTab.TABS.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.SERVER, MPConfig.SPEC);
         if (GameTestHooks.isGametestEnabled()) {

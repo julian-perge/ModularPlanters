@@ -37,6 +37,7 @@ public final class MPTestRegistration {
         AteBridgeTests.register(cases);
         PlanterTests.register(cases);
         PlanterLifecycleTests.register(cases);
+        MenuTests.register(cases);
         return cases;
     }
 

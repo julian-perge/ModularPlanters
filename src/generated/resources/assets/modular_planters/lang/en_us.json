@@ -7,5 +7,13 @@
   "block.modular_planters.power": "Modular Planter Power Block",
   "container.modular_planters.export": "Export Storage",
   "container.modular_planters.fertilizer": "Fertilizer Storage",
-  "itemGroup.modular_planters": "Modular Planters"
+  "container.modular_planters.planter": "Modular Planter",
+  "itemGroup.modular_planters": "Modular Planters",
+  "modular_planters.screen.upgraded": "%s/%s seeds upgraded",
+  "modular_planters.screen.working_idle": "%s working, %s idle",
+  "modular_planters.status.growing": "Growing",
+  "modular_planters.status.idle": "Idle",
+  "modular_planters.status.paused_export_full": "Paused: export full",
+  "modular_planters.status.paused_for_power": "Paused: not enough power",
+  "modular_planters.status.short_on_soil": "Short on soil"
 }

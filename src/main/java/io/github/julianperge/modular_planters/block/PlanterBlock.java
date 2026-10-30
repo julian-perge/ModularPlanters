@@ -2,7 +2,15 @@ package io.github.julianperge.modular_planters.block;
 
 import io.github.julianperge.modular_planters.blockentity.PlanterBlockEntity;
 import io.github.julianperge.modular_planters.logic.PartType;
+import io.github.julianperge.modular_planters.menu.PlanterMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,6 +30,17 @@ public class PlanterBlock extends PartBlock implements EntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
+                && level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
+            serverPlayer.openMenu(new SimpleMenuProvider(
+                    (id, inventory, opener) -> new PlanterMenu(id, inventory, planter, pos, false),
+                    Component.translatable("container.modular_planters.planter")), pos);
+        }
+        return InteractionResult.SUCCESS;
     }
 
     @Override

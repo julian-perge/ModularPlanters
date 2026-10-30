@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.registry;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.github.julianperge.modular_planters.menu.PlanterMenu;
 import io.github.julianperge.modular_planters.menu.StorageMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
@@ -16,6 +17,9 @@ public final class MPMenus {
             () -> IMenuTypeExtension.create((id, inventory, buffer) -> StorageMenu.fertilizerOnClient(id, inventory)));
     public static final DeferredHolder<MenuType<?>, MenuType<StorageMenu>> EXPORT = MENUS.register("export",
             () -> IMenuTypeExtension.create((id, inventory, buffer) -> StorageMenu.exportOnClient(id, inventory)));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<PlanterMenu>> PLANTER = MENUS.register("planter",
+            () -> IMenuTypeExtension.create((id, inventory, buffer) -> PlanterMenu.onClient(id, inventory, buffer.readBlockPos())));
 
     private MPMenus() {
     }

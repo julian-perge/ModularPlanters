@@ -16,5 +16,6 @@ public final class ModularPlantersClient {
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(MPMenus.FERTILIZER.get(), StorageScreen::new);
         event.register(MPMenus.EXPORT.get(), StorageScreen::new);
+        event.register(MPMenus.PLANTER.get(), PlanterScreen::new);
     }
 }
