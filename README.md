@@ -29,7 +29,7 @@ So one Logistics Networks node on the core, or one cable or pipe, runs the whole
 
 ### Core screen
 
-The core screen shows the formed state and part count, the reason when the multiblock is not formed, stored power and draw, fertilizer stored, and how full the export blocks are. It lists every planter block with its seed, growing count, module coverage, status and position. Each row has an Outline toggle that shows or hides a glowing outline of that block, for you only, and an Open button that opens the planter block's screen remotely. The server checks that you are within 4 blocks of the core and that the planter block belongs to that core's formed multiblock.
+The core screen shows the formed state and part count, the reason when the multiblock is not formed, stored power and draw, fertilizer stored, how full the export blocks are, and the ME status. It lists every planter block with its seed, growing count, module coverage, status and position. Each row has an Outline toggle that shows or hides a glowing outline of that block, for you only, and an Open button that opens the planter block's screen remotely. The server checks that you are within 4 blocks of the core and that the planter block belongs to that core's formed multiblock.
 
 ## Building rules
 
@@ -81,12 +81,12 @@ The mod runs without AE2, Applied Flux, or both. Without AE2 there is no ME bloc
 - A multiblock can have at most one ME block. A second one stops the multiblock from forming. The ME block uses one AE2 channel.
 - Harvests go into ME first and whatever ME does not take goes into the export blocks. When ME is offline (no power or no channel), everything goes to the export blocks.
 - Every `me_interval` ticks the ME block moves the export blocks' contents into ME and tops the fertilizer blocks up from ME with the fertilizer set in its filter slot.
-- Item moves cost AE energy, the same as an ME Interface.
+- Item moves cost AE energy, the same as an ME Interface. The ME block also draws 1 AE/t while idle.
 - The core screen shows the ME status: None, Offline, No channel or Online.
 
 ### Fertilizer filter
 
-The filter slot is a ghost slot. Click it with a fertilizer to set it, or with an empty hand to clear it. No item is used up. Only ATE fertilizers are accepted. The top-up fills free room in the fertilizer blocks even when they hold another fertilizer, and the first fertilizer found is still the one planters use.
+The filter slot is a ghost slot. Click it with a fertilizer to set it, or with an empty hand to clear it. Shift-clicking a fertilizer in your inventory also sets it. No item is used up. Only ATE fertilizers are accepted. The top-up fills free room in the fertilizer blocks even when they hold another fertilizer, and the first fertilizer found is still the one planters use.
 
 ### Applied Flux
 
