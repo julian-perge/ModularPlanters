@@ -8,6 +8,8 @@ import io.github.julianperge.modular_planters.logic.Problem;
 import io.github.julianperge.modular_planters.logic.ScanResult;
 import io.github.julianperge.modular_planters.logic.StructureScanner;
 import io.github.julianperge.modular_planters.multiblock.FertilizerPool;
+import io.github.julianperge.modular_planters.multiblock.MeLink;
+import io.github.julianperge.modular_planters.multiblock.MeStatus;
 import io.github.julianperge.modular_planters.multiblock.Multiblock;
 import io.github.julianperge.modular_planters.multiblock.OutputSink;
 import io.github.julianperge.modular_planters.multiblock.PowerPool;
@@ -34,6 +36,7 @@ public class CoreBlockEntity extends BlockEntity {
     private @Nullable PowerPool power;
     private @Nullable FertilizerPool fertilizer;
     private @Nullable OutputSink outputs;
+    private @Nullable MeLink me;
     private boolean dirty = true;
     private boolean poolsStale;
 
@@ -93,6 +96,10 @@ public class CoreBlockEntity extends BlockEntity {
         return outputs;
     }
 
+    public MeStatus meStatus() {
+        return me == null || me.isRemoved() ? MeStatus.NONE : me.status();
+    }
+
     public boolean allPartsLoaded() {
         return level != null && (multiblock == null || multiblock.all().stream().allMatch(level::isLoaded));
     }
@@ -119,6 +126,7 @@ public class CoreBlockEntity extends BlockEntity {
             power = null;
             fertilizer = null;
             outputs = null;
+            me = null;
         } else {
             Multiblock previous = multiblock;
             multiblock = result.formed() ? Multiblock.from(result) : null;
@@ -153,11 +161,14 @@ public class CoreBlockEntity extends BlockEntity {
             power = null;
             fertilizer = null;
             outputs = null;
+            me = null;
             return;
         }
         power = new PowerPool(blockEntities(level, multiblock.power(), PowerBlockEntity.class), this::markPoolsStale);
         fertilizer = new FertilizerPool(blockEntities(level, multiblock.fertilizer(), FertilizerBlockEntity.class), this::markPoolsStale);
-        outputs = new OutputSink(blockEntities(level, multiblock.export(), ExportBlockEntity.class), this::markPoolsStale);
+        BlockPos mePos = multiblock.me();
+        me = mePos != null && level.getBlockEntity(mePos) instanceof MeLink link ? link : null;
+        outputs = new OutputSink(blockEntities(level, multiblock.export(), ExportBlockEntity.class), me, this::markPoolsStale);
     }
 
     private static <T extends BlockEntity> List<T> blockEntities(Level level, List<BlockPos> positions, Class<T> type) {

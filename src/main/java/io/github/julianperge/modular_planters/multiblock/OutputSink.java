@@ -16,12 +16,14 @@ import java.util.List;
 
 public final class OutputSink {
     private final List<ExportBlockEntity> blocks;
+    private final @Nullable MeLink me;
     private final Runnable onStale;
     private final ResourceHandler<ItemResource> extractView = new DelegatingResourceHandler<>(
             () -> new CombinedResourceHandler<>(live().stream().map(ExportBlockEntity::externalHandler).toList()));
 
-    public OutputSink(List<ExportBlockEntity> inOrder, Runnable onStale) {
+    public OutputSink(List<ExportBlockEntity> inOrder, @Nullable MeLink me, Runnable onStale) {
         this.blocks = List.copyOf(inOrder);
+        this.me = me;
         this.onStale = onStale;
     }
 
@@ -29,8 +31,20 @@ public final class OutputSink {
         return LiveBlocks.of(blocks, onStale);
     }
 
+    private @Nullable MeLink liveMe() {
+        if (me == null) {
+            return null;
+        }
+        if (me.isRemoved()) {
+            onStale.run();
+            return null;
+        }
+        return me;
+    }
+
     public boolean hasRoomFor(List<ItemStack> stacks) {
         try (Transaction tx = Transaction.openRoot()) {
+            // ME has no transactions, so stacks that share ME room can both pass, and the part ME refuses later goes to the export blocks or is held in the planter block.
             for (ItemStack stack : stacks) {
                 if (!insertInto(stack, tx).isEmpty()) {
                     return false;
@@ -67,6 +81,10 @@ public final class OutputSink {
         }
         ItemResource resource = ItemResource.of(stack);
         int remaining = stack.getCount();
+        MeLink link = liveMe();
+        if (link != null && link.online()) {
+            remaining -= (int) link.insertItem(resource, remaining, transaction != null);
+        }
         for (ExportBlockEntity block : live()) {
             if (remaining == 0) {
                 break;
