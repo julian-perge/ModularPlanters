@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.network;
 
 import io.github.julianperge.modular_planters.ModularPlanters;
+import io.netty.handler.codec.DecoderException;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -15,10 +16,17 @@ public record CoreRequestPayload(Action action, Optional<BlockPos> planter) impl
     public static final Type<CoreRequestPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(ModularPlanters.MOD_ID, "core_request"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CoreRequestPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.idMapper(index -> Action.values()[Math.clamp(index, 0, Action.values().length - 1)], Action::ordinal),
+            ByteBufCodecs.idMapper(CoreRequestPayload::actionAt, Action::ordinal),
             CoreRequestPayload::action,
             ByteBufCodecs.optional(BlockPos.STREAM_CODEC), CoreRequestPayload::planter,
             CoreRequestPayload::new);
+
+    private static Action actionAt(int index) {
+        if (index < 0 || index >= Action.values().length) {
+            throw new DecoderException("Unknown core request action " + index);
+        }
+        return Action.values()[index];
+    }
 
     @Override
     public Type<CoreRequestPayload> type() {

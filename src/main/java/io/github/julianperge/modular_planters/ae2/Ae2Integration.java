@@ -29,7 +29,7 @@ public final class Ae2Integration {
     private Ae2Integration() {
     }
 
-    // Calling this loads the class, and loading it adds the ME block, its item, its block entity and its menu type to the mod's registers through the static fields above.
+    // Calling this initializes the class, and initializing it adds the ME block, its item, its block entity and its menu type to the mod's registers through the static fields above.
     public static void init(IEventBus modEventBus) {
         modEventBus.addListener(Ae2Integration::registerCapabilities);
     }

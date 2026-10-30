@@ -20,7 +20,7 @@ public final class MPMenus {
             () -> IMenuTypeExtension.create((id, inventory, buffer) -> StorageMenu.exportOnClient(id, inventory)));
 
     public static final DeferredHolder<MenuType<?>, MenuType<PlanterMenu>> PLANTER = MENUS.register("planter",
-            () -> IMenuTypeExtension.create((id, inventory, buffer) -> PlanterMenu.onClient(id, inventory, buffer.readBlockPos(), buffer.readBoolean())));
+            () -> IMenuTypeExtension.create((id, inventory, buffer) -> PlanterMenu.onClient(id, inventory, buffer.readBlockPos(), buffer.readBlockPos(), buffer.readBoolean())));
 
     public static final DeferredHolder<MenuType<?>, MenuType<CoreMenu>> CORE = MENUS.register("core",
             () -> IMenuTypeExtension.create((id, inventory, buffer) -> CoreMenu.onClient(id, inventory, buffer.readBlockPos())));

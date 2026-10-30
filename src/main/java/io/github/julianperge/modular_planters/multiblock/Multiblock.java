@@ -3,7 +3,7 @@ package io.github.julianperge.modular_planters.multiblock;
 import io.github.julianperge.modular_planters.logic.PartType;
 import io.github.julianperge.modular_planters.logic.ScanResult;
 import net.minecraft.core.BlockPos;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

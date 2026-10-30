@@ -254,15 +254,17 @@ public final class MenuTests {
                 planter.seeds().advance(i);
             }
         }
-        planter.seeds().markReady(10);
+        for (int i = 0; i < seedCount; i++) {
+            planter.seeds().markReady(i);
+        }
     }
 
     private static void assertProgressKept(GameTestHelper helper, PlanterBlockEntity planter, int kept) {
         helper.assertValueEqual(planter.seeds().size(), kept, "seeds left in the bin");
         for (int i = 0; i < kept; i++) {
             helper.assertValueEqual(planter.seeds().progress(i), 3, "progress of seed " + i);
+            helper.assertValueEqual(planter.seeds().ready(i), true, "ready flag of seed " + i);
         }
-        helper.assertValueEqual(planter.seeds().ready(10), true, "ready flag of seed 10");
     }
 
     private static void shiftClickKeepsProgressWithAFullInventory(GameTestHelper helper) {

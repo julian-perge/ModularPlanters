@@ -21,7 +21,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class CoreMenu extends AbstractContainerMenu {
     private static final int SEND_INTERVAL = 10;
@@ -118,7 +118,7 @@ public final class CoreMenu extends AbstractContainerMenu {
             return;
         }
         if (player.level().isLoaded(pos) && player.level().getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
-            PlanterMenu.open(player, planter, menu.corePos, true);
+            switchMenu(player, () -> PlanterMenu.open(player, planter, menu.corePos, true));
         }
     }
 
@@ -129,8 +129,16 @@ public final class CoreMenu extends AbstractContainerMenu {
         BlockPos anchor = menu.anchor();
         if (player.level().isLoaded(anchor) && player.isWithinBlockInteractionRange(anchor, REACH)
                 && player.level().getBlockEntity(anchor) instanceof CoreBlockEntity core) {
-            open(player, core);
+            switchMenu(player, () -> open(player, core));
         }
+    }
+
+    // Closing a menu puts the cursor stack back into the inventory, so the stack is held out of the old menu and set on the new one, which syncs it to the client on its next broadcast.
+    private static void switchMenu(ServerPlayer player, Runnable open) {
+        ItemStack carried = player.containerMenu.getCarried();
+        player.containerMenu.setCarried(ItemStack.EMPTY);
+        open.run();
+        player.containerMenu.setCarried(carried);
     }
 
     @Override

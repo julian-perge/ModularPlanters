@@ -29,8 +29,11 @@ public final class RecipeTests {
         for (DeferredBlock<? extends Block> part : PARTS) {
             RecipeHolder<?> recipe = helper.getLevel().recipeAccess().recipeMap()
                     .byKey(ResourceKey.create(Registries.RECIPE, part.getId()));
-            helper.assertTrue(recipe != null && recipe.value() instanceof ShapedRecipe,
-                    "No shaped recipe " + part.getId());
+            if (recipe == null) {
+                helper.fail("No recipe " + part.getId());
+                return;
+            }
+            helper.assertTrue(recipe.value() instanceof ShapedRecipe, "No shaped recipe " + part.getId());
             helper.assertValueEqual(((ShapedRecipe) recipe.value()).assemble(CraftingInput.EMPTY).getItem(),
                     part.asItem(), "result of " + part.getId());
         }

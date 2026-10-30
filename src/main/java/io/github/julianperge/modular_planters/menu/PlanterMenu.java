@@ -66,15 +66,16 @@ public final class PlanterMenu extends AbstractContainerMenu {
     }
 
     // The planter here only holds the items the server syncs into the slots, because the real one lives on the server.
-    public static PlanterMenu onClient(int id, Inventory inventory, BlockPos pos, boolean fromCore) {
+    public static PlanterMenu onClient(int id, Inventory inventory, BlockPos pos, BlockPos anchor, boolean fromCore) {
         PlanterBlockEntity detached = new PlanterBlockEntity(pos, MPBlocks.PLANTER.get().defaultBlockState());
-        return new PlanterMenu(id, inventory, detached, pos, fromCore);
+        return new PlanterMenu(id, inventory, detached, anchor, fromCore);
     }
 
     public static void open(ServerPlayer player, PlanterBlockEntity planter, BlockPos anchor, boolean fromCore) {
         player.openMenu(new SimpleMenuProvider((id, inventory, opener) -> new PlanterMenu(id, inventory, planter, anchor, fromCore),
                 Component.translatable("container.modular_planters.planter")), buffer -> {
             buffer.writeBlockPos(planter.getBlockPos());
+            buffer.writeBlockPos(anchor);
             buffer.writeBoolean(fromCore);
         });
     }

@@ -15,6 +15,7 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
@@ -70,17 +71,26 @@ public final class MPTestRegistration {
         return Identifier.fromNamespaceAndPath(ModularPlanters.MOD_ID, path);
     }
 
-    private static final class CaseInstance extends GameTestInstance {
+    static final class CaseInstance extends GameTestInstance {
         static final MapCodec<CaseInstance> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 Codec.STRING.fieldOf("case").forGetter(test -> test.name),
                 TestData.CODEC.forGetter(CaseInstance::info)
         ).apply(instance, CaseInstance::new));
 
-        private final String name;
+        final String name;
+
+        static Holder<TestEnvironmentDefinition<?>> environment(GameTestHelper helper) {
+            return helper.getLevel().registryAccess().lookupOrThrow(Registries.TEST_ENVIRONMENT)
+                    .getOrThrow(ResourceKey.create(Registries.TEST_ENVIRONMENT, id("default")));
+        }
 
         CaseInstance(String name, TestData<Holder<TestEnvironmentDefinition<?>>> data) {
             super(data);
             this.name = name;
+        }
+
+        TestData<Holder<TestEnvironmentDefinition<?>>> testData() {
+            return info();
         }
 
         @Override

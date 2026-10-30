@@ -118,6 +118,7 @@ tasks.named('test') {
 }
 
 tasks.named('jar') {
+    exclude '**/gametest/**', '**/datagen/**', 'data/modular_planters/structure/empty.nbt'
     from('LICENSE', 'LICENSE-ATE.txt')
 }
 

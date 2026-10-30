@@ -302,7 +302,7 @@ public class PlanterBlockEntity extends BlockEntity {
         }
 
         if (fertilized) {
-            // The claim made at the start of this tick guarantees these items are there, so the result is ignored.
+            // The claim made at the start of this tick guarantees these items are there, so consuming them cannot come up short.
             ctx.fertilizer().consume(1);
         }
         seeds.reset(index);

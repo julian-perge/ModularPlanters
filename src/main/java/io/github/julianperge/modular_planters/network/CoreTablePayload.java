@@ -15,6 +15,12 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public record CoreTablePayload(int containerId, Totals totals, List<Row> rows) implements CustomPacketPayload {
+    public static final int MAX_ROWS = 512;
+
+    public CoreTablePayload {
+        rows = rows.size() > MAX_ROWS ? List.copyOf(rows.subList(0, MAX_ROWS)) : rows;
+    }
+
     public record Totals(boolean formed, int partCount, int partCap, Problem problem, Optional<BlockPos> problemPos,
                          long energyStored, long energyCapacity, long drawPerTick, int fertilizerCount,
                          int exportFillPercent, MeStatus meStatus) {
@@ -56,7 +62,7 @@ public record CoreTablePayload(int containerId, Totals totals, List<Row> rows) i
     public static final StreamCodec<RegistryFriendlyByteBuf, CoreTablePayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, CoreTablePayload::containerId,
             Totals.STREAM_CODEC, CoreTablePayload::totals,
-            Row.STREAM_CODEC.apply(ByteBufCodecs.list()), CoreTablePayload::rows,
+            Row.STREAM_CODEC.apply(ByteBufCodecs.list(MAX_ROWS)), CoreTablePayload::rows,
             CoreTablePayload::new);
 
     @Override

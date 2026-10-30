@@ -11,11 +11,19 @@ import io.github.julianperge.modular_planters.network.CoreTablePayload;
 import io.github.julianperge.modular_planters.network.SeedBinCombosPayload;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import io.netty.buffer.Unpooled;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
+import io.netty.handler.codec.DecoderException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.gametest.framework.TestData;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,6 +60,14 @@ public final class CoreScreenTests {
                 new TestCase(100, CoreScreenTests::remotePlanterMenuClosesWhenCoreIsBroken));
         into.put("core_menu_closes_when_core_is_broken", new TestCase(100, CoreScreenTests::coreMenuClosesWhenCoreIsBroken));
         into.put("core_totals_report_no_me", new TestCase(100, CoreScreenTests::coreTotalsReportNoMe));
+        into.put("case_instance_codec_round_trips", new TestCase(20, CoreScreenTests::caseInstanceCodecRoundTrips));
+        into.put("table_payload_caps_rows", new TestCase(20, CoreScreenTests::tablePayloadCapsRows));
+        into.put("request_with_bad_index_is_rejected", new TestCase(20, CoreScreenTests::requestWithBadIndexIsRejected));
+        into.put("open_request_for_empty_position_is_refused",
+                new TestCase(100, CoreScreenTests::openRequestForEmptyPositionIsRefused));
+        into.put("open_request_for_unloaded_planter_is_refused",
+                new TestCase(100, CoreScreenTests::openRequestForUnloadedPlanterIsRefused));
+        into.put("cursor_survives_open_and_back_to_core", new TestCase(100, CoreScreenTests::cursorSurvivesOpenAndBackToCore));
         into.put("table_payload_survives_the_codec", new TestCase(100, CoreScreenTests::tablePayloadSurvivesTheCodec));
     }
 
@@ -257,6 +273,79 @@ public final class CoreScreenTests {
             helper.assertValueEqual(decoded.rows().getFirst().status(), table.rows().getFirst().status(), "first row status");
             helper.assertTrue(decoded.rows().getFirst().seedIcon().is(Items.WHEAT_SEEDS), "seed icon");
             helper.assertTrue(decoded.rows().get(1).seedIcon().isEmpty(), "empty seed icon");
+        });
+    }
+
+    private static void caseInstanceCodecRoundTrips(GameTestHelper helper) {
+        RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, helper.getLevel().registryAccess());
+        MPTestRegistration.CaseInstance original = new MPTestRegistration.CaseInstance("round_trip",
+                new TestData<>(MPTestRegistration.CaseInstance.environment(helper), MPTestRegistration.STRUCTURE, 33, 0, true));
+        JsonElement json = MPTestRegistration.CaseInstance.CODEC.codec().encodeStart(ops, original).getOrThrow();
+        MPTestRegistration.CaseInstance decoded = MPTestRegistration.CaseInstance.CODEC.codec().parse(ops, json).getOrThrow();
+        helper.assertValueEqual(decoded.name, original.name, "case name");
+        helper.assertValueEqual(decoded.testData(), original.testData(), "test data");
+        helper.succeed();
+    }
+
+    private static void tablePayloadCapsRows(GameTestHelper helper) {
+        Setup setup = setup(helper, 1);
+        CoreTablePayload built = CoreMenu.buildTable(setup.core(), 1);
+        List<CoreTablePayload.Row> rows = new ArrayList<>();
+        for (int i = 0; i < 600; i++) {
+            rows.add(new CoreTablePayload.Row(BlockPos.ZERO.above(i), ItemStack.EMPTY, 0, 0, ItemStack.EMPTY, ItemStack.EMPTY, 0,
+                    PlanterStatus.IDLE));
+        }
+        helper.assertValueEqual(new CoreTablePayload(1, built.totals(), rows).rows().size(), CoreTablePayload.MAX_ROWS, "rows kept");
+        helper.succeed();
+    }
+
+    private static void requestWithBadIndexIsRejected(GameTestHelper helper) {
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+                Unpooled.buffer(), helper.getLevel().registryAccess(), ConnectionType.NEOFORGE);
+        buffer.writeVarInt(CoreRequestPayload.Action.values().length);
+        buffer.writeBoolean(false);
+        try {
+            CoreRequestPayload.STREAM_CODEC.decode(buffer);
+        } catch (DecoderException expected) {
+            helper.succeed();
+            return;
+        }
+        helper.fail("an out-of-range action index decoded");
+    }
+
+    private static void openRequestForEmptyPositionIsRefused(GameTestHelper helper) {
+        Setup setup = setup(helper, 1);
+        waitUntilFormed(helper, setup, () -> {
+            setup.open();
+            CoreMenu open = (CoreMenu) setup.player().containerMenu;
+            setup.request(helper, CoreRequestPayload.Action.OPEN, OUTSIDE);
+            helper.assertTrue(setup.player().containerMenu == open, "the core menu stays open");
+        });
+    }
+
+    private static void openRequestForUnloadedPlanterIsRefused(GameTestHelper helper) {
+        Setup setup = setup(helper, 1);
+        waitUntilFormed(helper, setup, () -> {
+            setup.open();
+            CoreMenu open = (CoreMenu) setup.player().containerMenu;
+            setup.request(helper, CoreRequestPayload.Action.OPEN, new BlockPos(1_000_000, 1, 1_000_000));
+            helper.assertTrue(setup.player().containerMenu == open, "the core menu stays open");
+        });
+    }
+
+    private static void cursorSurvivesOpenAndBackToCore(GameTestHelper helper) {
+        Setup setup = setup(helper, 1);
+        waitUntilFormed(helper, setup, () -> {
+            setup.open();
+            setup.player().containerMenu.setCarried(new ItemStack(Items.WHEAT_SEEDS, 5));
+            setup.request(helper, CoreRequestPayload.Action.OPEN, setup.rig().planters().getFirst());
+            helper.assertTrue(setup.player().containerMenu instanceof PlanterMenu, "the planter menu is open");
+            helper.assertTrue(ItemStack.matches(setup.player().containerMenu.getCarried(), new ItemStack(Items.WHEAT_SEEDS, 5)),
+                    "cursor after open");
+            setup.request(helper, CoreRequestPayload.Action.BACK_TO_CORE, null);
+            helper.assertTrue(setup.player().containerMenu instanceof CoreMenu, "the core menu is open again");
+            helper.assertTrue(ItemStack.matches(setup.player().containerMenu.getCarried(), new ItemStack(Items.WHEAT_SEEDS, 5)),
+                    "cursor after back to core");
         });
     }
 

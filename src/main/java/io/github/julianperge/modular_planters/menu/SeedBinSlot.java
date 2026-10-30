@@ -112,6 +112,7 @@ public final class SeedBinSlot extends Slot {
         return bin.size() == 0 ? ItemStack.EMPTY : bin.seed(bin.size() - 1).copy();
     }
 
+    // No current caller reaches this with a non-empty stack, because quickMoveStack only takes what roomInInventory says fits, and it stays as a guard against losing seeds.
     // Puts seeds that were just taken from the bin back as new seeds without re-checking mayPlace, so a changed recipe or soil cannot make them vanish, though their growth starts over.
     public void giveBack(ItemStack stack) {
         if (!stack.isEmpty()) {

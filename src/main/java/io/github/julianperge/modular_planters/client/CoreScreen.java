@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -54,13 +55,13 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private static final int BAD = 0xFFF08A8A;
     private static final int DIM = 0xFF7F9A86;
 
-    private record Entry(boolean heading, int groupIndex, Component title, Row row) {
+    private record Entry(boolean heading, Item seed, Component title, Row row) {
         int height() {
             return heading ? HEADING_HEIGHT : ROW_HEIGHT;
         }
     }
 
-    private final Set<Integer> collapsed = new HashSet<>();
+    private final Set<Item> collapsed = new HashSet<>();
     private final List<Entry> entries = new ArrayList<>();
     private CoreTablePayload builtFrom;
     private int scroll;
@@ -171,7 +172,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     }
 
     private void extractHeading(GuiGraphicsExtractor graphics, Entry entry, int y) {
-        Component marker = Component.literal(collapsed.contains(entry.groupIndex()) ? "[+] " : "[-] ");
+        Component marker = Component.literal(collapsed.contains(entry.seed()) ? "[+] " : "[-] ");
         graphics.text(font, marker.copy().append(entry.title()), leftPos + PAD + 4, y + 2, ACCENT, false);
     }
 
@@ -269,8 +270,8 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         for (Entry entry : entries) {
             if (mouseY >= y && mouseY < y + entry.height()) {
                 if (entry.heading()) {
-                    if (!collapsed.remove(entry.groupIndex())) {
-                        collapsed.add(entry.groupIndex());
+                    if (!collapsed.remove(entry.seed())) {
+                        collapsed.add(entry.seed());
                     }
                     rebuildEntries();
                     return true;
@@ -341,22 +342,19 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             group.add(row);
         }
         for (int i = 0; i < groups.size(); i++) {
-            int index = i;
             List<Row> group = groups.get(i);
             ItemStack seed = group.getFirst().seedIcon();
             Component name = seed.isEmpty() ? Component.translatable("modular_planters.screen.core.empty") : seed.getHoverName();
-            entries.add(new Entry(true, index, Component.translatable("modular_planters.screen.core.group", name, group.size()), null));
-            if (!collapsed.contains(i)) {
-                group.forEach(row -> entries.add(new Entry(false, index, null, row)));
+            entries.add(new Entry(true, seed.getItem(), Component.translatable("modular_planters.screen.core.group", name, group.size()), null));
+            if (!collapsed.contains(seed.getItem())) {
+                group.forEach(row -> entries.add(new Entry(false, seed.getItem(), null, row)));
             }
         }
         scroll = Math.clamp(scroll, 0, maxScroll());
     }
 
     private static boolean sameSeed(Row left, Row right) {
-        ItemStack a = left.seedIcon();
-        ItemStack b = right.seedIcon();
-        return a.isEmpty() && b.isEmpty() || !a.isEmpty() && !b.isEmpty() && ItemStack.isSameItemSameComponents(a, b);
+        return left.seedIcon().getItem() == right.seedIcon().getItem();
     }
 
     private static int meColor(MeStatus status) {
