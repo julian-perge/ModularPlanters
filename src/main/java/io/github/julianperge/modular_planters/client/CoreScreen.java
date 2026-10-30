@@ -125,16 +125,16 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                 Component.translatable("modular_planters.screen.core.planters_value", builtFrom == null ? 0 : builtFrom.rows().size()),
                 Component.translatable("modular_planters.me_status." + totals.meStatus().name().toLowerCase(Locale.ROOT))
         };
+        int[] valueColors = {TEXT, TEXT, TEXT, TEXT, meColor(totals.meStatus())};
         for (int i = 0; i < labels.length; i++) {
             int x = leftPos + PAD + i * (boxWidth + PAD);
             int y = topPos + STATS_TOP;
             graphics.outline(x, y, boxWidth, STATS_HEIGHT, CELL_EDGE);
             graphics.text(font, Component.translatable("modular_planters.screen.core." + labels[i]), x + 5, y + 4, ACCENT, false);
-            int valueColor = i == 4 ? (totals.meStatus() == MeStatus.ONLINE ? ACCENT : BAD) : TEXT;
-            graphics.text(font, values[i], x + 5, y + 14, valueColor, false);
+            graphics.text(font, fit(values[i], boxWidth - 10), x + 5, y + 14, valueColors[i], false);
         }
         if (totals.drawPerTick() > 0) {
-            graphics.text(font, Component.translatable("modular_planters.screen.core.draw", count(totals.drawPerTick())),
+            graphics.text(font, fit(Component.translatable("modular_planters.screen.core.draw", count(totals.drawPerTick())), boxWidth - 10),
                     leftPos + PAD + 5, topPos + STATS_TOP + 24, DIM, false);
         }
     }
@@ -357,6 +357,14 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         ItemStack a = left.seedIcon();
         ItemStack b = right.seedIcon();
         return a.isEmpty() && b.isEmpty() || !a.isEmpty() && !b.isEmpty() && ItemStack.isSameItemSameComponents(a, b);
+    }
+
+    private static int meColor(MeStatus status) {
+        return switch (status) {
+            case NONE -> DIM;
+            case ONLINE -> ACCENT;
+            case OFFLINE, NO_CHANNEL -> BAD;
+        };
     }
 
     private static int statusColor(Row row) {
