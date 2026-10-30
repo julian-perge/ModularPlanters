@@ -34,6 +34,8 @@ public final class PlanterLifecycleTests {
                 new TestCase(250, PlanterLifecycleTests::breakingPlanterDropsEverything));
         into.put("contents_kept_when_shape_breaks",
                 new TestCase(250, PlanterLifecycleTests::contentsKeptWhenShapeBreaks));
+        into.put("breaking_core_stops_planters_and_keeps_contents",
+                new TestCase(250, PlanterLifecycleTests::breakingCoreStopsPlantersAndKeepsContents));
         into.put("changing_soil_type_resets_progress",
                 new TestCase(150, PlanterLifecycleTests::changingSoilTypeResetsProgress));
         into.put("changing_soil_count_keeps_progress",
@@ -197,6 +199,69 @@ public final class PlanterLifecycleTests {
                         PlanterTests.count(PlanterTests.export(helper, rig), Items.WHEAT) > 0, "wheat in the export"))
                 .thenExecute(() -> helper.assertValueEqual(helper.getTick() - placedAt.get(), 47L,
                         "ticks from power back to harvest"))
+                .thenSucceed();
+    }
+
+    private record Snapshot(List<ItemStack> seeds, List<Integer> progress, List<Boolean> ready, List<ItemStack> soilAndModules,
+                            List<ItemStack> held) {
+        static Snapshot of(PlanterBlockEntity planter) {
+            List<ItemStack> seeds = new ArrayList<>();
+            List<Integer> progress = new ArrayList<>();
+            List<Boolean> ready = new ArrayList<>();
+            for (int i = 0; i < planter.seeds().size(); i++) {
+                seeds.add(planter.seeds().seed(i).copy());
+                progress.add(planter.seeds().progress(i));
+                ready.add(planter.seeds().ready(i));
+            }
+            List<ItemStack> soilAndModules = new ArrayList<>();
+            for (int slot = 0; slot < planter.soilAndModules().size(); slot++) {
+                soilAndModules.add(planter.soilAndModules().getResource(slot)
+                        .toStack(planter.soilAndModules().getAmountAsInt(slot)));
+            }
+            return new Snapshot(seeds, progress, ready, soilAndModules,
+                    planter.heldOutputs().stream().map(ItemStack::copy).toList());
+        }
+
+        void assertSame(GameTestHelper helper, Snapshot other, String name) {
+            helper.assertTrue(ItemStack.listMatches(seeds, other.seeds), name + " seeds");
+            helper.assertValueEqual(other.progress, progress, name + " progress");
+            helper.assertValueEqual(other.ready, ready, name + " ready flags");
+            helper.assertTrue(ItemStack.listMatches(soilAndModules, other.soilAndModules), name + " soil and modules");
+            helper.assertTrue(ItemStack.listMatches(held, other.held), name + " held outputs");
+        }
+    }
+
+    private static void breakingCoreStopsPlantersAndKeepsContents(GameTestHelper helper) {
+        Fixtures.Rig rig = Fixtures.rig(helper, 2);
+        PlanterBlockEntity holding = PlanterTests.planter(helper, rig, 0);
+        PlanterBlockEntity growing = PlanterTests.planter(helper, rig, 1);
+        holdTwoStacksOfCobblestone(helper, rig, holding);
+        Fixtures.plant(holding, 4, 4, 4);
+        List<Snapshot> before = new ArrayList<>();
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(!holding.heldOutputs().isEmpty(), "outputs are held"))
+                .thenExecute(() -> Fixtures.plant(growing, 4, 4, 4))
+                .thenWaitUntil(() -> helper.assertValueEqual(growing.seeds().progress(0), 40, "progress"))
+                .thenExecute(() -> {
+                    helper.assertValueEqual(holding.status(), PlanterStatus.PAUSED_EXPORT_FULL, "holding status");
+                    helper.assertValueEqual(growing.status(), PlanterStatus.GROWING, "growing status");
+                    helper.assertTrue(growing.lastDraw() > 0, "growing planter draws power");
+                    helper.assertTrue(PlanterTests.active(growing), "growing planter is active");
+                    before.add(Snapshot.of(holding));
+                    before.add(Snapshot.of(growing));
+                    helper.destroyBlock(rig.core());
+                    for (PlanterBlockEntity planter : List.of(holding, growing)) {
+                        helper.assertValueEqual(planter.status(), PlanterStatus.IDLE, "status after the core is broken");
+                        helper.assertValueEqual(planter.lastDraw(), 0L, "draw after the core is broken");
+                        helper.assertTrue(!PlanterTests.active(planter), "inactive after the core is broken");
+                    }
+                })
+                .thenExecuteAfter(20, () -> {
+                    before.get(0).assertSame(helper, Snapshot.of(holding), "holding planter");
+                    before.get(1).assertSame(helper, Snapshot.of(growing), "growing planter");
+                    helper.assertTrue(!holding.heldOutputs().isEmpty(), "held outputs are kept");
+                    helper.assertTrue(growing.seeds().progress(0) > 0, "progress is kept");
+                })
                 .thenSucceed();
     }
 

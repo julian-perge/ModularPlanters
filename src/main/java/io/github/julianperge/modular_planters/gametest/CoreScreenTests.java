@@ -47,6 +47,9 @@ public final class CoreScreenTests {
                 new TestCase(100, CoreScreenTests::backToCoreRefusedForADirectlyOpenedPlanter));
         into.put("remote_planter_menu_closes_when_planter_leaves_structure",
                 new TestCase(100, CoreScreenTests::remotePlanterMenuClosesWhenPlanterLeavesStructure));
+        into.put("remote_planter_menu_closes_when_core_is_broken",
+                new TestCase(100, CoreScreenTests::remotePlanterMenuClosesWhenCoreIsBroken));
+        into.put("core_menu_closes_when_core_is_broken", new TestCase(100, CoreScreenTests::coreMenuClosesWhenCoreIsBroken));
         into.put("table_payload_survives_the_codec", new TestCase(100, CoreScreenTests::tablePayloadSurvivesTheCodec));
     }
 
@@ -201,6 +204,35 @@ public final class CoreScreenTests {
                 .thenWaitUntil(() -> helper.assertTrue(!setup.player().containerMenu.stillValid(setup.player()),
                         "invalid once the second planter is cut off from the core"))
                 .thenSucceed();
+    }
+
+    private static void remotePlanterMenuClosesWhenCoreIsBroken(GameTestHelper helper) {
+        Setup setup = setup(helper, 2);
+        waitUntilFormed(helper, setup, () -> {
+            setup.open();
+            setup.request(helper, CoreRequestPayload.Action.OPEN, setup.rig().planters().get(1));
+            if (!(setup.player().containerMenu instanceof PlanterMenu menu)) {
+                helper.fail("the planter menu is open");
+                return;
+            }
+            helper.assertTrue(menu.stillValid(setup.player()), "valid while the core stands");
+            helper.destroyBlock(setup.rig().core());
+            helper.assertTrue(!menu.stillValid(setup.player()), "invalid once the core is broken");
+        });
+    }
+
+    private static void coreMenuClosesWhenCoreIsBroken(GameTestHelper helper) {
+        Setup setup = setup(helper, 1);
+        waitUntilFormed(helper, setup, () -> {
+            setup.open();
+            if (!(setup.player().containerMenu instanceof CoreMenu menu)) {
+                helper.fail("the core menu is open");
+                return;
+            }
+            helper.assertTrue(menu.stillValid(setup.player()), "valid while the core stands");
+            helper.destroyBlock(setup.rig().core());
+            helper.assertTrue(!menu.stillValid(setup.player()), "invalid once the core is broken");
+        });
     }
 
     private static void tablePayloadSurvivesTheCodec(GameTestHelper helper) {
