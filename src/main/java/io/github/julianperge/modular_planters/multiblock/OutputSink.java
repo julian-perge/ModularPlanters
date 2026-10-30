@@ -1,6 +1,8 @@
 package io.github.julianperge.modular_planters.multiblock;
 
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
@@ -54,10 +56,15 @@ public final class OutputSink {
     }
 
     public boolean hasRoomFor(List<ItemStack> stacks) {
+        int[] remaining = new int[stacks.size()];
+        for (int i = 0; i < stacks.size(); i++) {
+            ItemStack stack = stacks.get(i);
+            remaining[i] = stack.isEmpty() ? 0 : stack.getCount() - meTakes(ItemResource.of(stack), stack.getCount(), true);
+        }
         try (Transaction tx = Transaction.openRoot()) {
-            // ME has no transactions, so stacks that share ME room can both pass, and the part ME refuses later goes to the export blocks or is held in the planter block.
-            for (ItemStack stack : stacks) {
-                if (!insertInto(stack, tx).isEmpty()) {
+            // ME is asked about each stack on its own and keeps nothing, so stacks that share ME room can both pass, and the part ME refuses later goes to the export blocks or is held in the planter block.
+            for (int i = 0; i < stacks.size(); i++) {
+                if (remaining[i] > 0 && insertIntoBlocks(ItemResource.of(stacks.get(i)), remaining[i], tx) < remaining[i]) {
                     return false;
                 }
             }
@@ -66,14 +73,20 @@ public final class OutputSink {
     }
 
     public ItemStack insert(ItemStack stack) {
-        return insertInto(stack, null);
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        ItemResource resource = ItemResource.of(stack);
+        int remaining = stack.getCount() - meTakes(resource, stack.getCount(), false);
+        remaining -= insertIntoBlocks(resource, remaining, null);
+        return remaining == 0 ? ItemStack.EMPTY : resource.toStack(remaining);
     }
 
     public ResourceHandler<ItemResource> extractView() {
         return extractView;
     }
 
-    // ME cannot join a transaction, so each slot gives up the items inside one, offers them to ME, takes back whatever ME refused, and only then commits, which keeps items from being copied or lost.
+    // ME calls must happen with no transaction open, so each slot gives up what ME says it will take in one committed transaction, offers that to ME, and puts what ME refused back into the same slot in a second one.
     public void moveExportsInto(MeLink me) {
         if (!me.online()) {
             return;
@@ -89,11 +102,28 @@ public final class OutputSink {
                 if (asked == 0) {
                     continue;
                 }
+                int taken;
                 try (Transaction tx = Transaction.openRoot()) {
-                    int taken = storage.extract(slot, resource, asked, tx);
-                    int accepted = (int) me.insertItem(resource, taken, false);
-                    storage.insert(slot, resource, taken - accepted, tx);
+                    taken = storage.extract(slot, resource, asked, tx);
                     tx.commit();
+                }
+                int refused = taken - (int) me.insertItem(resource, taken, false);
+                if (refused == 0) {
+                    continue;
+                }
+                int returned;
+                try (Transaction tx = Transaction.openRoot()) {
+                    returned = storage.insert(slot, resource, refused, tx);
+                    tx.commit();
+                }
+                // The put-back fits because the slot just gave up at least that much of the same item and nothing else writes to it during the ME call, so dropping the rest at the block only keeps the items if another mod breaks that.
+                if (returned < refused) {
+                    ItemStack lost = resource.toStack(refused - returned);
+                    BlockPos pos = block.getBlockPos();
+                    while (!lost.isEmpty()) {
+                        Containers.dropItemStack(block.getLevel(), pos.getX(), pos.getY(), pos.getZ(),
+                                lost.split(lost.getMaxStackSize()));
+                    }
                 }
             }
         }
@@ -112,22 +142,19 @@ public final class OutputSink {
         return capacity == 0 ? 0 : (int) (stored * 100 / capacity);
     }
 
-    private ItemStack insertInto(ItemStack stack, @Nullable TransactionContext transaction) {
-        if (stack.isEmpty()) {
-            return ItemStack.EMPTY;
-        }
-        ItemResource resource = ItemResource.of(stack);
-        int remaining = stack.getCount();
+    private int meTakes(ItemResource resource, int amount, boolean simulate) {
         MeLink link = liveMe();
-        if (link != null && link.online()) {
-            remaining -= (int) link.insertItem(resource, remaining, transaction != null);
-        }
+        return link != null && link.online() ? (int) link.insertItem(resource, amount, simulate) : 0;
+    }
+
+    private int insertIntoBlocks(ItemResource resource, int amount, @Nullable TransactionContext transaction) {
+        int inserted = 0;
         for (ExportBlockEntity block : live()) {
-            if (remaining == 0) {
+            if (inserted == amount) {
                 break;
             }
-            remaining -= ResourceHandlerUtil.insertStacking(block.storage(), resource, remaining, transaction);
+            inserted += ResourceHandlerUtil.insertStacking(block.storage(), resource, amount - inserted, transaction);
         }
-        return remaining == 0 ? ItemStack.EMPTY : resource.toStack(remaining);
+        return inserted;
     }
 }
