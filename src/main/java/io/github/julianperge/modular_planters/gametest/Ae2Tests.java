@@ -1,7 +1,10 @@
 package io.github.julianperge.modular_planters.gametest;
 
 import appeng.api.networking.IGrid;
+import appeng.api.parts.IPartItem;
+import appeng.api.parts.PartHelper;
 import appeng.api.stacks.AEItemKey;
+import appeng.helpers.IPriorityHost;
 import io.github.julianperge.modular_planters.ae2.Ae2Integration;
 import io.github.julianperge.modular_planters.ae2.MeBlockEntity;
 import io.github.julianperge.modular_planters.ae2.MeMenu;
@@ -11,11 +14,15 @@ import io.github.julianperge.modular_planters.logic.Problem;
 import io.github.julianperge.modular_planters.multiblock.MeStatus;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -29,6 +36,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
@@ -50,6 +58,8 @@ public final class Ae2Tests {
                 new TestCase(20, Ae2Tests::filterSurvivesSaveAndDropsNoBoneMeal));
         into.put("me_block_drops_itself", new TestCase(20, Ae2Tests::meBlockDropsItself));
         into.put("fertilizer_tops_up_from_me", new TestCase(100, Ae2Tests::fertilizerTopsUpFromMe));
+        into.put("storage_bus_takes_outputs_and_fertilizer",
+                new TestCase(200, Ae2Tests::storageBusTakesOutputsAndFertilizer));
     }
 
     private static long meCount(GameTestHelper helper, MeBlockEntity me, Item item) {
@@ -239,5 +249,58 @@ public final class Ae2Tests {
                     helper.assertValueEqual(meCount(helper, me, Items.BONE_MEAL), 0L, "bone meal left in ME");
                 })
                 .thenSucceed();
+    }
+
+    private static int chestCount(ChestBlockEntity chest, Item item) {
+        int total = 0;
+        for (int slot = 0; slot < chest.getContainerSize(); slot++) {
+            total += chest.getItem(slot).is(item) ? chest.getItem(slot).getCount() : 0;
+        }
+        return total;
+    }
+
+    // AE2's storage bus opens its own root transaction for every insert and extract, so this crashes the server if the multiblock calls ME while it holds a transaction open.
+    private static void storageBusTakesOutputsAndFertilizer(GameTestHelper helper) {
+        Fixtures.Rig rig = Fixtures.meRig(helper, 1);
+        helper.setBlock(new BlockPos(2, 1, 2), MPBlocks.FERTILIZER.get());
+        BlockPos busPos = new BlockPos(2, 3, 1);
+        BlockPos chestPos = new BlockPos(3, 3, 1);
+        helper.setBlock(chestPos, Blocks.CHEST);
+        ChestBlockEntity chest = helper.getBlockEntity(chestPos, ChestBlockEntity.class);
+        chest.setItem(0, new ItemStack(Items.BONE_MEAL, 100 - 64));
+        chest.setItem(1, new ItemStack(Items.BONE_MEAL, 64));
+        ServerLevel level = helper.getLevel();
+        helper.assertTrue(
+                PartHelper.setPart(level, helper.absolutePos(busPos), null, null, partItem("fluix_glass_cable")) != null,
+                "cable placed");
+        IPriorityHost bus = (IPriorityHost) PartHelper.setPart(level, helper.absolutePos(busPos), Direction.EAST, null,
+                partItem("storage_bus"));
+        helper.assertTrue(bus != null, "storage bus placed");
+        bus.setPriority(10);
+        CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
+        ExportBlockEntity export = helper.getBlockEntity(rig.export(), ExportBlockEntity.class);
+        MeBlockEntity me = helper.getBlockEntity(Fixtures.ME, MeBlockEntity.class);
+        helper.assertTrue(me.setFertilizerFilter(ItemResource.of(Items.BONE_MEAL)), "filter set");
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status");
+                    helper.assertValueEqual(core.fertilizer().available(), 100, "fertilizer taken through the bus");
+                })
+                .thenExecute(() -> {
+                    helper.assertTrue(core.outputs().hasRoomFor(List.of(new ItemStack(Items.WHEAT, 64))), "room");
+                    helper.assertTrue(core.outputs().insert(new ItemStack(Items.WHEAT, 64)).isEmpty(),
+                            "nothing left over");
+                    helper.assertValueEqual(chestCount(chest, Items.WHEAT), 64, "wheat in the chest");
+                    MeLinkTests.fill(export, Items.CARROT, 64);
+                })
+                .thenWaitUntil(() -> {
+                    helper.assertValueEqual(MeLinkTests.count(export, Items.CARROT), 0, "carrots in export");
+                    helper.assertValueEqual(chestCount(chest, Items.CARROT), 64, "carrots in the chest");
+                })
+                .thenSucceed();
+    }
+
+    private static IPartItem<?> partItem(String path) {
+        return (IPartItem<?>) BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("ae2", path));
     }
 }
