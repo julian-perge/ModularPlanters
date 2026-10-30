@@ -141,8 +141,6 @@ public final class Ae2Tests {
                 "shift click moves nothing");
         helper.assertValueEqual(player.getInventory().getItem(0).getCount(), 16, "inventory kept");
         menu.clicked(0, 0, ContainerInput.SWAP, player);
-        menu.clicked(0, 0, ContainerInput.CLONE, player);
-        menu.clicked(0, 0, ContainerInput.THROW, player);
         menu.clicked(0, 0, ContainerInput.PICKUP_ALL, player);
         helper.assertValueEqual(player.getInventory().getItem(0).getCount(), 16, "inventory kept after swap");
         helper.assertValueEqual(menu.getCarried().getCount(), 16, "cursor kept after swap");
@@ -156,6 +154,24 @@ public final class Ae2Tests {
         helper.assertValueEqual(me.fertilizerFilter(), ItemResource.EMPTY, "filter cleared");
         helper.assertTrue(menu.getSlot(0).getItem().isEmpty(), "filter slot cleared");
         helper.assertValueEqual(menu.getCarried().getCount(), 0, "cursor still empty");
+
+        Player creative = helper.makeMockPlayer(GameType.CREATIVE);
+        creative.getAbilities().instabuild = true;
+        helper.assertTrue(creative.hasInfiniteMaterials(), "the creative player has infinite materials");
+        creative.getInventory().setItem(0, new ItemStack(Items.BONE_MEAL, 16));
+        MeMenu creativeMenu = new MeMenu(3, creative.getInventory(), me);
+        for (ContainerInput input : new ContainerInput[] {ContainerInput.CLONE, ContainerInput.THROW}) {
+            for (int button = 0; button < 2; button++) {
+                String click = input + " with button " + button;
+                helper.assertTrue(me.setFertilizerFilter(ItemResource.of(Items.BONE_MEAL)), "filter set before " + click);
+                creativeMenu.clicked(0, button, input, creative);
+                helper.assertTrue(creativeMenu.getCarried().isEmpty(), "cursor empty after " + click);
+                helper.assertValueEqual(me.fertilizerFilter(), ItemResource.EMPTY, "filter cleared by " + click);
+                helper.assertValueEqual(creative.getInventory().getItem(0).getCount(), 16, "inventory kept after " + click);
+                helper.assertTrue(helper.getLevel().getEntitiesOfClass(ItemEntity.class,
+                        creative.getBoundingBox().inflate(8.0)).isEmpty(), "nothing dropped by " + click);
+            }
+        }
 
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(),
                 helper.getLevel().registryAccess(), ConnectionType.NEOFORGE);
