@@ -6,7 +6,7 @@ import appeng.api.storage.MEStorage;
 import com.glodblock.github.appflux.common.me.key.FluxKey;
 import com.glodblock.github.appflux.common.me.key.type.EnergyType;
 
-// This is the only class in the mod's main sources that imports Applied Flux (the gated AppliedFluxTests is the other one), and callers reach it only after Ae2Integration.APPLIED_FLUX is true.
+// Outside the gated GameTests, this is the only class that imports Applied Flux, and callers reach it only after Ae2Integration.APPLIED_FLUX is true.
 final class FluxBridge {
     private FluxBridge() {
     }

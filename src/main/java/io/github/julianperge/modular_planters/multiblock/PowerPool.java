@@ -57,6 +57,7 @@ public final class PowerPool {
         }
         List<PowerBlockEntity> live = live();
         long room = 0;
+        // A power block can hold more than its capacity after the config lowers the cap, so each block's free room is floored at zero here and below.
         for (PowerBlockEntity block : live) {
             room += Math.max(0, block.capacity() - block.stored());
         }
