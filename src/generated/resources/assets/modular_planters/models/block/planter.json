@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/cube_bottom_top",
   "textures": {
-    "bottom": "modular_planters:block/planter_bottom",
+    "bottom": "modular_planters:block/planter_side",
     "side": "modular_planters:block/planter_side",
     "top": "modular_planters:block/planter_top"
   }

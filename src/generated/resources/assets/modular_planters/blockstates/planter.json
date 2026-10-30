@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "active=false": {
       "model": "modular_planters:block/planter"
+    },
+    "active=true": {
+      "model": "modular_planters:block/planter_on"
     }
   }
 }

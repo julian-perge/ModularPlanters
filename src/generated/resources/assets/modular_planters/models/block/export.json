@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:block/cube_bottom_top",
   "textures": {
-    "bottom": "modular_planters:block/export_bottom",
+    "bottom": "modular_planters:block/export_side",
     "side": "modular_planters:block/export_side",
     "top": "modular_planters:block/export_top"
   }
