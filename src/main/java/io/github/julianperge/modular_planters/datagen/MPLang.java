@@ -43,6 +43,7 @@ public class MPLang extends LanguageProvider {
         add("modular_planters.screen.core.export_value", "%s%% full");
         add("modular_planters.screen.core.planters", "PLANTERS");
         add("modular_planters.screen.core.planters_value", "%s blocks");
+        add("modular_planters.screen.core.me", "ME");
         add("modular_planters.screen.core.seed", "SEED");
         add("modular_planters.screen.core.growing", "GROWING");
         add("modular_planters.screen.core.upgrades", "UPGRADES");

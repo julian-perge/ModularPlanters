@@ -35,6 +35,7 @@
   "modular_planters.screen.core.growing": "GROWING",
   "modular_planters.screen.core.highlight": "Highlight in world",
   "modular_planters.screen.core.location": "LOCATION",
+  "modular_planters.screen.core.me": "ME",
   "modular_planters.screen.core.no_planters": "No planter blocks in this structure",
   "modular_planters.screen.core.open": "Open planter block",
   "modular_planters.screen.core.planters": "PLANTERS",

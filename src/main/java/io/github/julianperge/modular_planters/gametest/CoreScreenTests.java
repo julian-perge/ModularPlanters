@@ -5,6 +5,7 @@ import io.github.julianperge.modular_planters.blockentity.PlanterBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PlanterStatus;
 import io.github.julianperge.modular_planters.menu.CoreMenu;
 import io.github.julianperge.modular_planters.menu.PlanterMenu;
+import io.github.julianperge.modular_planters.multiblock.MeStatus;
 import io.github.julianperge.modular_planters.network.CoreRequestPayload;
 import io.github.julianperge.modular_planters.network.CoreTablePayload;
 import io.github.julianperge.modular_planters.network.SeedBinCombosPayload;
@@ -50,6 +51,7 @@ public final class CoreScreenTests {
         into.put("remote_planter_menu_closes_when_core_is_broken",
                 new TestCase(100, CoreScreenTests::remotePlanterMenuClosesWhenCoreIsBroken));
         into.put("core_menu_closes_when_core_is_broken", new TestCase(100, CoreScreenTests::coreMenuClosesWhenCoreIsBroken));
+        into.put("core_totals_report_no_me", new TestCase(100, CoreScreenTests::coreTotalsReportNoMe));
         into.put("table_payload_survives_the_codec", new TestCase(100, CoreScreenTests::tablePayloadSurvivesTheCodec));
     }
 
@@ -239,17 +241,34 @@ public final class CoreScreenTests {
         Setup setup = setup(helper, 2);
         Fixtures.plant(PlanterTests.planter(helper, setup.rig(), 0), 4, 4, 4);
         waitUntilFormed(helper, setup, () -> {
-            CoreTablePayload table = CoreMenu.buildTable(setup.core(), 3);
+            CoreTablePayload built = CoreMenu.buildTable(setup.core(), 3);
+            CoreTablePayload.Totals t = built.totals();
+            CoreTablePayload table = new CoreTablePayload(built.containerId(), new CoreTablePayload.Totals(t.formed(), t.partCount(),
+                    t.partCap(), t.problem(), t.problemPos(), t.energyStored(), t.energyCapacity(), t.drawPerTick(),
+                    t.fertilizerCount(), t.exportFillPercent(), MeStatus.NO_CHANNEL), built.rows());
             RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                     Unpooled.buffer(), helper.getLevel().registryAccess(), ConnectionType.NEOFORGE);
             CoreTablePayload.STREAM_CODEC.encode(buffer, table);
             CoreTablePayload decoded = CoreTablePayload.STREAM_CODEC.decode(buffer);
             helper.assertValueEqual(decoded.totals(), table.totals(), "totals");
+            helper.assertValueEqual(decoded.totals().meStatus(), MeStatus.NO_CHANNEL, "me status");
             helper.assertValueEqual(decoded.rows().size(), table.rows().size(), "rows");
             helper.assertValueEqual(decoded.rows().getFirst().pos(), table.rows().getFirst().pos(), "first row position");
             helper.assertValueEqual(decoded.rows().getFirst().status(), table.rows().getFirst().status(), "first row status");
             helper.assertTrue(decoded.rows().getFirst().seedIcon().is(Items.WHEAT_SEEDS), "seed icon");
             helper.assertTrue(decoded.rows().get(1).seedIcon().isEmpty(), "empty seed icon");
+        });
+    }
+
+    private static void coreTotalsReportNoMe(GameTestHelper helper) {
+        Setup setup = setup(helper, 1);
+        waitUntilFormed(helper, setup, () -> {
+            setup.open();
+            if (!(setup.player().containerMenu instanceof CoreMenu menu)) {
+                helper.fail("the core menu is open");
+                return;
+            }
+            helper.assertValueEqual(CoreMenu.buildTable(setup.core(), menu.containerId).totals().meStatus(), MeStatus.NONE, "me status");
         });
     }
 }

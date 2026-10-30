@@ -85,7 +85,8 @@ public final class CoreMenu extends AbstractContainerMenu {
                 core.power() == null ? 0 : core.power().capacity(),
                 draw,
                 core.fertilizer() == null ? 0 : core.fertilizer().available(),
-                core.outputs() == null ? 0 : core.outputs().fillPercent());
+                core.outputs() == null ? 0 : core.outputs().fillPercent(),
+                core.meStatus());
         return new CoreTablePayload(containerId, totals, rows);
     }
 

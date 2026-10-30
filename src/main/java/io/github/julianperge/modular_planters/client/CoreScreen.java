@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.client;
 
 import io.github.julianperge.modular_planters.menu.CoreMenu;
+import io.github.julianperge.modular_planters.multiblock.MeStatus;
 import io.github.julianperge.modular_planters.network.CoreRequestPayload;
 import io.github.julianperge.modular_planters.network.CoreTablePayload;
 import io.github.julianperge.modular_planters.network.CoreTablePayload.Row;
@@ -115,20 +116,22 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     }
 
     private void extractTotals(GuiGraphicsExtractor graphics, Totals totals) {
-        int boxWidth = (WIDTH - 2 * PAD - 3 * PAD) / 4;
-        String[] labels = {"power", "fertilizer", "export", "planters"};
+        int boxWidth = (WIDTH - 2 * PAD - 4 * PAD) / 5;
+        String[] labels = {"power", "fertilizer", "export", "planters", "me"};
         Component[] values = {
                 Component.translatable("modular_planters.screen.core.power_value", compact(totals.energyStored()), compact(totals.energyCapacity())),
                 Component.translatable("modular_planters.screen.core.fertilizer_value", count(totals.fertilizerCount())),
                 Component.translatable("modular_planters.screen.core.export_value", totals.exportFillPercent()),
-                Component.translatable("modular_planters.screen.core.planters_value", builtFrom == null ? 0 : builtFrom.rows().size())
+                Component.translatable("modular_planters.screen.core.planters_value", builtFrom == null ? 0 : builtFrom.rows().size()),
+                Component.translatable("modular_planters.me_status." + totals.meStatus().name().toLowerCase(Locale.ROOT))
         };
         for (int i = 0; i < labels.length; i++) {
             int x = leftPos + PAD + i * (boxWidth + PAD);
             int y = topPos + STATS_TOP;
             graphics.outline(x, y, boxWidth, STATS_HEIGHT, CELL_EDGE);
             graphics.text(font, Component.translatable("modular_planters.screen.core." + labels[i]), x + 5, y + 4, ACCENT, false);
-            graphics.text(font, values[i], x + 5, y + 14, TEXT, false);
+            int valueColor = i == 4 ? (totals.meStatus() == MeStatus.ONLINE ? ACCENT : BAD) : TEXT;
+            graphics.text(font, values[i], x + 5, y + 14, valueColor, false);
         }
         if (totals.drawPerTick() > 0) {
             graphics.text(font, Component.translatable("modular_planters.screen.core.draw", count(totals.drawPerTick())),

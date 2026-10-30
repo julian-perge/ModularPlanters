@@ -3,6 +3,7 @@ package io.github.julianperge.modular_planters.network;
 import io.github.julianperge.modular_planters.ModularPlanters;
 import io.github.julianperge.modular_planters.blockentity.PlanterStatus;
 import io.github.julianperge.modular_planters.logic.Problem;
+import io.github.julianperge.modular_planters.multiblock.MeStatus;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -16,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 public record CoreTablePayload(int containerId, Totals totals, List<Row> rows) implements CustomPacketPayload {
     public record Totals(boolean formed, int partCount, int partCap, Problem problem, Optional<BlockPos> problemPos,
                          long energyStored, long energyCapacity, long drawPerTick, int fertilizerCount,
-                         int exportFillPercent) {
+                         int exportFillPercent, MeStatus meStatus) {
         static final StreamCodec<RegistryFriendlyByteBuf, Totals> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.BOOL, Totals::formed,
                 ByteBufCodecs.VAR_INT, Totals::partCount,
@@ -29,6 +30,8 @@ public record CoreTablePayload(int containerId, Totals totals, List<Row> rows) i
                 ByteBufCodecs.VAR_LONG, Totals::drawPerTick,
                 ByteBufCodecs.VAR_INT, Totals::fertilizerCount,
                 ByteBufCodecs.VAR_INT, Totals::exportFillPercent,
+                ByteBufCodecs.idMapper(index -> MeStatus.values()[Math.clamp(index, 0, MeStatus.values().length - 1)], MeStatus::ordinal),
+                Totals::meStatus,
                 Totals::new);
     }
 
