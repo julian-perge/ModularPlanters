@@ -1,29 +1,29 @@
-# Graph Report - ModularPlanters  (2026-10-30)
+# Graph Report - ModularPlanters  (2026-10-31)
 
 ## Corpus Check
-- 154 files · ~39,224 words
+- 177 files · ~43,440 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 10 file(s) not represented in the graph (top: (none) 3, .properties 2, .graphify-bak 1)
 
 ## Summary
-- 1408 nodes · 4639 edges · 59 communities (26 shown, 33 thin omitted)
-- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 467 edges (avg confidence: 0.85)
+- 1491 nodes · 4864 edges · 78 communities (27 shown, 51 thin omitted)
+- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 482 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `04d9a315`
+- Built from commit: `d9401e94`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Planter Block and GameTests
-- Core and Planter Screens
-- ME Block Entity and Menu
+- CoreScreen
+- MeBlockEntity
 - CoreMenu
 - StructureScannerTest
 - .buildTable
 - net.minecraft.world.item.ItemStack
-- ExportBlockEntity
+- MeLinkTests
 - Capability Registration
 - Client Outlines and Screens
 - Structure Scan Problems
@@ -31,53 +31,62 @@
 - Seed Bin
 - Planter Ticker and Grouping
 - Structure and No-AE2 Tests
-- Storage Menu and Fertilizer Block
-- Export and Fertilizer Blocks
+- CoreMenu.java
+- PlanterMenu.java
+- PlanterBlock.java
 - ATE Recipes and Data Maps
 - Fertilizer Pool and Doorway
 - Cloche Yield and Remainders
 - GameTest Registration
-- StructureScannerTest.java
+- net.minecraft.gametest.framework.GameTestHelper
+- WikiStructureTest.java
 - net.neoforged.neoforge.transfer.item.ItemResource
-- ME and Part Blocks
 - Growth Math
 - Loot and Data Components
-- .assign
+- .tickFromCore
 - FertilizerBlockEntity
-- Core Network Payloads
+- CoreScreenTests
 - Recipe Datagen
-- Recipe Tests and Blocks
+- net.minecraft.resources.Identifier
 - Model Datagen
-- Tags and Lang Datagen
+- MPBlocks.java
 - CoreScreen.java
 - MenuTests
 - CoreScreenTests.java
-- CoreBlockEntity
+- StructureTests
 - PowerBlockEntity
-- Planter Block
+- MeMenu
 - GameTest Listener
 - Ae2Tests
-- net.neoforged.neoforge.transfer.ResourceHandler
+- OutputSink
 - Planter Power ME Textures
 - Entire Agent Guide
 - Core Export Textures
-- Reference Powered Planter
+- TestStructureProvider.java
 - Fertilizer Textures
 - PartType
-- Problem
-- PlanterScreen
-- .processingTime
-- TexturesExistTest
+- MeLink
+- WikiStructureTest
+- CoreBlockEntity
+- ConditionalDataTest
+- FluxBridge.java
+- MPJadePlugin.java
+- net.neoforged.neoforge.transfer.item.ResourceHandlerSlot
+- AppliedFluxTests
+- Multiblock
+- ae2.mdx
+- example_builds.mdx
+- overview.mdx
 
 ## God Nodes (most connected - your core abstractions)
-1. `PlanterBlockEntity` - 64 edges
-2. `CoreBlockEntity` - 54 edges
+1. `PlanterBlockEntity` - 69 edges
+2. `CoreBlockEntity` - 59 edges
 3. `PlanterMenu` - 47 edges
 4. `MeBlockEntity` - 37 edges
 5. `CoreScreen` - 37 edges
 6. `MenuTests` - 36 edges
-7. `CoreMenu` - 32 edges
-8. `MPBlocks` - 32 edges
+7. `MPBlocks` - 33 edges
+8. `CoreMenu` - 32 edges
 9. `ExportBlockEntity` - 31 edges
 10. `SeedBin` - 31 edges
 
@@ -100,91 +109,91 @@
 - **Agent guide entry points** — agents, claude, _entire_agent_guide [EXTRACTED 0.95]
 - **Modular Planters multiblock parts** — readme_core_block, readme_power_block, readme_fertilizer_block, readme_export_block, readme_planter_block, readme_frame_block, readme_me_block [EXTRACTED 0.95]
 
-## Communities (59 total, 33 thin omitted)
+## Communities (78 total, 51 thin omitted)
 
 ### Community 0 - "Planter Block and GameTests"
-Cohesion: 0.07
-Nodes (9): CoreScreenTests, Setup, DoorwayTests, Fixtures, Rig, PlanterLifecycleTests, Snapshot, PlanterTests (+1 more)
+Cohesion: 0.11
+Nodes (7): PlanterBlockEntity, Fixtures, Rig, PlanterLifecycleTests, Snapshot, PlanterTests, SoilSlot
 
-### Community 1 - "Core and Planter Screens"
-Cohesion: 0.15
-Nodes (4): CoreScreen, Entry, Row, Totals
-
-### Community 2 - "ME Block Entity and Menu"
-Cohesion: 0.06
-Nodes (6): FluxBridge, MeBlockEntity, FilterSlot, MeMenu, DataSlot, AppliedFluxTests
+### Community 1 - "CoreScreen"
+Cohesion: 0.05
+Nodes (24): CoreScreen, Entry, Problem, MISSING_EXPORT, MISSING_PLANTER, MISSING_POWER, NONE, SECOND_CORE (+16 more)
 
 ### Community 4 - "StructureScannerTest"
-Cohesion: 0.28
-Nodes (3): ScanResult, P, StructureScannerTest
+Cohesion: 0.17
+Nodes (5): JadeTests, JadeInfo, ScanResult, P, StructureScannerTest
 
 ### Community 6 - "net.minecraft.world.item.ItemStack"
-Cohesion: 0.05
-Nodes (9): PlantRecipe, RecipeMemo, PlanterBlockEntity, AteBridgeTests, ModuleSlot, PlanterMenu, DataSlot, SoilSlot (+1 more)
-
-### Community 7 - "ExportBlockEntity"
-Cohesion: 0.17
-Nodes (3): ExportBlockEntity, MeLinkTests, OutputSink
+Cohesion: 0.07
+Nodes (7): AteBridge, PlantRecipe, RecipeMemo, AteBridgeTests, PlanterMenu, DataSlot, SeedBinSlot
 
 ### Community 8 - "Capability Registration"
-Cohesion: 0.13
-Nodes (5): Ae2Integration, ModularPlanters, MPCreativeTab, MPItems, MPMenus
+Cohesion: 0.15
+Nodes (4): Ae2Integration, MPCreativeTab, MPItems, MPMenus
 
 ### Community 10 - "Client Outlines and Screens"
-Cohesion: 0.09
+Cohesion: 0.08
 Nodes (4): Ae2Client, ModularPlantersClient, PlanterOutlines, MPDataGen
-
-### Community 11 - "Structure Scan Problems"
-Cohesion: 0.13
-Nodes (3): StructureScanner, MPConfig, CoreFinder
 
 ### Community 12 - "Docs Mockups and License"
 Cohesion: 0.09
 Nodes (35): Block textures adapted from Agritech: Evolved, MIT License (MisterD Modding), Core screen mockup, LN Computer Node Table inspiration, Open planter screen with Back to core, Planter block list grouped by seed, Planter multiblock layouts mockup, Raised bed under a cloche (+27 more)
 
 ### Community 13 - "Seed Bin"
-Cohesion: 0.16
+Cohesion: 0.12
 Nodes (4): Combo, Entry, SeedBin, SeedBinTest
 
 ### Community 14 - "Planter Ticker and Grouping"
-Cohesion: 0.22
-Nodes (4): Grouping, AdvanceResult, PlanterTicker, PlanterTickerTest
+Cohesion: 0.20
+Nodes (5): Grouping, AdvanceResult, PlanterTicker, PlanterTickerTest, ReferencePoweredPlanter
 
 ### Community 15 - "Structure and No-AE2 Tests"
-Cohesion: 0.07
-Nodes (4): TestStructureProvider, Ae2AbsentTests, MPTestRegistration, TestCase
+Cohesion: 0.12
+Nodes (3): Ae2AbsentTests, RecipeTests, TestCase
 
-### Community 18 - "Export and Fertilizer Blocks"
-Cohesion: 0.15
-Nodes (5): MeBlock, CoreBlock, ExportBlock, FertilizerBlock, MPBlockEntities
-
-### Community 19 - "ATE Recipes and Data Maps"
-Cohesion: 0.10
-Nodes (3): AteBridge, Coverage, TickContext
+### Community 18 - "PlanterBlock.java"
+Cohesion: 0.09
+Nodes (7): MeBlock, CoreBlock, ExportBlock, FertilizerBlock, PartBlock, PlanterBlock, PowerBlock
 
 ### Community 20 - "Fertilizer Pool and Doorway"
-Cohesion: 0.21
-Nodes (3): Budget, FertilizerPool, LiveBlocks
+Cohesion: 0.18
+Nodes (3): DoorwayHandlers, Budget, FertilizerPool
 
 ### Community 21 - "Cloche Yield and Remainders"
-Cohesion: 0.16
+Cohesion: 0.20
 Nodes (3): ClocheYield, RemainderLedger, ClocheYieldTest
 
-### Community 24 - "StructureScannerTest.java"
-Cohesion: 0.06
-Nodes (5): CORE, FERTILIZER, PLANTER, UNLOADED, ConditionalDataTest
-
 ### Community 27 - "Growth Math"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (13): AteNumbers, GrowthMath, ModuleKind, NONE, SPEED_MK1, SPEED_MK2, SPEED_MK3, YIELD_MK1 (+5 more)
 
-### Community 31 - "Core Network Payloads"
-Cohesion: 0.14
-Nodes (6): Action, BACK_TO_CORE, OPEN, CoreRequestPayload, CoreTablePayload, SeedBinCombosPayload
+### Community 30 - "FertilizerBlockEntity"
+Cohesion: 0.13
+Nodes (5): ExportBlockEntity, FertilizerBlockEntity, ItemStacksResourceHandler, PowerBlockEntity, MPBlockEntities
+
+### Community 33 - "net.minecraft.resources.Identifier"
+Cohesion: 0.24
+Nodes (4): CoreProvider, INSTANCE, PlanterProvider, INSTANCE
+
+### Community 35 - "MPBlocks.java"
+Cohesion: 0.08
+Nodes (4): MPBlockTags, MPLang, ModularPlanters, MPBlocks
+
+### Community 36 - "CoreScreen.java"
+Cohesion: 0.12
+Nodes (3): MeScreen, PlanterScreen, StorageScreen
 
 ### Community 38 - "CoreScreenTests.java"
-Cohesion: 0.09
-Nodes (11): PlanterStatus, GROWING, IDLE, PAUSED_EXPORT_FULL, PAUSED_FOR_POWER, SHORT_ON_SOIL, MeStatus, NO_CHANNEL (+3 more)
+Cohesion: 0.08
+Nodes (6): PlanterStatus, GROWING, IDLE, PAUSED_EXPORT_FULL, PAUSED_FOR_POWER, SHORT_ON_SOIL
+
+### Community 42 - "MeMenu"
+Cohesion: 0.19
+Nodes (3): FilterSlot, MeMenu, DataSlot
+
+### Community 45 - "OutputSink"
+Cohesion: 0.18
+Nodes (3): LiveBlocks, OutputSink, TickContext
 
 ### Community 46 - "Planter Power ME Textures"
 Cohesion: 0.48
@@ -199,32 +208,36 @@ Cohesion: 0.40
 Nodes (5): Core Side Texture, Core Top Texture, Export Side Texture, Export Top Texture, Frame Side Texture
 
 ### Community 54 - "PartType"
-Cohesion: 0.19
-Nodes (8): PartBlock, PowerBlock, PartType, EXPORT, FRAME, ME, NOT_A_PART, POWER
+Cohesion: 0.14
+Nodes (10): PartType, CORE, EXPORT, FERTILIZER, FRAME, ME, NOT_A_PART, PLANTER (+2 more)
 
-### Community 55 - "Problem"
-Cohesion: 0.22
-Nodes (9): Problem, MISSING_EXPORT, MISSING_PLANTER, MISSING_POWER, NONE, SECOND_CORE, SECOND_ME, TOO_MANY_PARTS (+1 more)
+### Community 64 - "ae2.mdx"
+Cohesion: 0.50
+Nodes (3): Applied Flux, Fertilizer filter, ME block
+
+### Community 65 - "example_builds.mdx"
+Cohesion: 0.50
+Nodes (3): Raised bed under a cloche, Rosette, Vertical farm
 
 ## Knowledge Gaps
-- **41 isolated node(s):** `IDLE`, `GROWING`, `SHORT_ON_SOIL`, `PAUSED_FOR_POWER`, `PAUSED_EXPORT_FULL` (+36 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 221 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **33 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **43 isolated node(s):** `IDLE`, `GROWING`, `SHORT_ON_SOIL`, `PAUSED_FOR_POWER`, `PAUSED_EXPORT_FULL` (+38 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 244 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **51 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `CoreBlockEntity` connect `CoreBlockEntity` to `Planter Block and GameTests`, `CoreMenu`, `StructureScannerTest`, `.buildTable`, `ExportBlockEntity`, `Structure Scan Problems`, `Docs Mockups and License`, `PlanterMenu.java`, `Export and Fertilizer Blocks`, `Fertilizer Pool and Doorway`, `Ae2Tests.java`, `net.neoforged.neoforge.transfer.item.ItemResource`, `ME and Part Blocks`, `FertilizerBlockEntity`, `CoreScreenTests.java`, `Doorway Handler Tests`, `Ae2Tests`, `net.neoforged.neoforge.transfer.ResourceHandler`, `PartType`?**
-  _High betweenness centrality (0.091) - this node is a cross-community bridge._
+- **Why does `CoreBlockEntity` connect `CoreBlockEntity` to `CoreMenu`, `StructureScannerTest`, `.buildTable`, `Structure Scan Problems`, `Docs Mockups and License`, `CoreMenu.java`, `PlanterMenu.java`, `Fertilizer Pool and Doorway`, `ME and Part Blocks`, `FertilizerBlockEntity`, `CoreScreenTests`, `net.minecraft.resources.Identifier`, `CoreScreenTests.java`, `StructureTests`, `Doorway Handler Tests`, `Ae2Tests`, `OutputSink`, `MeLink`, `MPJadePlugin.java`, `Multiblock`?**
+  _High betweenness centrality (0.086) - this node is a cross-community bridge._
 - **What connects `IDLE`, `GROWING`, `SHORT_ON_SOIL` to the rest of the system?**
-  _41 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _43 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Planter Block and GameTests` be split into smaller, more focused modules?**
-  _Cohesion score 0.07014441497200118 - nodes in this community are weakly interconnected._
-- **Why does `PlanterBlockEntity` connect `net.minecraft.world.item.ItemStack` to `Planter Block and GameTests`, `CoreMenu`, `MenuTests`, `CoreScreenTests.java`, `PlanterTests.java`, `Seed Bin`, `PlanterMenu.java`, `Export and Fertilizer Blocks`, `ATE Recipes and Data Maps`, `Cloche Yield and Remainders`, `Ae2Tests.java`, `.processingTime`, `ME and Part Blocks`, `Loot and Data Components`, `FertilizerBlockEntity`?**
-  _High betweenness centrality (0.064) - this node is a cross-community bridge._
-- **Should `Core and Planter Screens` be split into smaller, more focused modules?**
-  _Cohesion score 0.14714714714714713 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._
+- **Why does `PlanterBlockEntity` connect `Planter Block and GameTests` to `CoreMenu`, `net.minecraft.world.item.ItemStack`, `PlanterTests.java`, `Seed Bin`, `CoreMenu.java`, `PlanterMenu.java`, `PlanterBlock.java`, `ATE Recipes and Data Maps`, `Cloche Yield and Remainders`, `ME and Part Blocks`, `Growth Math`, `Loot and Data Components`, `.tickFromCore`, `FertilizerBlockEntity`, `net.minecraft.resources.Identifier`, `MenuTests`, `CoreScreenTests.java`, `Doorway Handler Tests`, `MPJadePlugin.java`?**
+  _High betweenness centrality (0.068) - this node is a cross-community bridge._
+- **Should `CoreScreen` be split into smaller, more focused modules?**
+  _Cohesion score 0.053482221569203646 - nodes in this community are weakly interconnected._
 - **Why does `Core block` connect `Docs Mockups and License` to `CoreBlockEntity`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Should `ME Block Entity and Menu` be split into smaller, more focused modules?**
-  _Cohesion score 0.05721153846153846 - nodes in this community are weakly interconnected._
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Should `MeBlockEntity` be split into smaller, more focused modules?**
+  _Cohesion score 0.13538461538461538 - nodes in this community are weakly interconnected._
