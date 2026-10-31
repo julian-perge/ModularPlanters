@@ -12,9 +12,9 @@
     "semantic_hash": "5d1b8599ac4cf69810968b0aa4296a07"
   },
   "build.gradle": {
-    "mtime": 1793475151.7178228,
-    "seen": 1793476266.0734642,
-    "ast_hash": "61ffdcfb90a7880156dc56866c1d4a67",
+    "mtime": 1793489365.5931153,
+    "seen": 1793489527.741271,
+    "ast_hash": "75c1d73b7c10d98b9b076a7a4cf2bfb4",
     "semantic_hash": ""
   },
   "gradlew": {
@@ -114,9 +114,9 @@
     "semantic_hash": "22dd9439123ab3863c904581097a9ad4"
   },
   "src/generated/resources/assets/modular_planters/lang/en_us.json": {
-    "mtime": 1793475029.9588952,
-    "seen": 1793476266.07348,
-    "ast_hash": "adb731bb0750fa63fa54c3b8931f9405",
+    "mtime": 1793489458.154042,
+    "seen": 1793489527.7412858,
+    "ast_hash": "5e56bc06726495b27e1fcc945d7bd4f1",
     "semantic_hash": ""
   },
   "src/generated/resources/assets/modular_planters/models/block/core.json": {
@@ -354,10 +354,10 @@
     "semantic_hash": "837f7ad5435220236437b378a0fb7f23"
   },
   "src/main/java/io/github/julianperge/modular_planters/ate/AteBridge.java": {
-    "mtime": 1793387911.628838,
-    "seen": 1793388685.279166,
-    "ast_hash": "4e3c7962904102a93c2023c121994a67",
-    "semantic_hash": "4e3c7962904102a93c2023c121994a67"
+    "mtime": 1793489320.2202742,
+    "seen": 1793489527.741316,
+    "ast_hash": "633d60fe54677877af7672de97824924",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/block/CoreBlock.java": {
     "mtime": 1793326549.1131418,
@@ -414,9 +414,9 @@
     "semantic_hash": "3acce510e723118c32360d9eed628b18"
   },
   "src/main/java/io/github/julianperge/modular_planters/blockentity/PlanterBlockEntity.java": {
-    "mtime": 1793414044.3389802,
-    "seen": 1793414160.252894,
-    "ast_hash": "8ca2ced5be140a12a1fa15e594626bc9",
+    "mtime": 1793489466.0621505,
+    "seen": 1793489527.741324,
+    "ast_hash": "7ec4154d16a81fc5f7921be500641a1c",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/blockentity/PlanterStatus.java": {
@@ -432,10 +432,10 @@
     "semantic_hash": "87b17912b4df6d2fbed2b1ec22b02b24"
   },
   "src/main/java/io/github/julianperge/modular_planters/client/CoreScreen.java": {
-    "mtime": 1793387911.6301868,
-    "seen": 1793388685.2791739,
-    "ast_hash": "c172483c82a955977ad01552dc51082f",
-    "semantic_hash": "c172483c82a955977ad01552dc51082f"
+    "mtime": 1793489223.177014,
+    "seen": 1793489527.741326,
+    "ast_hash": "f8c9f48358e3503cf544ac644bdf04d5",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/client/ModularPlantersClient.java": {
     "mtime": 1793387911.6304321,
@@ -474,9 +474,9 @@
     "semantic_hash": "a675e873802a77fcaa6c19cea4fe64f0"
   },
   "src/main/java/io/github/julianperge/modular_planters/datagen/MPLang.java": {
-    "mtime": 1793475016.500681,
-    "seen": 1793476266.073528,
-    "ast_hash": "c62d4cbe30d9096dc6d0cba2972352f8",
+    "mtime": 1793489453.331312,
+    "seen": 1793489527.7413309,
+    "ast_hash": "bb8ebc6167962694f9b9ab0657479a99",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/datagen/MPLoot.java": {
@@ -522,10 +522,10 @@
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/AteBridgeTests.java": {
-    "mtime": 1793387911.6323245,
-    "seen": 1793388685.2791848,
-    "ast_hash": "dfd361a8120cb237eefb3eeb1c04b187",
-    "semantic_hash": "dfd361a8120cb237eefb3eeb1c04b187"
+    "mtime": 1793489223.1649806,
+    "seen": 1793489527.741337,
+    "ast_hash": "88904dd6fbe71ee54d5bf0ec22cf9d35",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/CoreScreenTests.java": {
     "mtime": 1793387911.6325994,
@@ -546,14 +546,14 @@
     "semantic_hash": "d009eb6d6127a7a4c48628fc18d58760"
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/Fixtures.java": {
-    "mtime": 1793387911.6336033,
-    "seen": 1793388685.279188,
-    "ast_hash": "d84da5a7ece32ca52f71a25891363753",
-    "semantic_hash": "d84da5a7ece32ca52f71a25891363753"
+    "mtime": 1793489223.165565,
+    "seen": 1793489527.74134,
+    "ast_hash": "01fe549947b2ec46651f9c38145b43e6",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/MPTestRegistration.java": {
-    "mtime": 1793474855.668791,
-    "seen": 1793476266.0735402,
+    "mtime": 1793476396.0517945,
+    "seen": 1793489527.741344,
     "ast_hash": "2b95e364da5063f5a0ac5c86927cf246",
     "semantic_hash": ""
   },
@@ -564,16 +564,16 @@
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/MenuTests.java": {
-    "mtime": 1793414072.716952,
-    "seen": 1793414160.252913,
-    "ast_hash": "111f7a8be7ca1a2b8db5635c029fe539",
+    "mtime": 1793489223.1661618,
+    "seen": 1793489527.741345,
+    "ast_hash": "60363049e07201d8ffd8f184b3ca9159",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/PlanterLifecycleTests.java": {
-    "mtime": 1793387911.6345568,
-    "seen": 1793388685.27919,
-    "ast_hash": "4c479abe01b2fe49ea8631e03e88f718",
-    "semantic_hash": "4c479abe01b2fe49ea8631e03e88f718"
+    "mtime": 1793489223.1679654,
+    "seen": 1793489527.7413461,
+    "ast_hash": "77dfac1a1082b0b885ace5b67e767014",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/PlanterTests.java": {
     "mtime": 1793387911.6349487,
@@ -612,46 +612,34 @@
     "semantic_hash": "c985b389d8c366e527d47eb7757e565d"
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/ClocheYield.java": {
-    "mtime": 1793387911.6358378,
-    "seen": 1793388685.2791948,
-    "ast_hash": "ed0babd3714e3674ca14fb0d524fae40",
-    "semantic_hash": "ed0babd3714e3674ca14fb0d524fae40"
+    "mtime": 1793489223.1707122,
+    "seen": 1793489527.7413561,
+    "ast_hash": "654791a07ccaff9ee0aa780735b4284d",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/Coverage.java": {
-    "mtime": 1793231084.4400125,
-    "seen": 1793388685.2791948,
-    "ast_hash": "ada0041ff7d45fb98e5c597b2f992f39",
-    "semantic_hash": "ada0041ff7d45fb98e5c597b2f992f39"
+    "mtime": 1793489223.170174,
+    "seen": 1793489527.741357,
+    "ast_hash": "2d439b2dcb1fb39f48af461e51d3ece5",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/Group.java": {
-    "mtime": 1793231066.6135917,
-    "seen": 1793388685.2791958,
-    "ast_hash": "e37a409bcb58a2bc8711005bd3ea5445",
-    "semantic_hash": "e37a409bcb58a2bc8711005bd3ea5445"
+    "mtime": 1793489223.1699266,
+    "seen": 1793489527.741357,
+    "ast_hash": "90f508e9a36d2bfb49cc03997a1886bc",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/Grouping.java": {
-    "mtime": 1793231071.6048057,
-    "seen": 1793388685.279197,
-    "ast_hash": "3919157fe51d388a13a4608ed14ce4d6",
-    "semantic_hash": "3919157fe51d388a13a4608ed14ce4d6"
+    "mtime": 1793489223.171382,
+    "seen": 1793489527.741358,
+    "ast_hash": "6253b26fda848e254e2fce3751cb8180",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/GrowthMath.java": {
-    "mtime": 1793230845.668065,
-    "seen": 1793388685.279197,
-    "ast_hash": "4fe4d8493b4f371413676ab74e7163cb",
-    "semantic_hash": "4fe4d8493b4f371413676ab74e7163cb"
-  },
-  "src/main/java/io/github/julianperge/modular_planters/logic/ModuleKind.java": {
-    "mtime": 1793230845.6620784,
-    "seen": 1793388685.279198,
-    "ast_hash": "ea15044ffa1224551fd6fa3f6a520826",
-    "semantic_hash": "ea15044ffa1224551fd6fa3f6a520826"
-  },
-  "src/main/java/io/github/julianperge/modular_planters/logic/ModuleSet.java": {
-    "mtime": 1793328786.1267624,
-    "seen": 1793388685.279199,
-    "ast_hash": "e881d1633bc46e647d7f621c5dfe0981",
-    "semantic_hash": "e881d1633bc46e647d7f621c5dfe0981"
+    "mtime": 1793489223.171649,
+    "seen": 1793489527.741359,
+    "ast_hash": "3365566b08919173e432de86bda4afff",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/PartType.java": {
     "mtime": 1793231900.2009943,
@@ -660,9 +648,9 @@
     "semantic_hash": "a2fc8dc74ac2424d5322c4b60b717419"
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/PlanterTicker.java": {
-    "mtime": 1793414051.2804894,
-    "seen": 1793414160.252925,
-    "ast_hash": "4b85de734dd2b59995dc05ebe6c0222a",
+    "mtime": 1793489239.0786712,
+    "seen": 1793489527.7413602,
+    "ast_hash": "25e371a9472568f7c143467f1abe1be9",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/logic/Problem.java": {
@@ -696,22 +684,22 @@
     "semantic_hash": "a2b60f6ff93532b3032774d2326abaee"
   },
   "src/main/java/io/github/julianperge/modular_planters/menu/CoreMenu.java": {
-    "mtime": 1793387911.6369436,
-    "seen": 1793388685.2792041,
-    "ast_hash": "e5e4504bca4aa9465aaa0cea61fc089f",
-    "semantic_hash": "e5e4504bca4aa9465aaa0cea61fc089f"
+    "mtime": 1793489223.1752744,
+    "seen": 1793489527.741366,
+    "ast_hash": "6ef454c33cf545fccfa2a7dec1451e8e",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/menu/PlanterMenu.java": {
-    "mtime": 1793414066.113161,
-    "seen": 1793414160.2529302,
-    "ast_hash": "40af3103c08784c4aacbadebd8b3d04a",
+    "mtime": 1793489223.1748054,
+    "seen": 1793489527.741367,
+    "ast_hash": "524cb083486165a3ea69135157a991ef",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/menu/SeedBinSlot.java": {
-    "mtime": 1793387911.6373718,
-    "seen": 1793388685.279205,
-    "ast_hash": "347eb30a64e60a83f2840b5a3b0dc347",
-    "semantic_hash": "347eb30a64e60a83f2840b5a3b0dc347"
+    "mtime": 1793489223.1750402,
+    "seen": 1793489527.741368,
+    "ast_hash": "7781107f30c86ed46c2bdd51d796cc0f",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/menu/StorageMenu.java": {
     "mtime": 1793298885.4582288,
@@ -786,10 +774,10 @@
     "semantic_hash": "03c31fe185b548a84b72302318085019"
   },
   "src/main/java/io/github/julianperge/modular_planters/network/CoreTablePayload.java": {
-    "mtime": 1793387911.6397014,
-    "seen": 1793388685.2792141,
-    "ast_hash": "411a9c9d232c351cbe07ef84de26b8b5",
-    "semantic_hash": "411a9c9d232c351cbe07ef84de26b8b5"
+    "mtime": 1793489223.1690927,
+    "seen": 1793489527.741378,
+    "ast_hash": "3c5cf0d97cdf6602e7bec148c438e326",
+    "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/network/MPNetwork.java": {
     "mtime": 1793326549.1132295,
@@ -852,10 +840,10 @@
     "semantic_hash": "bd3b5d96864c6ef960f15305b2ddd7f2"
   },
   "src/test/java/io/github/julianperge/modular_planters/logic/AteDefaults.java": {
-    "mtime": 1793230780.218891,
-    "seen": 1793388685.279221,
-    "ast_hash": "b7d65d362259e17abc0a2aec24ef259f",
-    "semantic_hash": "b7d65d362259e17abc0a2aec24ef259f"
+    "mtime": 1793489223.1802278,
+    "seen": 1793489527.741387,
+    "ast_hash": "cc8947f297cbb5d389ecf698c02d7668",
+    "semantic_hash": ""
   },
   "src/test/java/io/github/julianperge/modular_planters/logic/ClocheYieldTest.java": {
     "mtime": 1793387911.6410015,
@@ -864,34 +852,28 @@
     "semantic_hash": "e98beef061bee43c82a87ed1e3b6c24c"
   },
   "src/test/java/io/github/julianperge/modular_planters/logic/CoverageTest.java": {
-    "mtime": 1793231049.0074744,
-    "seen": 1793388685.279222,
-    "ast_hash": "f8508c00a37a287416e2420162f27974",
-    "semantic_hash": "f8508c00a37a287416e2420162f27974"
-  },
-  "src/test/java/io/github/julianperge/modular_planters/logic/GrowthMathTest.java": {
-    "mtime": 1793230780.2227302,
-    "seen": 1793388685.279223,
-    "ast_hash": "6a92b08ac41e9b8b04e1eb3ecad07e07",
-    "semantic_hash": "6a92b08ac41e9b8b04e1eb3ecad07e07"
-  },
-  "src/test/java/io/github/julianperge/modular_planters/logic/PlanterTickerTest.java": {
-    "mtime": 1793414051.280766,
-    "seen": 1793414160.252952,
-    "ast_hash": "84cc2b72deaa7b5c03a8f6b4f4f61399",
+    "mtime": 1793489223.179287,
+    "seen": 1793489527.741388,
+    "ast_hash": "580db8f437afb61fee5ddba8d252c7d3",
     "semantic_hash": ""
   },
-  "src/test/java/io/github/julianperge/modular_planters/logic/ReferencePoweredPlanter.java": {
-    "mtime": 1793387911.6413682,
-    "seen": 1793388685.2792242,
-    "ast_hash": "8ef78630e58b3e9aa657b984363c7fdb",
-    "semantic_hash": "8ef78630e58b3e9aa657b984363c7fdb"
+  "src/test/java/io/github/julianperge/modular_planters/logic/GrowthMathTest.java": {
+    "mtime": 1793489223.1794178,
+    "seen": 1793489527.741389,
+    "ast_hash": "4a43b6794cd4956739dc1a3a1d7af5d2",
+    "semantic_hash": ""
+  },
+  "src/test/java/io/github/julianperge/modular_planters/logic/PlanterTickerTest.java": {
+    "mtime": 1793489239.0810182,
+    "seen": 1793489527.74139,
+    "ast_hash": "cc4535ca8cf4cff89a2dd4ce019fa829",
+    "semantic_hash": ""
   },
   "src/test/java/io/github/julianperge/modular_planters/logic/SeedBinTest.java": {
-    "mtime": 1793387911.6415453,
-    "seen": 1793388685.279225,
-    "ast_hash": "6e9f023ba7fa745cf0637e7ef7305a04",
-    "semantic_hash": "6e9f023ba7fa745cf0637e7ef7305a04"
+    "mtime": 1793489223.179739,
+    "seen": 1793489527.7413912,
+    "ast_hash": "455508e9e45ba46ac4d5530709b13785",
+    "semantic_hash": ""
   },
   "src/test/java/io/github/julianperge/modular_planters/logic/StructureScannerTest.java": {
     "mtime": 1793387911.6417215,
@@ -918,9 +900,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793476105.4975848,
-    "seen": 1793476266.073597,
-    "ast_hash": "d1def2f559e5580b963a0c2a68325168",
+    "mtime": 1793489442.1301694,
+    "seen": 1793489527.7414,
+    "ast_hash": "d2e491fc154d1a549530241819b61aca",
     "semantic_hash": ""
   },
   "mockups/core-screen.html": {
@@ -1019,166 +1001,208 @@
     "ast_hash": "03b017a0fbdc815973b873127df41966",
     "semantic_hash": "03b017a0fbdc815973b873127df41966"
   },
-  "LICENSE-ATE.txt": {
-    "mtime": 1793230755.6105783,
-    "seen": 1793414160.252959,
-    "ast_hash": "ea9c2ac58a16e8824f452dd98083bc8d",
-    "semantic_hash": ""
-  },
   "src/main/java/io/github/julianperge/modular_planters/gametest/JadeTests.java": {
-    "mtime": 1793474855.6685138,
-    "seen": 1793476266.073539,
-    "ast_hash": "543cc9c2776113fa9155b11d97a64e2d",
+    "mtime": 1793489390.6623304,
+    "seen": 1793489527.741343,
+    "ast_hash": "ea3d4768c190f9e42e155056724957f4",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/jade/CoreProvider.java": {
-    "mtime": 1793475025.312947,
-    "seen": 1793476266.0735471,
-    "ast_hash": "e3383820756d107690fc008f42325cb1",
+    "mtime": 1793489406.7024534,
+    "seen": 1793489527.74135,
+    "ast_hash": "c6bdba7246ab3749901295d301937629",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/jade/JadeInfo.java": {
-    "mtime": 1793476105.4973617,
-    "seen": 1793476266.073548,
+    "mtime": 1793476396.0533915,
+    "seen": 1793489527.7413518,
     "ast_hash": "6d8d373e293355ef17857bfd0d04904b",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/jade/MPJadePlugin.java": {
-    "mtime": 1793476105.4971688,
-    "seen": 1793476266.073549,
-    "ast_hash": "7a7acfbf0c40cf58878226f488f888e0",
+    "mtime": 1793489406.702612,
+    "seen": 1793489527.741353,
+    "ast_hash": "50ccb462d1712243cfbcb9baaf274a87",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/jade/PlanterProvider.java": {
-    "mtime": 1793475025.31592,
-    "seen": 1793476266.07355,
-    "ast_hash": "fe444e35153c180e185fa53814550107",
+    "mtime": 1793489406.7027907,
+    "seen": 1793489527.741354,
+    "ast_hash": "ed3a77f61774574b312fce74fbbc3713",
     "semantic_hash": ""
   },
   "src/test/java/io/github/julianperge/modular_planters/wiki/WikiStructureTest.java": {
-    "mtime": 1793475319.8592808,
-    "seen": 1793476266.07359,
+    "mtime": 1793476396.053974,
+    "seen": 1793489527.7413929,
     "ast_hash": "58d24b46bcd0336be411307e564d8af2",
     "semantic_hash": ""
   },
   "wiki/content/_meta.json": {
-    "mtime": 1793475340.2400908,
-    "seen": 1793476266.073591,
+    "mtime": 1793476396.0558617,
+    "seen": 1793489527.7413938,
     "ast_hash": "22f3bfc8fbf870d0fa4feae3d54eb086",
     "semantic_hash": ""
   },
   "wiki/docs/_meta.json": {
-    "mtime": 1793475544.1261187,
-    "seen": 1793476266.073592,
+    "mtime": 1793476396.0576696,
+    "seen": 1793489527.7413938,
     "ast_hash": "442ee077420ba74cb61f4a708f3702ef",
     "semantic_hash": ""
   },
   "wiki/sinytra-wiki.json": {
-    "mtime": 1793475157.321389,
-    "seen": 1793476266.0735931,
+    "mtime": 1793476396.0595317,
+    "seen": 1793489527.741395,
     "ast_hash": "7419e9c312f2819e8073a813007441a7",
     "semantic_hash": ""
   },
   "wiki/content/core.mdx": {
-    "mtime": 1793475340.2197564,
-    "seen": 1793476266.0735989,
-    "ast_hash": "37d44e14a1193d4e334ceba73ee893c6",
+    "mtime": 1793489442.1309476,
+    "seen": 1793489527.7414021,
+    "ast_hash": "dea8df1c86ed804774ba7a76fdfa7718",
     "semantic_hash": ""
   },
   "wiki/content/export.mdx": {
-    "mtime": 1793475340.234566,
-    "seen": 1793476266.0736,
+    "mtime": 1793489252.723547,
+    "seen": 1793489527.7414029,
     "ast_hash": "efaad95ea3ec5a1c2a657c939e02c755",
     "semantic_hash": ""
   },
   "wiki/content/fertilizer.mdx": {
-    "mtime": 1793475340.231772,
-    "seen": 1793476266.073601,
+    "mtime": 1793489252.7237678,
+    "seen": 1793489527.7414038,
     "ast_hash": "ff4f234fa2809f4f2f24802feefa8aac",
     "semantic_hash": ""
   },
   "wiki/content/frame.mdx": {
-    "mtime": 1793475340.2227747,
-    "seen": 1793476266.073602,
+    "mtime": 1793489252.724172,
+    "seen": 1793489527.7414038,
     "ast_hash": "48361cb55240e8c48f7e449681db2c64",
     "semantic_hash": ""
   },
   "wiki/content/me.mdx": {
-    "mtime": 1793475340.2374623,
-    "seen": 1793476266.073602,
-    "ast_hash": "b7185d9730bbe31731ea78de9397df94",
+    "mtime": 1793489442.1307693,
+    "seen": 1793489527.741405,
+    "ast_hash": "36f2043d2af0f59b7310c8ff64302f0c",
     "semantic_hash": ""
   },
   "wiki/content/planter.mdx": {
-    "mtime": 1793475340.2256544,
-    "seen": 1793476266.0736032,
-    "ast_hash": "4f26a83436c76876212836155eae9260",
+    "mtime": 1793489442.130861,
+    "seen": 1793489527.741406,
+    "ast_hash": "7ceada46f8e6847b9e0c447a1f058c8f",
     "semantic_hash": ""
   },
   "wiki/content/power.mdx": {
-    "mtime": 1793476105.497486,
-    "seen": 1793476266.073604,
-    "ast_hash": "8bff7c1c70efebaf6cc2cc2f1b61e2d1",
+    "mtime": 1793489442.130646,
+    "seen": 1793489527.741406,
+    "ast_hash": "bc47e4428c991bf5014753792ea6c7a6",
     "semantic_hash": ""
   },
   "wiki/docs/ae2.mdx": {
-    "mtime": 1793475430.405571,
-    "seen": 1793476266.073604,
+    "mtime": 1793489252.7243662,
+    "seen": 1793489527.741407,
     "ast_hash": "7044ef9dec4665162afb8f2be90be0e7",
     "semantic_hash": ""
   },
   "wiki/docs/building.mdx": {
-    "mtime": 1793476105.497725,
-    "seen": 1793476266.073605,
+    "mtime": 1793489252.7248242,
+    "seen": 1793489527.741408,
     "ast_hash": "7a370d2ac12372b54c30369744a5d7c0",
     "semantic_hash": ""
   },
   "wiki/docs/cloche.mdx": {
-    "mtime": 1793475430.399191,
-    "seen": 1793476266.0736058,
+    "mtime": 1793489252.7246292,
+    "seen": 1793489527.741409,
     "ast_hash": "fb4f9127cff3699a1f1cb2274c6d6976",
     "semantic_hash": ""
   },
   "wiki/docs/example_builds.mdx": {
-    "mtime": 1793476105.49789,
-    "seen": 1793476266.0736058,
+    "mtime": 1793489252.7245512,
+    "seen": 1793489527.741409,
     "ast_hash": "bac83937af59e29f2891ea273ed0a29d",
     "semantic_hash": ""
   },
   "wiki/docs/growing.mdx": {
-    "mtime": 1793475430.3964841,
-    "seen": 1793476266.073607,
-    "ast_hash": "b3547a0b34dee97a160a12e2d91882af",
+    "mtime": 1793489252.7244644,
+    "seen": 1793489527.74141,
+    "ast_hash": "a9cde5359edcd7a6a011b99f4ac015f5",
     "semantic_hash": ""
   },
   "wiki/docs/logistics_networks.mdx": {
-    "mtime": 1793475430.4022672,
-    "seen": 1793476266.073608,
-    "ast_hash": "1ee1bc67b67610f59ca4acce1c2a477a",
+    "mtime": 1793489252.7247283,
+    "seen": 1793489527.741411,
+    "ast_hash": "e6d61be7885ea0093e272f1347aff6e7",
     "semantic_hash": ""
   },
   "wiki/docs/overview.mdx": {
-    "mtime": 1793475157.324245,
-    "seen": 1793476266.0736089,
-    "ast_hash": "95d9b6c43f03037fe9f84bafabf7ea7e",
+    "mtime": 1793489442.1303303,
+    "seen": 1793489527.7414122,
+    "ast_hash": "cea228e93890f1c64e3636c3ee220dda",
     "semantic_hash": ""
   },
   "wiki/assets/modular_planters/builds/raised_bed.png": {
-    "mtime": 1793476137.968797,
-    "seen": 1793476266.073621,
+    "mtime": 1793476396.054755,
+    "seen": 1793489527.741424,
     "ast_hash": "af67cf0a0c173c46953f95a6890b6395",
     "semantic_hash": ""
   },
   "wiki/assets/modular_planters/builds/rosette.png": {
-    "mtime": 1793476139.4037547,
-    "seen": 1793476266.073622,
+    "mtime": 1793476396.0551414,
+    "seen": 1793489527.741424,
     "ast_hash": "da4c326a0c4f37c8bd8b80c921d3b6ad",
     "semantic_hash": ""
   },
   "wiki/assets/modular_planters/builds/vertical_farm.png": {
-    "mtime": 1793476138.693203,
-    "seen": 1793476266.073622,
+    "mtime": 1793476396.0555968,
+    "seen": 1793489527.7414248,
     "ast_hash": "c125d09148b01664aaa4be6ca5989db1",
+    "semantic_hash": ""
+  },
+  "src/main/java/io/github/julianperge/modular_planters/gametest/JadeRegistration.java": {
+    "mtime": 1793489415.9480681,
+    "seen": 1793489527.741342,
+    "ast_hash": "12409bc86459943528568cf5a7d85c8d",
+    "semantic_hash": ""
+  },
+  "src/main/java/io/github/julianperge/modular_planters/jade/CoreTooltipProvider.java": {
+    "mtime": 1793489264.5513434,
+    "seen": 1793489527.741351,
+    "ast_hash": "cd16a66075e3cac277f54c9e5c7c3343",
+    "semantic_hash": ""
+  },
+  "src/main/java/io/github/julianperge/modular_planters/jade/PlanterTooltipProvider.java": {
+    "mtime": 1793489264.5514922,
+    "seen": 1793489527.741354,
+    "ast_hash": "41a0603c9e349999aaea900183e3b594",
+    "semantic_hash": ""
+  },
+  "src/main/java/io/github/julianperge/modular_planters/logic/UpgradeKind.java": {
+    "mtime": 1793489223.1697145,
+    "seen": 1793489527.741365,
+    "ast_hash": "1b774ff45a828409ba50f8974303bca8",
+    "semantic_hash": ""
+  },
+  "src/main/java/io/github/julianperge/modular_planters/logic/UpgradeSet.java": {
+    "mtime": 1793489223.1711054,
+    "seen": 1793489527.741366,
+    "ast_hash": "e3c16a11fda8bcdc361274ba976c9d53",
+    "semantic_hash": ""
+  },
+  "src/test/java/io/github/julianperge/modular_planters/logic/ReferenceAdvancedPlanter.java": {
+    "mtime": 1793489239.0808089,
+    "seen": 1793489527.74139,
+    "ast_hash": "b60673b4a0d2e0755131cc6e7988f1ae",
+    "semantic_hash": ""
+  },
+  "LICENSE-ATE.md": {
+    "mtime": 1793230755.6105783,
+    "seen": 1793489527.741398,
+    "ast_hash": "ea9c2ac58a16e8824f452dd98083bc8d",
+    "semantic_hash": ""
+  },
+  "LICENSE.md": {
+    "mtime": 1793230770.6089103,
+    "seen": 1793489527.741399,
+    "ast_hash": "a56f5ed6dd84a0486c6d97225e71a5d1",
     "semantic_hash": ""
   }
 }
