@@ -1,6 +1,7 @@
 {
   "overview.mdx": "Overview",
   "building.mdx": "Building Rules",
+  "example_builds.mdx": "Example Builds",
   "growing.mdx": "How a Planter Block Grows",
   "cloche.mdx": "Built-in Cloche",
   "ae2.mdx": "AE2 and Applied Flux",
