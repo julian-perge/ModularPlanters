@@ -89,8 +89,10 @@ public final class PlanterLifecycleTests {
                     CompoundTag tag = planter.saveWithFullMetadata(level.registryAccess());
                     BlockEntity loaded = BlockEntity.loadStatic(planter.getBlockPos(), planter.getBlockState(), tag,
                             level.registryAccess());
-                    helper.assertTrue(loaded instanceof PlanterBlockEntity, "the saved tag loads a planter");
-                    PlanterBlockEntity copy = (PlanterBlockEntity) loaded;
+                    if (!(loaded instanceof PlanterBlockEntity copy)) {
+                        helper.fail("the saved tag loads a planter");
+                        return;
+                    }
 
                     helper.assertValueEqual(copy.seeds().size(), bin.size(), "bin size");
                     for (int i = 0; i < bin.size(); i++) {
@@ -227,11 +229,23 @@ public final class PlanterLifecycleTests {
         }
 
         void assertSame(GameTestHelper helper, Snapshot other, String name) {
-            helper.assertTrue(ItemStack.listMatches(seeds, other.seeds), name + " seeds");
+            helper.assertTrue(stacksMatch(seeds, other.seeds), name + " seeds");
             helper.assertValueEqual(other.progress, progress, name + " progress");
             helper.assertValueEqual(other.ready, ready, name + " ready flags");
-            helper.assertTrue(ItemStack.listMatches(soilAndUpgrades, other.soilAndUpgrades), name + " soil and upgrades");
-            helper.assertTrue(ItemStack.listMatches(held, other.held), name + " held outputs");
+            helper.assertTrue(stacksMatch(soilAndUpgrades, other.soilAndUpgrades), name + " soil and upgrades");
+            helper.assertTrue(stacksMatch(held, other.held), name + " held outputs");
+        }
+
+        private static boolean stacksMatch(List<ItemStack> left, List<ItemStack> right) {
+            if (left.size() != right.size()) {
+                return false;
+            }
+            for (int i = 0; i < left.size(); i++) {
+                if (!ItemStack.matches(left.get(i), right.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -339,8 +353,11 @@ public final class PlanterLifecycleTests {
         tag.put("seeds", bad);
         BlockEntity loaded = BlockEntity.loadStatic(planter.getBlockPos(), planter.getBlockState(), tag,
                 level.registryAccess());
-        helper.assertTrue(loaded instanceof PlanterBlockEntity, "the tag loads a planter");
-        SeedBin<ItemStack> seeds = ((PlanterBlockEntity) loaded).seeds();
+        if (!(loaded instanceof PlanterBlockEntity copy)) {
+            helper.fail("the tag loads a planter");
+            return;
+        }
+        SeedBin<ItemStack> seeds = copy.seeds();
         helper.assertValueEqual(seeds.size(), SeedBin.CAPACITY, "seeds after the cap");
         for (int i = 0; i < seeds.size(); i++) {
             helper.assertValueEqual(seeds.progress(i), 0, "progress of seed " + i);
