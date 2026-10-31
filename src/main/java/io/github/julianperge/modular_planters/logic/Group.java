@@ -2,7 +2,7 @@ package io.github.julianperge.modular_planters.logic;
 
 import java.util.List;
 
-public record Group(ModuleSet modules, List<Integer> seeds) {
+public record Group(UpgradeSet upgrades, List<Integer> seeds) {
     public int size() {
         return seeds.size();
     }

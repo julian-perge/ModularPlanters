@@ -14,7 +14,7 @@ import io.github.julianperge.modular_planters.logic.Coverage;
 import io.github.julianperge.modular_planters.logic.Group;
 import io.github.julianperge.modular_planters.logic.Grouping;
 import io.github.julianperge.modular_planters.logic.GrowthMath;
-import io.github.julianperge.modular_planters.logic.ModuleKind;
+import io.github.julianperge.modular_planters.logic.UpgradeKind;
 import io.github.julianperge.modular_planters.logic.PlanterTicker;
 import io.github.julianperge.modular_planters.logic.RemainderLedger;
 import io.github.julianperge.modular_planters.logic.SeedBin;
@@ -44,7 +44,7 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jspecify.annotations.Nullable;
 
 public class PlanterBlockEntity extends BlockEntity {
-    public static final int SOIL = 0, MODULE_1 = 1, MODULE_2 = 2;
+    public static final int SOIL = 0, UPGRADE_1 = 1, UPGRADE_2 = 2;
     public static final int ACTIVE_OFF_DELAY = 20;
     public static final int STALE_TICKS = 40;
 
@@ -54,7 +54,7 @@ public class PlanterBlockEntity extends BlockEntity {
     private static final Codec<Map<String, Long>> REMAINDERS_CODEC = Codec.unboundedMap(Codec.STRING, Codec.LONG);
 
     private final SeedBin<ItemStack> seeds = new SeedBin<>(ItemStack::isSameItemSameComponents, s -> s.copyWithCount(1));
-    private final ItemStacksResourceHandler soilAndModules = new ItemStacksResourceHandler(3) {
+    private final ItemStacksResourceHandler soilAndUpgrades = new ItemStacksResourceHandler(3) {
         @Override
         protected int getCapacity(int index, ItemResource resource) {
             return Math.min(SeedBin.CAPACITY, super.getCapacity(index, resource));
@@ -92,8 +92,8 @@ public class PlanterBlockEntity extends BlockEntity {
         return seeds;
     }
 
-    public ItemStacksResourceHandler soilAndModules() {
-        return soilAndModules;
+    public ItemStacksResourceHandler soilAndUpgrades() {
+        return soilAndUpgrades;
     }
 
     public RemainderLedger<String> clocheRemainders() {
@@ -142,8 +142,8 @@ public class PlanterBlockEntity extends BlockEntity {
             holding = !heldOutputs.isEmpty();
         }
 
-        int soilCount = soilAndModules.getAmountAsInt(SOIL);
-        ItemStack soil = soilAndModules.getResource(SOIL).toStack(soilCount);
+        int soilCount = soilAndUpgrades.getAmountAsInt(SOIL);
+        ItemStack soil = soilAndUpgrades.getResource(SOIL).toStack(soilCount);
         Optional<AteBridge.PlantRecipe> recipe = seeds.size() == 0 || soil.isEmpty()
                 ? Optional.empty() : recipes.get(ctx.level(), seeds.seed(0));
         if (recipe.isEmpty() || !recipe.get().soilMatches().test(soil)) {
@@ -160,10 +160,10 @@ public class PlanterBlockEntity extends BlockEntity {
         }
 
         int nowGrowing = Coverage.growing(seeds.size(), soilCount);
-        ModuleKind kind1 = moduleKind(MODULE_1);
-        ModuleKind kind2 = moduleKind(MODULE_2);
-        int count1 = moduleCount(MODULE_1, kind1);
-        int count2 = moduleCount(MODULE_2, kind2);
+        UpgradeKind kind1 = upgradeKind(UPGRADE_1);
+        UpgradeKind kind2 = upgradeKind(UPGRADE_2);
+        int count1 = upgradeCount(UPGRADE_1, kind1);
+        int count2 = upgradeCount(UPGRADE_2, kind2);
         List<Group> groups = Grouping.of(seeds, Coverage.assign(nowGrowing, kind1, count1, kind2, count2));
 
         // Each group decides once per tick, before any pause, so a paused group still holds its claim and one decision sets both its growth time and its harvest.
@@ -188,7 +188,7 @@ public class PlanterBlockEntity extends BlockEntity {
         PlanterStatus paused = null;
         PlanterTicker.AdvanceResult result = PlanterTicker.advance(seeds, groups,
                 group -> processingTime(ctx, group, soilModifier, fertilized.get(group)),
-                modules -> GrowthMath.powerPerSeedTick(numbers, modules),
+                upgrades -> GrowthMath.powerPerSeedTick(numbers, upgrades),
                 ctx.power().stored());
         if (result.pausedForPower()) {
             paused = PlanterStatus.PAUSED_FOR_POWER;
@@ -204,14 +204,14 @@ public class PlanterBlockEntity extends BlockEntity {
             }
             FertilizerData fertilizer = fertilized.get(group);
             float fertilizerYield = fertilizer != null ? fertilizer.yieldMultiplier() : 1.0f;
-            float moduleYield = group.modules().yieldModifier(numbers);
-            float modifier = fertilizerYield * moduleYield * (float) numbers.clocheYield();
+            float upgradeYield = group.upgrades().yieldModifier(numbers);
+            float modifier = fertilizerYield * upgradeYield * (float) numbers.clocheYield();
             if (!ctx.outputs().hasRoomFor(listedDrops(recipe.get().drops(), modifier, group.size()))) {
                 paused = PlanterStatus.PAUSED_EXPORT_FULL;
                 break;
             }
             for (int seed : group.seeds()) {
-                harvest(ctx, seed, fertilizer != null, fertilizerYield, moduleYield, modifier);
+                harvest(ctx, seed, fertilizer != null, fertilizerYield, upgradeYield, modifier);
             }
             // Outputs that did not fit are held until they leave, so later groups wait instead of adding more to the pile.
             if (!heldOutputs.isEmpty()) {
@@ -238,17 +238,17 @@ public class PlanterBlockEntity extends BlockEntity {
         setStatus(PlanterStatus.IDLE);
     }
 
-    private ModuleKind moduleKind(int slot) {
-        return AteBridge.moduleKind(soilAndModules.getResource(slot).toStack());
+    private UpgradeKind upgradeKind(int slot) {
+        return AteBridge.upgradeKind(soilAndUpgrades.getResource(slot).toStack());
     }
 
-    private int moduleCount(int slot, ModuleKind kind) {
-        return kind == ModuleKind.NONE ? 0 : soilAndModules.getAmountAsInt(slot);
+    private int upgradeCount(int slot, UpgradeKind kind) {
+        return kind == UpgradeKind.NONE ? 0 : soilAndUpgrades.getAmountAsInt(slot);
     }
 
     private int processingTime(TickContext ctx, Group group, float soilModifier, @Nullable FertilizerData fertilizer) {
         float fertilizerSpeed = fertilizer != null ? fertilizer.speedMultiplier() : 1.0f;
-        int time = GrowthMath.growthTime(ctx.numbers(), soilModifier, group.modules(), fertilizerSpeed);
+        int time = GrowthMath.growthTime(ctx.numbers(), soilModifier, group.upgrades(), fertilizerSpeed);
         return NeoForge.EVENT_BUS.post(new PlanterProcessingTimeEvent(this, seeds.seed(group.first()).copy(), time))
                 .getProcessingTime();
     }
@@ -262,7 +262,7 @@ public class PlanterBlockEntity extends BlockEntity {
         return listed;
     }
 
-    private void harvest(TickContext ctx, int index, boolean fertilized, float fertilizerYield, float moduleYield,
+    private void harvest(TickContext ctx, int index, boolean fertilized, float fertilizerYield, float upgradeYield,
                          float modifier) {
         ItemStack stored = seeds.seed(index);
         ItemStack seed = NeoForge.EVENT_BUS.post(new PlanterPreHarvestEvent(this, stored.copy())).getSeed();
@@ -277,7 +277,7 @@ public class PlanterBlockEntity extends BlockEntity {
         List<ItemStack> extras = new ArrayList<>();
         for (ItemStack raw : rolled) {
             drops.add(raw.copyWithCount(ClocheYield.ateCount(raw.getCount(), modifier)));
-            long kept = ClocheYield.keptMicros(raw.getCount(), fertilizerYield, moduleYield, ctx.numbers().clocheYield());
+            long kept = ClocheYield.keptMicros(raw.getCount(), fertilizerYield, upgradeYield, ctx.numbers().clocheYield());
             int extra = clocheRemainders.addAndTakeWhole(BuiltInRegistries.ITEM.getKey(raw.getItem()).toString(), kept);
             if (extra > 0) {
                 extras.add(raw.copyWithCount(extra));
@@ -328,9 +328,9 @@ public class PlanterBlockEntity extends BlockEntity {
             dropAll(pos, combo.seed().copyWithCount(combo.count()));
         }
         seeds.clear();
-        for (int slot = 0; slot < soilAndModules.size(); slot++) {
-            dropAll(pos, soilAndModules.getResource(slot).toStack(soilAndModules.getAmountAsInt(slot)));
-            soilAndModules.set(slot, ItemResource.EMPTY, 0);
+        for (int slot = 0; slot < soilAndUpgrades.size(); slot++) {
+            dropAll(pos, soilAndUpgrades.getResource(slot).toStack(soilAndUpgrades.getAmountAsInt(slot)));
+            soilAndUpgrades.set(slot, ItemResource.EMPTY, 0);
         }
         heldOutputs.forEach(stack -> dropAll(pos, stack));
         heldOutputs.clear();
@@ -356,7 +356,8 @@ public class PlanterBlockEntity extends BlockEntity {
             entry.putInt("progress", seeds.progress(i));
             entry.putBoolean("ready", seeds.ready(i));
         }
-        soilAndModules.serialize(output.child("soil_and_modules"));
+        // The save key keeps the name from before upgrades were called upgrades, so planter blocks saved earlier load their soil and upgrades.
+        soilAndUpgrades.serialize(output.child("soil_and_modules"));
         output.store("cloche_remainders", REMAINDERS_CODEC, clocheRemainders.snapshot());
         ValueOutput.TypedOutputList<ItemStack> held = output.list("held_outputs", ItemStack.CODEC);
         heldOutputs.forEach(held::add);
@@ -372,8 +373,8 @@ public class PlanterBlockEntity extends BlockEntity {
         input.childrenListOrEmpty("seeds").stream().limit(SeedBin.CAPACITY).forEach(entry -> entry.read("seed", ItemStack.CODEC)
                 .ifPresent(seed -> seeds.restore(seed, Math.max(0, entry.getIntOr("progress", 0)),
                         entry.getBooleanOr("ready", false))));
-        soilAndModules.deserialize(input.childOrEmpty("soil_and_modules"));
-        ItemStack savedSoil = soilAndModules.getResource(SOIL).toStack();
+        soilAndUpgrades.deserialize(input.childOrEmpty("soil_and_modules"));
+        ItemStack savedSoil = soilAndUpgrades.getResource(SOIL).toStack();
         lastSoil = input.read("last_soil", ItemStack.CODEC)
                 .orElse(savedSoil.isEmpty() ? ItemStack.EMPTY : savedSoil.copyWithCount(1));
         clocheRemainders.load(input.read("cloche_remainders", REMAINDERS_CODEC).orElse(Map.of()));

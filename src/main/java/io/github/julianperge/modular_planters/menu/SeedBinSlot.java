@@ -72,8 +72,8 @@ public final class SeedBinSlot extends Slot {
         if (!(level instanceof ServerLevel server)) {
             return true;
         }
-        ItemStack soil = planter.soilAndModules().getResource(PlanterBlockEntity.SOIL)
-                .toStack(planter.soilAndModules().getAmountAsInt(PlanterBlockEntity.SOIL));
+        ItemStack soil = planter.soilAndUpgrades().getResource(PlanterBlockEntity.SOIL)
+                .toStack(planter.soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.SOIL));
         return AteBridge.recipe(server, stack)
                 .filter(recipe -> soil.isEmpty() || recipe.soilMatches().test(soil))
                 .isPresent();

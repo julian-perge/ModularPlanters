@@ -71,11 +71,11 @@ public final class Fixtures {
     public static void plant(PlanterBlockEntity p, int seeds, int soil, int mk3PerSlot) {
         p.seeds().add(new ItemStack(Items.WHEAT_SEEDS), seeds);
         if (soil > 0) {
-            p.soilAndModules().set(PlanterBlockEntity.SOIL, ItemResource.of(ateItem("infused_farmland")), soil);
+            p.soilAndUpgrades().set(PlanterBlockEntity.SOIL, ItemResource.of(ateItem("infused_farmland")), soil);
         }
         if (mk3PerSlot > 0) {
-            p.soilAndModules().set(PlanterBlockEntity.MODULE_1, ItemResource.of(ateItem("sm_mk3")), mk3PerSlot);
-            p.soilAndModules().set(PlanterBlockEntity.MODULE_2, ItemResource.of(ateItem("sm_mk3")), mk3PerSlot);
+            p.soilAndUpgrades().set(PlanterBlockEntity.UPGRADE_1, ItemResource.of(ateItem("sm_mk3")), mk3PerSlot);
+            p.soilAndUpgrades().set(PlanterBlockEntity.UPGRADE_2, ItemResource.of(ateItem("sm_mk3")), mk3PerSlot);
         }
     }
 

@@ -13,6 +13,7 @@ public class MPLang extends LanguageProvider {
     @Override
     protected void addTranslations() {
         add("itemGroup.modular_planters", "Modular Planters");
+        add("oracle_index.title.modular_planters", "Modular Planters");
         addBlock(MPBlocks.CORE, "Modular Planter Core");
         addBlock(MPBlocks.FRAME, "Modular Planter Frame");
         addBlock(MPBlocks.POWER, "Modular Planter Power Block");

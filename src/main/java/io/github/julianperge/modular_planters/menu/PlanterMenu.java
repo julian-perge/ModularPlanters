@@ -26,7 +26,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public final class PlanterMenu extends AbstractContainerMenu {
-    public static final int SEED = 0, SOIL = 1, MODULE_1 = 2, MODULE_2 = 3;
+    public static final int SEED = 0, SOIL = 1, UPGRADE_1 = 2, UPGRADE_2 = 3;
     private static final int PLAYER_START = 4;
     private static final int HOTBAR_SIZE = 9;
     private static final int OFFHAND = 40;
@@ -51,8 +51,8 @@ public final class PlanterMenu extends AbstractContainerMenu {
         seedSlot = new SeedBinSlot(planter, level, 26, 18);
         addSlot(seedSlot);
         addSlot(new SoilSlot(planter, level, 62, 18));
-        addSlot(new ModuleSlot(planter, PlanterBlockEntity.MODULE_1, 98, 18));
-        addSlot(new ModuleSlot(planter, PlanterBlockEntity.MODULE_2, 116, 18));
+        addSlot(new UpgradeSlot(planter, PlanterBlockEntity.UPGRADE_1, 98, 18));
+        addSlot(new UpgradeSlot(planter, PlanterBlockEntity.UPGRADE_2, 116, 18));
         addStandardInventorySlots(inventory, 8, 85);
         if (seedSlot.authoritative()) {
             status = addDataSlot(readOnly(() -> planter.status().ordinal()));
@@ -194,8 +194,8 @@ public final class PlanterMenu extends AbstractContainerMenu {
             moveItemStackTo(stack, PLAYER_START, slots.size(), true);
         } else {
             seedSlot.insert(stack, stack.getCount());
-            if (!stack.isEmpty() && AteBridge.isModule(stack)) {
-                moveItemStackTo(stack, MODULE_1, MODULE_2 + 1, false);
+            if (!stack.isEmpty() && AteBridge.isUpgrade(stack)) {
+                moveItemStackTo(stack, UPGRADE_1, UPGRADE_2 + 1, false);
             }
             // Only the server moves items into the soil slot, because the client has no recipes to tell soil from seeds and would show seeds landing there until the server corrects it.
             if (!stack.isEmpty() && seedSlot.authoritative() && slots.get(SOIL).mayPlace(stack)) {
@@ -298,7 +298,7 @@ public final class PlanterMenu extends AbstractContainerMenu {
         private final Level level;
 
         SoilSlot(PlanterBlockEntity planter, Level level, int x, int y) {
-            super(planter.soilAndModules(), planter.soilAndModules()::set, PlanterBlockEntity.SOIL, x, y);
+            super(planter.soilAndUpgrades(), planter.soilAndUpgrades()::set, PlanterBlockEntity.SOIL, x, y);
             this.planter = planter;
             this.level = level;
         }
@@ -323,14 +323,14 @@ public final class PlanterMenu extends AbstractContainerMenu {
         }
     }
 
-    private static final class ModuleSlot extends ResourceHandlerSlot {
-        ModuleSlot(PlanterBlockEntity planter, int handlerSlot, int x, int y) {
-            super(planter.soilAndModules(), planter.soilAndModules()::set, handlerSlot, x, y);
+    private static final class UpgradeSlot extends ResourceHandlerSlot {
+        UpgradeSlot(PlanterBlockEntity planter, int handlerSlot, int x, int y) {
+            super(planter.soilAndUpgrades(), planter.soilAndUpgrades()::set, handlerSlot, x, y);
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return super.mayPlace(stack) && AteBridge.isModule(stack);
+            return super.mayPlace(stack) && AteBridge.isUpgrade(stack);
         }
     }
 }

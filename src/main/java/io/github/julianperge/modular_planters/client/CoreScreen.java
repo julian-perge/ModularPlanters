@@ -40,7 +40,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private static final int ROW_HEIGHT = 20;
     private static final int SCROLLBAR_WIDTH = 4;
     private static final int COLUMN_GROWING = 30;
-    private static final int COLUMN_MODULES = 72;
+    private static final int COLUMN_UPGRADES = 72;
     private static final int COLUMN_UPGRADED = 112;
     private static final int COLUMN_STATUS = 156;
     private static final int STATUS_WIDTH = 134;
@@ -143,7 +143,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private void extractHeaders(GuiGraphicsExtractor graphics) {
         int y = topPos + HEADER_TOP;
         graphics.text(font, Component.translatable("modular_planters.screen.core.growing"), leftPos + COLUMN_GROWING, y, ACCENT, false);
-        graphics.text(font, Component.translatable("modular_planters.screen.core.upgrades"), leftPos + COLUMN_MODULES, y, ACCENT, false);
+        graphics.text(font, Component.translatable("modular_planters.screen.core.upgrades"), leftPos + COLUMN_UPGRADES, y, ACCENT, false);
         graphics.text(font, Component.translatable("modular_planters.screen.core.status"), leftPos + COLUMN_STATUS, y, ACCENT, false);
         graphics.fill(leftPos + PAD, y + 10, leftPos + WIDTH - PAD, y + 11, CELL_EDGE);
     }
@@ -186,10 +186,10 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         }
         boolean allGrowing = row.growing() == row.seeds();
         graphics.text(font, row.growing() + " / " + row.seeds(), leftPos + COLUMN_GROWING, y + 6, allGrowing ? TEXT : WARN, false);
-        graphics.item(row.module1(), leftPos + COLUMN_MODULES, y + 1);
-        graphics.itemDecorations(font, row.module1(), leftPos + COLUMN_MODULES, y + 1);
-        graphics.item(row.module2(), leftPos + COLUMN_MODULES + 18, y + 1);
-        graphics.itemDecorations(font, row.module2(), leftPos + COLUMN_MODULES + 18, y + 1);
+        graphics.item(row.upgrade1(), leftPos + COLUMN_UPGRADES, y + 1);
+        graphics.itemDecorations(font, row.upgrade1(), leftPos + COLUMN_UPGRADES, y + 1);
+        graphics.item(row.upgrade2(), leftPos + COLUMN_UPGRADES + 18, y + 1);
+        graphics.itemDecorations(font, row.upgrade2(), leftPos + COLUMN_UPGRADES + 18, y + 1);
         graphics.text(font, row.upgraded() + "/" + row.growing(), leftPos + COLUMN_UPGRADED, y + 6, DIM, false);
         Component status = Component.translatable("modular_planters.status." + row.status().name().toLowerCase(Locale.ROOT));
         graphics.text(font, fit(status, STATUS_WIDTH), leftPos + COLUMN_STATUS, y + 2, statusColor(row), false);
@@ -220,9 +220,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         } else if (overButton(mouseX, mouseY, y, openButtonLeft(), "[open]")) {
             graphics.setTooltipForNextFrame(font, Component.translatable("modular_planters.screen.core.open"), mouseX, mouseY);
         } else if (mouseY >= y && mouseY < y + ROW_HEIGHT - 1) {
-            ItemStack module = moduleUnder(row, mouseX, y, mouseY);
-            if (!module.isEmpty()) {
-                graphics.setTooltipForNextFrame(font, module, mouseX, mouseY);
+            ItemStack upgrade = upgradeUnder(row, mouseX, y, mouseY);
+            if (!upgrade.isEmpty()) {
+                graphics.setTooltipForNextFrame(font, upgrade, mouseX, mouseY);
             } else if (mouseX >= leftPos + COLUMN_STATUS && mouseX < leftPos + COLUMN_STATUS + STATUS_WIDTH
                     && mouseY < y + 11 && font.width(status) > STATUS_WIDTH) {
                 graphics.setTooltipForNextFrame(font, status, mouseX, mouseY);
@@ -230,15 +230,15 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         }
     }
 
-    private ItemStack moduleUnder(Row row, int mouseX, int y, int mouseY) {
+    private ItemStack upgradeUnder(Row row, int mouseX, int y, int mouseY) {
         if (mouseY < y + 1 || mouseY >= y + 17) {
             return ItemStack.EMPTY;
         }
-        if (mouseX >= leftPos + COLUMN_MODULES && mouseX < leftPos + COLUMN_MODULES + 16) {
-            return row.module1();
+        if (mouseX >= leftPos + COLUMN_UPGRADES && mouseX < leftPos + COLUMN_UPGRADES + 16) {
+            return row.upgrade1();
         }
-        if (mouseX >= leftPos + COLUMN_MODULES + 18 && mouseX < leftPos + COLUMN_MODULES + 34) {
-            return row.module2();
+        if (mouseX >= leftPos + COLUMN_UPGRADES + 18 && mouseX < leftPos + COLUMN_UPGRADES + 34) {
+            return row.upgrade2();
         }
         return ItemStack.EMPTY;
     }

@@ -1,9 +1,9 @@
 package io.github.julianperge.modular_planters.logic;
 
-public enum ModuleKind {
+public enum UpgradeKind {
     NONE, SPEED_MK1, SPEED_MK2, SPEED_MK3, YIELD_MK1, YIELD_MK2, YIELD_MK3;
 
-    public static ModuleKind fromItemId(String id) {
+    public static UpgradeKind fromItemId(String id) {
         return switch (id) {
             case "agritechevolved:sm_mk1" -> SPEED_MK1;
             case "agritechevolved:sm_mk2" -> SPEED_MK2;

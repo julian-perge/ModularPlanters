@@ -5,7 +5,7 @@ import com.misterd.agritechevolved.Config;
 import com.misterd.agritechevolved.recipe.ATERecipeTypes;
 import io.github.julianperge.modular_planters.ate.AteBridge;
 import io.github.julianperge.modular_planters.logic.AteNumbers;
-import io.github.julianperge.modular_planters.logic.ModuleKind;
+import io.github.julianperge.modular_planters.logic.UpgradeKind;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,9 +63,9 @@ public final class AteBridgeTests {
         helper.assertTrue(bonemeal != null, "No bone meal fertilizer data");
         helper.assertValueEqual(bonemeal.speedMultiplier(), 1.2f, "bone meal speed");
         helper.assertValueEqual(bonemeal.yieldMultiplier(), 1.2f, "bone meal yield");
-        helper.assertValueEqual(AteBridge.moduleKind(ateItem("sm_mk3")), ModuleKind.SPEED_MK3, "sm_mk3 kind");
-        helper.assertTrue(AteBridge.isModule(ateItem("ym_mk1")), "ym_mk1 is a module");
-        helper.assertFalse(AteBridge.isModule(new ItemStack(Items.DIRT)), "dirt is not a module");
+        helper.assertValueEqual(AteBridge.upgradeKind(ateItem("sm_mk3")), UpgradeKind.SPEED_MK3, "sm_mk3 kind");
+        helper.assertTrue(AteBridge.isUpgrade(ateItem("ym_mk1")), "ym_mk1 is an upgrade");
+        helper.assertFalse(AteBridge.isUpgrade(new ItemStack(Items.DIRT)), "dirt is not an upgrade");
         helper.succeed();
     }
 

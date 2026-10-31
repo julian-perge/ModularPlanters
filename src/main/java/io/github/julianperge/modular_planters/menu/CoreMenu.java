@@ -93,12 +93,12 @@ public final class CoreMenu extends AbstractContainerMenu {
     private static CoreTablePayload.Row row(BlockPos pos, PlanterBlockEntity planter) {
         ItemStack seedIcon = planter.seeds().size() == 0 ? ItemStack.EMPTY : planter.seeds().seed(0).copyWithCount(1);
         return new CoreTablePayload.Row(pos, seedIcon, planter.seeds().size(), planter.growing(),
-                moduleStack(planter, PlanterBlockEntity.MODULE_1), moduleStack(planter, PlanterBlockEntity.MODULE_2),
+                upgradeStack(planter, PlanterBlockEntity.UPGRADE_1), upgradeStack(planter, PlanterBlockEntity.UPGRADE_2),
                 planter.upgraded(), planter.status());
     }
 
-    private static ItemStack moduleStack(PlanterBlockEntity planter, int slot) {
-        return planter.soilAndModules().getResource(slot).toStack(planter.soilAndModules().getAmountAsInt(slot));
+    private static ItemStack upgradeStack(PlanterBlockEntity planter, int slot) {
+        return planter.soilAndUpgrades().getResource(slot).toStack(planter.soilAndUpgrades().getAmountAsInt(slot));
     }
 
     // The request comes from the client, so every field is checked again here against the open menu and the live structure.

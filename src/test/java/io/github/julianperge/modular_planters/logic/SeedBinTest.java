@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SeedBinTest {
     static SeedBin<String> bin() { return new SeedBin<>(String::equals, s -> s); }
-    static List<ModuleSet> empty(int n) { return Collections.nCopies(n, ModuleSet.EMPTY); }
+    static List<UpgradeSet> empty(int n) { return Collections.nCopies(n, UpgradeSet.EMPTY); }
 
     @Test void addStopsAtCapacity() {
         SeedBin<String> b = bin();
@@ -47,11 +47,11 @@ class SeedBinTest {
         assertEquals(List.of(0, 1), g.get(0).seeds());
         assertEquals(List.of(2), g.get(1).seeds());
     }
-    @Test void differentModuleSetsSplitGroups() {
+    @Test void differentUpgradeSetsSplitGroups() {
         SeedBin<String> b = bin();
         b.add("a", 4);
-        ModuleSet two = new ModuleSet(ModuleKind.SPEED_MK3, ModuleKind.SPEED_MK3);
-        assertEquals(2, Grouping.of(b, List.of(two, two, ModuleSet.EMPTY, ModuleSet.EMPTY)).size());
+        UpgradeSet two = new UpgradeSet(UpgradeKind.SPEED_MK3, UpgradeKind.SPEED_MK3);
+        assertEquals(2, Grouping.of(b, List.of(two, two, UpgradeSet.EMPTY, UpgradeSet.EMPTY)).size());
     }
     @Test void onlyGrowingSeedsAreGrouped() {
         SeedBin<String> b = bin();
@@ -117,7 +117,7 @@ class SeedBinTest {
         assertEquals(List.of(0, 2), g.get(0).seeds());
         assertEquals(List.of(1), g.get(1).seeds());
     }
-    @Test void moduleKindWithCountZeroIsUnmodified() {
-        assertEquals(empty(3), Coverage.assign(3, ModuleKind.SPEED_MK3, 0, ModuleKind.YIELD_MK1, 0));
+    @Test void upgradeKindWithCountZeroIsUnmodified() {
+        assertEquals(empty(3), Coverage.assign(3, UpgradeKind.SPEED_MK3, 0, UpgradeKind.YIELD_MK1, 0));
     }
 }

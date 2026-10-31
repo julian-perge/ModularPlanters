@@ -14,10 +14,10 @@ public final class ClocheYield {
     // cloche's own share, in millionths of an item. The modifier and r stay float on purpose so r rounds
     // the way ATE's count does, while the bonus math runs in double. The rule is in the "Built-in cloche" section of
     // docs/superpowers/specs/2026-10-28-modular-planters-design.md.
-    public static long keptMicros(int count, float fertilizerYield, float moduleYield, double clocheYield) {
-        float modifier = fertilizerYield * moduleYield * (float) clocheYield;
+    public static long keptMicros(int count, float fertilizerYield, float upgradeYield, double clocheYield) {
+        float modifier = fertilizerYield * upgradeYield * (float) clocheYield;
         int r = ateCount(count, modifier);
-        double x = count * (double) fertilizerYield * (double) moduleYield;
+        double x = count * (double) fertilizerYield * (double) upgradeYield;
         double e = x * clocheYield;
         double kept = Math.max(0, Math.min(e - r, x * (clocheYield - 1)));
         return Math.round(kept * RemainderLedger.ONE_ITEM);

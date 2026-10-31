@@ -18,15 +18,15 @@ The ME block connects the multiblock to an AE2 network. It needs AE2 and does no
 />
 Any ME Interface works for the interface, and any fluix crystal works for the crystals.
 
-**ME block**
+## ME block
 - A multiblock can have at most one ME block. A second one stops the multiblock from forming. The ME block uses one AE2 channel.
 - Harvests go into ME first and whatever ME does not take goes into the [export blocks](@modular_planters:export). When ME is offline (no power or no channel), everything goes to the export blocks.
 - Every `me_interval` ticks (20 by default) the ME block moves the export blocks' contents into ME and tops the [fertilizer blocks](@modular_planters:fertilizer) up from ME with the fertilizer set in its filter slot.
 - Item moves cost AE energy, the same as an ME Interface. The ME block also draws 1 AE/t while idle.
 - The core screen shows the ME status: None, Offline, No channel or Online.
 
-**Fertilizer filter**
+## Fertilizer filter
 The filter slot is a ghost slot. Click it with a fertilizer to set it, or with an empty hand to clear it. Shift-clicking a fertilizer in your inventory also sets it. No item is used up. Only ATE fertilizers are accepted. The top-up fills free room in the fertilizer blocks even when they hold another fertilizer, and the first fertilizer found is still the one planters use.
 
-**Applied Flux**
+## Applied Flux
 With Applied Flux installed, the ME block fills the [power blocks'](@modular_planters:power) free room from ME's FE every tick, before the planter blocks run, so the power blocks stay full. Filling empty power blocks takes up to their whole buffer (4,000,000 RF each by default) out of ME once. Without Applied Flux the ME block does not touch power.

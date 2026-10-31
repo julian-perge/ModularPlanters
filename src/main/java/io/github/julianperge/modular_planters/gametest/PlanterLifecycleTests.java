@@ -98,11 +98,11 @@ public final class PlanterLifecycleTests {
                         helper.assertValueEqual(copy.seeds().progress(i), bin.progress(i), "progress of seed " + i);
                         helper.assertValueEqual(copy.seeds().ready(i), bin.ready(i), "ready flag of seed " + i);
                     }
-                    for (int slot = 0; slot < planter.soilAndModules().size(); slot++) {
+                    for (int slot = 0; slot < planter.soilAndUpgrades().size(); slot++) {
                         helper.assertTrue(ItemStack.matches(
-                                        copy.soilAndModules().getResource(slot).toStack(copy.soilAndModules().getAmountAsInt(slot)),
-                                        planter.soilAndModules().getResource(slot).toStack(planter.soilAndModules().getAmountAsInt(slot))),
-                                "soil and module slot " + slot);
+                                        copy.soilAndUpgrades().getResource(slot).toStack(copy.soilAndUpgrades().getAmountAsInt(slot)),
+                                        planter.soilAndUpgrades().getResource(slot).toStack(planter.soilAndUpgrades().getAmountAsInt(slot))),
+                                "soil and upgrade slot " + slot);
                     }
                     helper.assertValueEqual(copy.clocheRemainders().snapshot(), planter.clocheRemainders().snapshot(),
                             "cloche remainders");
@@ -149,9 +149,9 @@ public final class PlanterLifecycleTests {
                     for (int i = 0; i < planter.seeds().size(); i++) {
                         contents.add(planter.seeds().seed(i));
                     }
-                    for (int slot = 0; slot < planter.soilAndModules().size(); slot++) {
-                        contents.add(planter.soilAndModules().getResource(slot)
-                                .toStack(planter.soilAndModules().getAmountAsInt(slot)));
+                    for (int slot = 0; slot < planter.soilAndUpgrades().size(); slot++) {
+                        contents.add(planter.soilAndUpgrades().getResource(slot)
+                                .toStack(planter.soilAndUpgrades().getAmountAsInt(slot)));
                     }
                     contents.addAll(planter.heldOutputs());
                     contents.add(new ItemStack(MPBlocks.PLANTER.asItem()));
@@ -192,9 +192,9 @@ public final class PlanterLifecycleTests {
                     for (int i = 0; i < 4; i++) {
                         helper.assertValueEqual(planter.seeds().progress(i), 40, "progress of seed " + i);
                     }
-                    helper.assertValueEqual(planter.soilAndModules().getAmountAsInt(PlanterBlockEntity.SOIL), 4, "soil");
-                    helper.assertValueEqual(planter.soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_1), 4, "module 1");
-                    helper.assertValueEqual(planter.soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_2), 4, "module 2");
+                    helper.assertValueEqual(planter.soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.SOIL), 4, "soil");
+                    helper.assertValueEqual(planter.soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_1), 4, "upgrade 1");
+                    helper.assertValueEqual(planter.soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_2), 4, "upgrade 2");
                     helper.setBlock(rig.power(), MPBlocks.POWER.get());
                     PlanterTests.power(helper, rig).setStored(4_000_000);
                     placedAt.set(helper.getTick());
@@ -206,7 +206,7 @@ public final class PlanterLifecycleTests {
                 .thenSucceed();
     }
 
-    private record Snapshot(List<ItemStack> seeds, List<Integer> progress, List<Boolean> ready, List<ItemStack> soilAndModules,
+    private record Snapshot(List<ItemStack> seeds, List<Integer> progress, List<Boolean> ready, List<ItemStack> soilAndUpgrades,
                             List<ItemStack> held) {
         static Snapshot of(PlanterBlockEntity planter) {
             List<ItemStack> seeds = new ArrayList<>();
@@ -217,12 +217,12 @@ public final class PlanterLifecycleTests {
                 progress.add(planter.seeds().progress(i));
                 ready.add(planter.seeds().ready(i));
             }
-            List<ItemStack> soilAndModules = new ArrayList<>();
-            for (int slot = 0; slot < planter.soilAndModules().size(); slot++) {
-                soilAndModules.add(planter.soilAndModules().getResource(slot)
-                        .toStack(planter.soilAndModules().getAmountAsInt(slot)));
+            List<ItemStack> soilAndUpgrades = new ArrayList<>();
+            for (int slot = 0; slot < planter.soilAndUpgrades().size(); slot++) {
+                soilAndUpgrades.add(planter.soilAndUpgrades().getResource(slot)
+                        .toStack(planter.soilAndUpgrades().getAmountAsInt(slot)));
             }
-            return new Snapshot(seeds, progress, ready, soilAndModules,
+            return new Snapshot(seeds, progress, ready, soilAndUpgrades,
                     planter.heldOutputs().stream().map(ItemStack::copy).toList());
         }
 
@@ -230,7 +230,7 @@ public final class PlanterLifecycleTests {
             helper.assertTrue(ItemStack.listMatches(seeds, other.seeds), name + " seeds");
             helper.assertValueEqual(other.progress, progress, name + " progress");
             helper.assertValueEqual(other.ready, ready, name + " ready flags");
-            helper.assertTrue(ItemStack.listMatches(soilAndModules, other.soilAndModules), name + " soil and modules");
+            helper.assertTrue(ItemStack.listMatches(soilAndUpgrades, other.soilAndUpgrades), name + " soil and upgrades");
             helper.assertTrue(ItemStack.listMatches(held, other.held), name + " held outputs");
         }
     }
@@ -279,7 +279,7 @@ public final class PlanterLifecycleTests {
         Fixtures.plant(planter, 4, 4, 4);
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertValueEqual(planter.seeds().progress(0), 40, "progress"))
-                .thenExecute(() -> planter.soilAndModules().set(PlanterBlockEntity.SOIL,
+                .thenExecute(() -> planter.soilAndUpgrades().set(PlanterBlockEntity.SOIL,
                         ItemResource.of(Items.FARMLAND), 4))
                 .thenExecute(() -> {
                     for (int i = 0; i < 4; i++) {
@@ -295,8 +295,8 @@ public final class PlanterLifecycleTests {
         Fixtures.plant(planter, 4, 4, 4);
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertValueEqual(planter.seeds().progress(0), 40, "progress"))
-                .thenExecute(() -> planter.soilAndModules().set(PlanterBlockEntity.SOIL,
-                        planter.soilAndModules().getResource(PlanterBlockEntity.SOIL), 5))
+                .thenExecute(() -> planter.soilAndUpgrades().set(PlanterBlockEntity.SOIL,
+                        planter.soilAndUpgrades().getResource(PlanterBlockEntity.SOIL), 5))
                 .thenExecuteAfter(1, () -> {
                     for (int i = 0; i < 4; i++) {
                         helper.assertTrue(planter.seeds().progress(i) >= 40, "progress of seed " + i + " is kept");
@@ -314,9 +314,9 @@ public final class PlanterLifecycleTests {
             planter.seeds().advance(i);
         }
         helper.assertValueEqual(planter.seeds().progress(0), 1, "progress before the swap");
-        planter.soilAndModules().set(PlanterBlockEntity.SOIL, ItemResource.EMPTY, 0);
+        planter.soilAndUpgrades().set(PlanterBlockEntity.SOIL, ItemResource.EMPTY, 0);
         helper.assertValueEqual(planter.seeds().progress(0), 1, "progress with the soil removed");
-        planter.soilAndModules().set(PlanterBlockEntity.SOIL, ItemResource.of(Items.FARMLAND), 4);
+        planter.soilAndUpgrades().set(PlanterBlockEntity.SOIL, ItemResource.of(Items.FARMLAND), 4);
         for (int i = 0; i < 4; i++) {
             helper.assertValueEqual(planter.seeds().progress(i), 0, "progress of seed " + i + " after the swap");
         }

@@ -58,5 +58,6 @@
   "modular_planters.status.idle": "Idle",
   "modular_planters.status.paused_export_full": "Paused: export full",
   "modular_planters.status.paused_for_power": "Paused: not enough power",
-  "modular_planters.status.short_on_soil": "Short on soil"
+  "modular_planters.status.short_on_soil": "Short on soil",
+  "oracle_index.title.modular_planters": "Modular Planters"
 }

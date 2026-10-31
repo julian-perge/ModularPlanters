@@ -41,7 +41,7 @@ public final class MenuTests {
         into.put("seed_slot_rejects_other_seeds_and_bad_soil_pairs",
                 new TestCase(20, MenuTests::seedSlotRejectsOtherSeedsAndBadSoilPairs));
         into.put("taking_returns_the_trailing_run", new TestCase(20, MenuTests::takingReturnsTheTrailingRun));
-        into.put("module_slot_takes_modules_only", new TestCase(20, MenuTests::moduleSlotTakesModulesOnly));
+        into.put("upgrade_slot_takes_upgrades_only", new TestCase(20, MenuTests::upgradeSlotTakesUpgradesOnly));
         into.put("seed_slot_never_swaps_with_the_cursor", new TestCase(20, MenuTests::seedSlotNeverSwapsWithTheCursor));
         into.put("shift_click_moves_seeds_both_ways_without_loss",
                 new TestCase(20, MenuTests::shiftClickMovesSeedsBothWaysWithoutLoss));
@@ -54,12 +54,12 @@ public final class MenuTests {
                 new TestCase(20, MenuTests::shiftClickKeepsProgressWithAPartlyFullInventory));
         into.put("throw_drops_seeds_without_loss", new TestCase(20, MenuTests::throwDropsSeedsWithoutLoss));
         into.put("shift_click_refuses_items_that_fit_no_slot", new TestCase(20, MenuTests::shiftClickRefusesItemsThatFitNoSlot));
-        into.put("shift_click_moves_soil_and_modules_to_their_slots",
-                new TestCase(20, MenuTests::shiftClickMovesSoilAndModulesToTheirSlots));
-        into.put("shift_click_puts_modules_and_seeds_in_their_slots_when_all_are_empty",
-                new TestCase(20, MenuTests::shiftClickPutsModulesAndSeedsInTheirSlotsWhenAllAreEmpty));
-        into.put("shift_click_merges_into_an_occupied_module_slot",
-                new TestCase(20, MenuTests::shiftClickMergesIntoAnOccupiedModuleSlot));
+        into.put("shift_click_moves_soil_and_upgrades_to_their_slots",
+                new TestCase(20, MenuTests::shiftClickMovesSoilAndUpgradesToTheirSlots));
+        into.put("shift_click_puts_upgrades_and_seeds_in_their_slots_when_all_are_empty",
+                new TestCase(20, MenuTests::shiftClickPutsUpgradesAndSeedsInTheirSlotsWhenAllAreEmpty));
+        into.put("shift_click_merges_into_an_occupied_upgrade_slot",
+                new TestCase(20, MenuTests::shiftClickMergesIntoAnOccupiedUpgradeSlot));
         into.put("hotbar_swap_takes_seeds_into_an_empty_slot", new TestCase(20, MenuTests::hotbarSwapTakesSeedsIntoAnEmptySlot));
         into.put("menu_stays_valid_only_in_range_of_a_standing_planter", new TestCase(20, MenuTests::menuStaysValidOnlyInRange));
         into.put("combos_payload_survives_the_codec", new TestCase(20, MenuTests::combosPayloadSurvivesTheCodec));
@@ -132,7 +132,7 @@ public final class MenuTests {
         helper.assertValueEqual(rig.menu().getCarried().getCount(), 3, "cursor after beetroot");
 
         rig.planter().seeds().clear();
-        rig.planter().soilAndModules().set(PlanterBlockEntity.SOIL, ItemResource.of(Items.DIRT), 1);
+        rig.planter().soilAndUpgrades().set(PlanterBlockEntity.SOIL, ItemResource.of(Items.DIRT), 1);
         rig.click(PlanterMenu.SEED, seeds(4));
         helper.assertValueEqual(rig.planter().seeds().size(), 0, "bin size on dirt");
         helper.assertValueEqual(rig.menu().getCarried().getCount(), 4, "cursor on dirt");
@@ -150,14 +150,14 @@ public final class MenuTests {
         helper.succeed();
     }
 
-    private static void moduleSlotTakesModulesOnly(GameTestHelper helper) {
+    private static void upgradeSlotTakesUpgradesOnly(GameTestHelper helper) {
         Rig rig = rig(helper);
-        rig.click(PlanterMenu.MODULE_1, new ItemStack(Items.DIRT, 5));
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_1), 0, "dirt in module slot");
+        rig.click(PlanterMenu.UPGRADE_1, new ItemStack(Items.DIRT, 5));
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_1), 0, "dirt in upgrade slot");
         helper.assertValueEqual(rig.menu().getCarried().getCount(), 5, "dirt stays on cursor");
         Item mk3 = ateItem("sm_mk3");
-        rig.click(PlanterMenu.MODULE_1, new ItemStack(mk3, 64));
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_1), 64, "modules in slot");
+        rig.click(PlanterMenu.UPGRADE_1, new ItemStack(mk3, 64));
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_1), 64, "upgrades in slot");
         helper.succeed();
     }
 
@@ -220,7 +220,7 @@ public final class MenuTests {
         rig.planter().seeds().add(seeds(1), 3);
         rig.planter().seeds().add(named(1), 2);
         rig.menu().setCarried(seeds(1));
-        rig.menu().clicked(PlanterMenu.MODULE_2, 0, ContainerInput.PICKUP_ALL, rig.player());
+        rig.menu().clicked(PlanterMenu.UPGRADE_2, 0, ContainerInput.PICKUP_ALL, rig.player());
         helper.assertValueEqual(rig.menu().getCarried().getCount(), 1, "cursor after double click");
         helper.assertValueEqual(rig.planter().seeds().size(), 5, "bin size after double click");
 
@@ -358,49 +358,49 @@ public final class MenuTests {
         rig.menu().clicked(FIRST_INVENTORY_SLOT + 1, 0, ContainerInput.QUICK_MOVE, rig.player());
         helper.assertValueEqual(rig.player().getInventory().getItem(10).getCount(), 7, "sticks stay in the inventory");
         helper.assertValueEqual(rig.planter().seeds().size(), 0, "bin stays empty");
-        for (int slot = PlanterMenu.SOIL; slot <= PlanterMenu.MODULE_2; slot++) {
+        for (int slot = PlanterMenu.SOIL; slot <= PlanterMenu.UPGRADE_2; slot++) {
             helper.assertValueEqual(rig.menu().slots.get(slot).hasItem(), false, "slot " + slot + " stays empty");
         }
         helper.succeed();
     }
 
-    private static void shiftClickMovesSoilAndModulesToTheirSlots(GameTestHelper helper) {
+    private static void shiftClickMovesSoilAndUpgradesToTheirSlots(GameTestHelper helper) {
         Rig rig = rig(helper);
         Inventory inventory = rig.player().getInventory();
         inventory.setItem(10, new ItemStack(ateItem("infused_farmland"), 10));
         inventory.setItem(11, new ItemStack(ateItem("sm_mk3"), 10));
         rig.menu().clicked(FIRST_INVENTORY_SLOT + 1, 0, ContainerInput.QUICK_MOVE, rig.player());
         rig.menu().clicked(FIRST_INVENTORY_SLOT + 2, 0, ContainerInput.QUICK_MOVE, rig.player());
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.SOIL), 10, "soil");
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_1), 10, "first module slot");
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_2), 0, "second module slot");
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.SOIL), 10, "soil");
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_1), 10, "first upgrade slot");
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_2), 0, "second upgrade slot");
         helper.assertValueEqual(inventory.getItem(10).isEmpty(), true, "soil left the inventory");
-        helper.assertValueEqual(inventory.getItem(11).isEmpty(), true, "modules left the inventory");
+        helper.assertValueEqual(inventory.getItem(11).isEmpty(), true, "upgrades left the inventory");
         helper.succeed();
     }
 
-    private static void shiftClickPutsModulesAndSeedsInTheirSlotsWhenAllAreEmpty(GameTestHelper helper) {
+    private static void shiftClickPutsUpgradesAndSeedsInTheirSlotsWhenAllAreEmpty(GameTestHelper helper) {
         Rig rig = rig(helper);
         Inventory inventory = rig.player().getInventory();
         inventory.setItem(10, new ItemStack(ateItem("sm_mk3"), 10));
         inventory.setItem(11, seeds(5));
         rig.menu().clicked(FIRST_INVENTORY_SLOT + 1, 0, ContainerInput.QUICK_MOVE, rig.player());
         rig.menu().clicked(FIRST_INVENTORY_SLOT + 2, 0, ContainerInput.QUICK_MOVE, rig.player());
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.SOIL), 0, "soil slot");
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_1), 10, "first module slot");
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.SOIL), 0, "soil slot");
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_1), 10, "first upgrade slot");
         helper.assertValueEqual(rig.planter().seeds().size(), 5, "seeds in the bin");
         helper.succeed();
     }
 
-    private static void shiftClickMergesIntoAnOccupiedModuleSlot(GameTestHelper helper) {
+    private static void shiftClickMergesIntoAnOccupiedUpgradeSlot(GameTestHelper helper) {
         Rig rig = rig(helper);
         Item mk3 = ateItem("sm_mk3");
-        rig.planter().soilAndModules().set(PlanterBlockEntity.MODULE_1, ItemResource.of(ateItem("sm_mk2")), 4);
-        rig.planter().soilAndModules().set(PlanterBlockEntity.MODULE_2, ItemResource.of(mk3), 10);
+        rig.planter().soilAndUpgrades().set(PlanterBlockEntity.UPGRADE_1, ItemResource.of(ateItem("sm_mk2")), 4);
+        rig.planter().soilAndUpgrades().set(PlanterBlockEntity.UPGRADE_2, ItemResource.of(mk3), 10);
         rig.player().getInventory().setItem(10, new ItemStack(mk3, 5));
         rig.menu().clicked(FIRST_INVENTORY_SLOT + 1, 0, ContainerInput.QUICK_MOVE, rig.player());
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_2), 15, "merged modules");
-        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_1), 4, "other module slot");
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_2), 15, "merged upgrades");
+        helper.assertValueEqual(rig.planter().soilAndUpgrades().getAmountAsInt(PlanterBlockEntity.UPGRADE_1), 4, "other upgrade slot");
         helper.assertValueEqual(rig.player().getInventory().getItem(10).isEmpty(), true, "inventory emptied");
         helper.succeed();
     }

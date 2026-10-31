@@ -1,8 +1,8 @@
 package io.github.julianperge.modular_planters.logic;
 
 // Each modifier multiplies the first slot and then the second in single precision, the same order Agritech: Evolved uses, so the speed modifier rounds to the same whole tick as its planter, the yield modifier to the same drop counts and the power modifier to the same draw.
-public record ModuleSet(ModuleKind first, ModuleKind second) {
-    public static final ModuleSet EMPTY = new ModuleSet(ModuleKind.NONE, ModuleKind.NONE);
+public record UpgradeSet(UpgradeKind first, UpgradeKind second) {
+    public static final UpgradeSet EMPTY = new UpgradeSet(UpgradeKind.NONE, UpgradeKind.NONE);
 
     public float speedModifier(AteNumbers n) {
         float speed = 1.0f;

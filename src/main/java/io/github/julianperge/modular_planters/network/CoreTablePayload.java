@@ -41,15 +41,15 @@ public record CoreTablePayload(int containerId, Totals totals, List<Row> rows) i
                 Totals::new);
     }
 
-    public record Row(BlockPos pos, ItemStack seedIcon, int seeds, int growing, ItemStack module1, ItemStack module2,
+    public record Row(BlockPos pos, ItemStack seedIcon, int seeds, int growing, ItemStack upgrade1, ItemStack upgrade2,
                       int upgraded, PlanterStatus status) {
         static final StreamCodec<RegistryFriendlyByteBuf, Row> STREAM_CODEC = StreamCodec.composite(
                 BlockPos.STREAM_CODEC, Row::pos,
                 ItemStack.OPTIONAL_STREAM_CODEC, Row::seedIcon,
                 ByteBufCodecs.VAR_INT, Row::seeds,
                 ByteBufCodecs.VAR_INT, Row::growing,
-                ItemStack.OPTIONAL_STREAM_CODEC, Row::module1,
-                ItemStack.OPTIONAL_STREAM_CODEC, Row::module2,
+                ItemStack.OPTIONAL_STREAM_CODEC, Row::upgrade1,
+                ItemStack.OPTIONAL_STREAM_CODEC, Row::upgrade2,
                 ByteBufCodecs.VAR_INT, Row::upgraded,
                 ByteBufCodecs.idMapper(index -> PlanterStatus.values()[Math.clamp(index, 0, PlanterStatus.values().length - 1)],
                         PlanterStatus::ordinal),

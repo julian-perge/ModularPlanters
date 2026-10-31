@@ -11,7 +11,7 @@ import com.misterd.agritechevolved.recipe.DropEntry;
 import com.misterd.agritechevolved.recipe.TreeRecipe;
 import com.misterd.agritechevolved.util.ATETags;
 import io.github.julianperge.modular_planters.logic.AteNumbers;
-import io.github.julianperge.modular_planters.logic.ModuleKind;
+import io.github.julianperge.modular_planters.logic.UpgradeKind;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,12 +74,12 @@ public final class AteBridge {
                 Config.getClocheSpeedMultiplier(), Config.getClocheYieldMultiplier());
     }
 
-    public static boolean isModule(ItemStack stack) {
+    public static boolean isUpgrade(ItemStack stack) {
         return stack.is(ATETags.Items.ATE_MODULES);
     }
 
-    public static ModuleKind moduleKind(ItemStack stack) {
-        return ModuleKind.fromItemId(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+    public static UpgradeKind upgradeKind(ItemStack stack) {
+        return UpgradeKind.fromItemId(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
     }
 
     // This follows AdvancedPlanterBlockEntity.getSoilGrowthModifier, so a soil grows seeds at the same speed here as in a single planter.

@@ -1,8 +1,17 @@
 # Modular Planters
 
-A NeoForge addon for Agritech: Evolved (ATE) that replaces many Powered Planters with a few multiblocks. A planter block with N growing seeds produces and draws what N Powered Planters would, and one connection to the core runs the whole multiblock.
+A NeoForge addon for Agritech: Evolved (ATE) that replaces many Advanced Planters with a few multiblocks. A planter block with N growing seeds produces and draws what N Advanced Planters would, and one connection to the core runs the whole multiblock.
 
-It targets Minecraft 26.1.2 and NeoForge 26.1.2.121. ATE 2.2.0 or newer is required. An optional ME block connects a multiblock to an AE2 network, with Applied Flux support. It needs AE2 and does not exist without it.
+It targets Minecraft 26.1.2 and NeoForge 26.1.2.116. ATE 2.2.0 or newer is required. An optional ME block connects a multiblock to an AE2 network, with Applied Flux support. It needs AE2 and does not exist without it.
+
+## Abbreviations
+
+| Short | Full name |
+|---|---|
+| ATE | Agritech: Evolved |
+| AE2 | Applied Energistics 2 |
+| AE | AE2's own energy unit |
+| RF, FE | NeoForge's energy unit, which mods call RF or FE |
 
 ## Blocks
 
@@ -12,7 +21,7 @@ It targets Minecraft 26.1.2 and NeoForge 26.1.2.121. ATE 2.2.0 or newer is requi
 | Power | Stores energy. Several power blocks pool their storage. Energy goes in but can't be taken out. A broken power block keeps its energy in the dropped item. |
 | Fertilizer | 27 slots shared by every planter block. It accepts only ATE fertilizers. |
 | Export | 54 slots that hold outputs until something pulls them out. Only the multiblock can insert. Anything can extract. |
-| Planter | Grows one seed type, up to 64 seeds. It has a seed slot, a soil slot and two module slots. |
+| Planter | Grows one seed type, up to 64 seeds. It has a seed slot, a soil slot and two upgrade slots. |
 | Frame | Connects parts and does nothing else. |
 | ME | Connects the multiblock to an AE2 network. It exists only when AE2 is installed. See AE2 and Applied Flux below. |
 
@@ -29,7 +38,7 @@ So one Logistics Networks node on the core, or one cable or pipe, runs the whole
 
 ### Core screen
 
-The core screen shows the formed state and part count, the reason when the multiblock is not formed, stored power and draw, fertilizer stored, how full the export blocks are, and the ME status. It lists every planter block with its seed, growing count, module coverage, status and position. Each row has an Outline toggle that shows or hides a glowing outline of that block, for you only, and an Open button that opens the planter block's screen remotely. The server checks that you are within 4 blocks of the core and that the planter block belongs to that core's formed multiblock.
+The core screen shows the formed state and part count, the reason when the multiblock is not formed, stored power and draw, fertilizer stored, how full the export blocks are, and the ME status. It lists every planter block with its seed, growing count, upgrade coverage, status and position. Each row has an Outline toggle that shows or hides a glowing outline of that block, for you only, and an Open button that opens the planter block's screen remotely. The server checks that you are within 4 blocks of the core and that the planter block belongs to that core's formed multiblock.
 
 ## Building rules
 
@@ -44,10 +53,10 @@ The core screen shows the formed state and part count, the reason when the multi
 ## How a planter block grows
 
 - Growing seeds G is the smaller of the seed count and the soil count. Seeds past that stay idle.
-- One module covers one seed. Module 1 covers the first seeds in the bin and module 2 does the same, so seeds fill both modules first.
-- Seeds with the same modules and the same seed data grow as a group. Each seed levels on its own, as it would in its own Powered Planter.
+- One upgrade covers one seed. Upgrade 1 covers the first seeds in the bin and upgrade 2 does the same, so seeds fill both upgrades first.
+- Seeds with the same upgrades and the same seed data grow as a group. Each seed levels on its own, as it would in its own Advanced Planter.
 - Growth time, power and fertilizer follow ATE's formulas and are read from ATE's live config. Power is drawn each tick for every seed that is still growing. If the power blocks can't cover a planter block's full draw, its seeds stop growing for that tick. Seeds that are already ready still harvest.
-- Fertilizer is taken from the first non-empty slot of the fertilizer blocks. Each tick, planter blocks claim it in position order, and each group claims one item for every one of its seeds or nothing. A group without a claim grows and harvests unfertilized that tick. A claim uses up fertilizer only when its group harvests, so the fertilizer stored speeds up only as many seeds as it can pay for. A paused group keeps claiming each tick, the way a paused Powered Planter keeps its own fertilizer, so planter blocks later in the order can run unfertilized while it waits.
+- Fertilizer is taken from the first non-empty slot of the fertilizer blocks. Each tick, planter blocks claim it in position order, and each group claims one item for every one of its seeds or nothing. A group without a claim grows and harvests unfertilized that tick. A claim uses up fertilizer only when its group harvests, so the fertilizer stored speeds up only as many seeds as it can pay for. A paused group keeps claiming each tick, the way a paused Advanced Planter keeps its own fertilizer, so planter blocks later in the order can run unfertilized while it waits.
 - When there is no room in the export blocks, planter blocks wait. Nothing is voided.
 - Breaking a block drops everything it holds.
 - Picking up the whole seed run and putting it back, or scrolling seeds out and back in one at a time, restarts those seeds' growth. No items are lost.
@@ -62,7 +71,7 @@ These are shaped crafting recipes shipped as datapack JSON, so a pack can replac
 
 | Block | Pattern | Key |
 |---|---|---|
-| Frame | `PPP` `PIP` `PPP` | P = ATE Powered Planter, I = block of iron |
+| Frame | `PPP` `PIP` `PPP` | P = ATE Advanced Planter, I = block of iron |
 | Planter | `FFF` `FIF` `FFF` | F = Frame, I = ATE Infused Farmland |
 | Core | `IGI` `GCG` `IDI` | C = ATE Cloche Dome, G = glass (`#c:glass_blocks`), I = block of iron, D = block of diamond |
 | Power | `IRI` `RCR` `IRI` | C = ATE Capacitor Tier 3, R = block of redstone, I = block of iron |
@@ -70,7 +79,7 @@ These are shaped crafting recipes shipped as datapack JSON, so a pack can replac
 | Export | `IHI` `HSH` `IHI` | S = ATE Silo, H = hopper, I = block of iron |
 | ME | `IFI` `FXF` `IFI` | X = any ME Interface (`#ae2:interface`), F = fluix crystal (`#c:gems/fluix`), I = block of iron. Exists only when AE2 is installed. |
 
-A planter block costs 8 frames, so 64 Powered Planters plus 8 blocks of iron and one Infused Farmland.
+A planter block costs 8 frames, so 64 Advanced Planters plus 8 blocks of iron and one Infused Farmland.
 
 ## AE2 and Applied Flux
 
@@ -106,7 +115,7 @@ Logistics Networks is optional and this mod has no code for it. A node on the co
 | Diamond | 250,000 RF | 5,120 |
 | Netherite | about 2.1 billion RF | 200,000 |
 
-Example with ATE's default numbers: one full planter block of 64 nickel seeds with 2 MK3 Speed Modules, insanium farmland and the built-in cloche.
+Example with ATE's default numbers: one full planter block of 64 nickel seeds with 2 Speed Upgrade MK3s, insanium farmland and the built-in cloche.
 
 - Power: it draws 32,768 RF/t whatever the seeds' traits.
 - Items: with seeds that have no traits it puts out about 24 items a second. With seeds maxed in Productive Farming's Growth and Yield it puts out about 320 items a second, which is more than a gold upgrade moves.
