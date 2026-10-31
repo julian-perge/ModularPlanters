@@ -140,4 +140,6 @@ The jar is `build/libs/modular_planters-0.1.0.jar`. `./gradlew runGameTestServer
 
 ## License
 
-MIT, see `LICENSE`. The block textures are adapted from ATE's, which are MIT. ATE's copyright notice is in `LICENSE-ATE.txt` and ships in the jar.
+MIT, see [LICENSE.md](LICENSE.md).
+
+The block textures are adapted from ATE's, which are MIT. ATE's copyright notice is in [LICENSE-ATE.md](LICENSE-ATE.md) and ships in the jar.

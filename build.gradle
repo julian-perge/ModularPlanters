@@ -129,7 +129,7 @@ tasks.named('processResources', ProcessResources) {
 
 tasks.named('jar') {
     exclude '**/gametest/**', '**/datagen/**', 'data/modular_planters/structure/empty.nbt'
-    from('LICENSE', 'LICENSE-ATE.txt')
+    from('LICENSE.md', 'LICENSE-ATE.md')
 }
 
 tasks.withType(JavaCompile).configureEach {
