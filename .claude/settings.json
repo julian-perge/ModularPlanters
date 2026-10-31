@@ -47,7 +47,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/sweetjp/.local/bin/graphify hook-guard search",
+            "command": "sh -c 'if ! command -v graphify >/dev/null 2>&1; then exit 0; fi; exec graphify hook-guard search'",
             "timeout": 10
           }
         ]
@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/sweetjp/.local/bin/graphify hook-guard read",
+            "command": "sh -c 'if ! command -v graphify >/dev/null 2>&1; then exit 0; fi; exec graphify hook-guard read'",
             "timeout": 10
           }
         ]
