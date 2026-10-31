@@ -40,6 +40,7 @@ public final class MPTestRegistration {
         PlanterTests.register(cases);
         PlanterLifecycleTests.register(cases);
         MenuTests.register(cases);
+        JadeTests.register(cases);
         CoreScreenTests.register(cases);
         MeLinkTests.register(cases);
         if (ModList.get().isLoaded("ae2")) {

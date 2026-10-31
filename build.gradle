@@ -79,6 +79,10 @@ dependencies {
 
     compileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
     compileOnly "curse.maven:applied-flux-965012:${appflux_file}"
+    compileOnly "curse.maven:jade-324717:8326300"
+    if (!project.hasProperty('noJade')) {
+        localRuntime "curse.maven:jade-324717:8326300"
+    }
     if (!project.hasProperty('noAe2')) {
         localRuntime "org.appliedenergistics:appliedenergistics2:${ae2_version}"
         localRuntime "org.appliedenergistics:guideme:${guideme_version}"

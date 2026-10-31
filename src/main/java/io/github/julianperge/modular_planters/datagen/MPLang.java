@@ -60,6 +60,9 @@ public class MPLang extends LanguageProvider {
         add("modular_planters.problem.missing_power", "Needs a power block");
         add("modular_planters.problem.missing_export", "Needs an export block");
         add("modular_planters.problem.missing_planter", "Needs a planter block");
+        add("modular_planters.jade.formed", "Formed: %s / %s parts");
+        add("modular_planters.jade.not_formed", "Not formed: %s");
+        add("modular_planters.jade.growing", "%s/%s seeds growing");
         add("block.modular_planters.me", "Modular Planter ME Block");
         add("modular_planters.screen.me.filter", "Fertilizer from ME");
         add("modular_planters.screen.me.status", "Status: %s");
