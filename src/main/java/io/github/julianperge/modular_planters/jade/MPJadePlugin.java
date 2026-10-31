@@ -9,7 +9,7 @@ import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
 import snownee.jade.api.WailaPlugin;
 
-// Nothing outside this package references these classes, so they only load when Jade is installed.
+// Only Jade loads MPJadePlugin, CoreProvider and PlanterProvider, so the mod runs without Jade installed.
 @WailaPlugin
 public class MPJadePlugin implements IWailaPlugin {
     @Override
