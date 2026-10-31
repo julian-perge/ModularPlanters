@@ -21,7 +21,7 @@ The power block stores energy. Several power blocks pool their storage. Energy g
 Each power block holds 4,000,000 RF by default. The `power_block_buffer` option in the server config sets it.
 
 **How energy gets in**
-Energy inserted into the [core](@modular_planters:core) goes to the power blocks, and the power blocks also expose their own storage directly. A Flux Accessor placed against the core or a power block also charges it.
+Energy inserted into the [core](@modular_planters:core) goes to the power blocks, and the power blocks also expose their own storage directly. With Applied Flux installed, a Flux Accessor placed against the core or a power block also charges it.
 
 Power is drawn each tick for every seed that is still growing. If the power blocks can't cover a planter block's full draw, its seeds stop growing for that tick. Seeds that are already ready still harvest.
 
