@@ -194,11 +194,12 @@ public final class PlanterMenu extends AbstractContainerMenu {
             moveItemStackTo(stack, PLAYER_START, slots.size(), true);
         } else {
             seedSlot.insert(stack, stack.getCount());
-            if (!stack.isEmpty() && slots.get(SOIL).mayPlace(stack)) {
-                moveItemStackTo(stack, SOIL, SOIL + 1, false);
-            }
             if (!stack.isEmpty() && AteBridge.isModule(stack)) {
                 moveItemStackTo(stack, MODULE_1, MODULE_2 + 1, false);
+            }
+            // Only the server moves items into the soil slot, because the client has no recipes to tell soil from seeds and would show seeds landing there until the server corrects it.
+            if (!stack.isEmpty() && seedSlot.authoritative() && slots.get(SOIL).mayPlace(stack)) {
+                moveItemStackTo(stack, SOIL, SOIL + 1, false);
             }
         }
         if (stack.getCount() == original.getCount()) {

@@ -56,6 +56,8 @@ public final class MenuTests {
         into.put("shift_click_refuses_items_that_fit_no_slot", new TestCase(20, MenuTests::shiftClickRefusesItemsThatFitNoSlot));
         into.put("shift_click_moves_soil_and_modules_to_their_slots",
                 new TestCase(20, MenuTests::shiftClickMovesSoilAndModulesToTheirSlots));
+        into.put("shift_click_puts_modules_and_seeds_in_their_slots_when_all_are_empty",
+                new TestCase(20, MenuTests::shiftClickPutsModulesAndSeedsInTheirSlotsWhenAllAreEmpty));
         into.put("shift_click_merges_into_an_occupied_module_slot",
                 new TestCase(20, MenuTests::shiftClickMergesIntoAnOccupiedModuleSlot));
         into.put("hotbar_swap_takes_seeds_into_an_empty_slot", new TestCase(20, MenuTests::hotbarSwapTakesSeedsIntoAnEmptySlot));
@@ -374,6 +376,19 @@ public final class MenuTests {
         helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_2), 0, "second module slot");
         helper.assertValueEqual(inventory.getItem(10).isEmpty(), true, "soil left the inventory");
         helper.assertValueEqual(inventory.getItem(11).isEmpty(), true, "modules left the inventory");
+        helper.succeed();
+    }
+
+    private static void shiftClickPutsModulesAndSeedsInTheirSlotsWhenAllAreEmpty(GameTestHelper helper) {
+        Rig rig = rig(helper);
+        Inventory inventory = rig.player().getInventory();
+        inventory.setItem(10, new ItemStack(ateItem("sm_mk3"), 10));
+        inventory.setItem(11, seeds(5));
+        rig.menu().clicked(FIRST_INVENTORY_SLOT + 1, 0, ContainerInput.QUICK_MOVE, rig.player());
+        rig.menu().clicked(FIRST_INVENTORY_SLOT + 2, 0, ContainerInput.QUICK_MOVE, rig.player());
+        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.SOIL), 0, "soil slot");
+        helper.assertValueEqual(rig.planter().soilAndModules().getAmountAsInt(PlanterBlockEntity.MODULE_1), 10, "first module slot");
+        helper.assertValueEqual(rig.planter().seeds().size(), 5, "seeds in the bin");
         helper.succeed();
     }
 
