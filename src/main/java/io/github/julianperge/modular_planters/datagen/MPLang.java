@@ -29,6 +29,7 @@ public class MPLang extends LanguageProvider {
         add("modular_planters.status.paused_export_full", "Paused: export full");
         add("modular_planters.screen.working_idle", "%s working, %s idle");
         add("modular_planters.screen.combo", "%s x %s");
+        add("modular_planters.screen.more_combos", "and %s more combinations");
         add("modular_planters.screen.upgraded", "%s/%s seeds upgraded");
         add("modular_planters.screen.back_to_core", "Back to core");
         add("container.modular_planters.core", "Modular Planter Core");

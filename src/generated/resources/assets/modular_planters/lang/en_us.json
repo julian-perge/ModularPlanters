@@ -46,6 +46,7 @@
   "modular_planters.screen.core.upgrades": "UPGRADES",
   "modular_planters.screen.me.filter": "Fertilizer from ME",
   "modular_planters.screen.me.status": "Status: %s",
+  "modular_planters.screen.more_combos": "and %s more combinations",
   "modular_planters.screen.upgraded": "%s/%s seeds upgraded",
   "modular_planters.screen.working_idle": "%s working, %s idle",
   "modular_planters.status.growing": "Growing",

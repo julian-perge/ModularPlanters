@@ -5,6 +5,7 @@ import io.github.julianperge.modular_planters.menu.PlanterMenu;
 import io.github.julianperge.modular_planters.menu.SeedBinSlot;
 import io.github.julianperge.modular_planters.network.CoreRequestPayload;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Locale;
@@ -25,6 +26,7 @@ public class PlanterScreen extends AbstractContainerScreen<PlanterMenu> {
     private static final int[] USED_COLUMNS = {1, 3, 5, 6};
     private static final int PANEL_GRAY = 0xFFC6C6C6;
     private static final int TEXT_GRAY = 0xFF404040;
+    private static final int SHOWN_COMBOS = 3;
 
     public PlanterScreen(PlanterMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 176, 114 + ROWS * 18);
@@ -88,11 +90,17 @@ public class PlanterScreen extends AbstractContainerScreen<PlanterMenu> {
         if (!(hoveredSlot instanceof SeedBinSlot seedSlot)) {
             return super.getTooltipFromContainerItem(stack);
         }
+        // Trait mods such as Productive Farming upgrade each seed on its own, so a full bin can hold dozens of combinations, and only the most common ones fit on screen.
+        List<ItemStack> combos = new ArrayList<>(seedSlot.combos());
+        combos.sort(Comparator.comparingInt(ItemStack::getCount).reversed());
         List<Component> lines = new ArrayList<>();
-        for (ItemStack combo : seedSlot.combos()) {
+        for (ItemStack combo : combos.subList(0, Math.min(SHOWN_COMBOS, combos.size()))) {
             List<Component> tooltip = super.getTooltipFromContainerItem(combo);
             lines.add(Component.translatable("modular_planters.screen.combo", combo.getCount(), combo.getHoverName()));
             lines.addAll(tooltip.subList(Math.min(1, tooltip.size()), tooltip.size()));
+        }
+        if (combos.size() > SHOWN_COMBOS) {
+            lines.add(Component.translatable("modular_planters.screen.more_combos", combos.size() - SHOWN_COMBOS));
         }
         return lines;
     }
