@@ -41,7 +41,7 @@ public final class MeLinkTests {
         into.put("top_up_fills_fertilizer_from_me", new TestCase(20, MeLinkTests::topUpFillsFertilizerFromMe));
         into.put("top_up_ignores_non_fertilizer_filter",
                 new TestCase(20, MeLinkTests::topUpIgnoresNonFertilizerFilter));
-        into.put("refill_takes_only_what_was_wanted", new TestCase(20, MeLinkTests::refillTakesOnlyWhatWasWanted));
+        into.put("refill_fills_the_free_room", new TestCase(20, MeLinkTests::refillFillsTheFreeRoom));
         into.put("refill_is_capped_by_room", new TestCase(20, MeLinkTests::refillIsCappedByRoom));
     }
 
@@ -194,14 +194,14 @@ public final class MeLinkTests {
         helper.succeed();
     }
 
-    private static void refillTakesOnlyWhatWasWanted(GameTestHelper helper) {
+    private static void refillFillsTheFreeRoom(GameTestHelper helper) {
         PowerBlockEntity block = placePower(helper);
         FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 0);
-        me.energy = 1_000_000;
+        me.energy = 5_000_000;
         PowerPool pool = new PowerPool(List.of(block), () -> {});
-        helper.assertValueEqual(pool.refillFrom(me, 5000), 5000L, "moved");
-        helper.assertValueEqual(pool.stored(), 5000L, "stored");
-        helper.assertValueEqual(me.energy, 995_000L, "left in ME");
+        helper.assertValueEqual(pool.refillFrom(me), 4_000_000L, "moved");
+        helper.assertValueEqual(pool.stored(), 4_000_000L, "stored");
+        helper.assertValueEqual(me.energy, 1_000_000L, "left in ME");
         helper.succeed();
     }
 
@@ -211,7 +211,7 @@ public final class MeLinkTests {
         FakeMeLink me = new FakeMeLink(MeStatus.ONLINE, 0);
         me.energy = 1_000_000;
         PowerPool pool = new PowerPool(List.of(block), () -> {});
-        helper.assertValueEqual(pool.refillFrom(me, 5000), 100L, "moved");
+        helper.assertValueEqual(pool.refillFrom(me), 100L, "moved");
         helper.assertValueEqual(pool.stored(), 4_000_000L, "stored");
         helper.assertValueEqual(me.energy, 999_900L, "left in ME");
         helper.succeed();

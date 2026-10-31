@@ -81,7 +81,6 @@ public class PlanterBlockEntity extends BlockEntity {
     private int ticksSinceCore;
     private int inactiveTicks;
     private long lastDraw;
-    private long lastWanted;
     private int growing;
     private int upgraded;
 
@@ -113,10 +112,6 @@ public class PlanterBlockEntity extends BlockEntity {
         return lastDraw;
     }
 
-    public long lastWanted() {
-        return lastWanted;
-    }
-
     public int growing() {
         return growing;
     }
@@ -140,7 +135,6 @@ public class PlanterBlockEntity extends BlockEntity {
     public void tickFromCore(TickContext ctx) {
         ticksSinceCore = 0;
         lastDraw = 0;
-        lastWanted = 0;
         boolean holding = false;
         if (!heldOutputs.isEmpty()) {
             flushHeldOutputs(ctx.outputs());
@@ -196,7 +190,6 @@ public class PlanterBlockEntity extends BlockEntity {
                 group -> processingTime(ctx, group, soilModifier, fertilized.get(group)),
                 modules -> GrowthMath.powerPerSeedTick(numbers, modules),
                 ctx.power().stored());
-        lastWanted = result.energyWanted();
         if (result.pausedForPower()) {
             paused = PlanterStatus.PAUSED_FOR_POWER;
         } else {
@@ -240,7 +233,6 @@ public class PlanterBlockEntity extends BlockEntity {
 
     public void stopFromCore() {
         lastDraw = 0;
-        lastWanted = 0;
         growing = 0;
         upgraded = 0;
         setStatus(PlanterStatus.IDLE);

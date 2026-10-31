@@ -38,14 +38,14 @@ class PlanterTickerTest {
     void pausedResultReportsTheDrawItWanted() {
         SeedBin<String> b = bin(4);
         List<Group> g = Grouping.of(b, Collections.nCopies(4, ModuleSet.EMPTY));
-        assertEquals(new AdvanceResult(0, true, 40), PlanterTicker.advance(b, g, x -> 75, m -> 10, 39));
+        assertEquals(new AdvanceResult(0, true), PlanterTicker.advance(b, g, x -> 75, m -> 10, 39));
     }
 
     @Test
     void runningResultWantsWhatItUsed() {
         SeedBin<String> b = bin(4);
         List<Group> g = Grouping.of(b, Collections.nCopies(4, ModuleSet.EMPTY));
-        assertEquals(new AdvanceResult(40, false, 40), PlanterTicker.advance(b, g, x -> 75, m -> 10, 40));
+        assertEquals(new AdvanceResult(40, false), PlanterTicker.advance(b, g, x -> 75, m -> 10, 40));
     }
 
     @Test
@@ -98,7 +98,7 @@ class PlanterTickerTest {
         List<Group> g = Grouping.of(b, Collections.nCopies(4, ModuleSet.EMPTY));
         assertEquals(2, g.size());
         AdvanceResult r = PlanterTicker.advance(b, g, x -> 10, m -> 10, 39);
-        assertEquals(new AdvanceResult(0, true, 40), r);
+        assertEquals(new AdvanceResult(0, true), r);
         for (int i = 0; i < 4; i++) {
             assertEquals(0, b.progress(i));
         }
@@ -107,7 +107,7 @@ class PlanterTickerTest {
     @Test
     void emptyGroupListUsesNothing() {
         SeedBin<String> b = bin(0);
-        assertEquals(new AdvanceResult(0, false, 0), PlanterTicker.advance(b, List.of(), x -> 10, m -> 10, 0));
+        assertEquals(new AdvanceResult(0, false), PlanterTicker.advance(b, List.of(), x -> 10, m -> 10, 0));
     }
 
     @Test
@@ -116,7 +116,7 @@ class PlanterTickerTest {
         b.markReady(0);
         b.markReady(1);
         List<Group> g = Grouping.of(b, Collections.nCopies(2, ModuleSet.EMPTY));
-        assertEquals(new AdvanceResult(0, false, 0), PlanterTicker.advance(b, g, x -> 10, m -> 10, 0));
+        assertEquals(new AdvanceResult(0, false), PlanterTicker.advance(b, g, x -> 10, m -> 10, 0));
     }
 
     @Test
@@ -127,7 +127,7 @@ class PlanterTickerTest {
         List<Group> g = Grouping.of(b, Collections.nCopies(2, ModuleSet.EMPTY));
         assertEquals(2, g.size());
         AdvanceResult r = PlanterTicker.advance(b, g, x -> 5, m -> 3, 6);
-        assertEquals(new AdvanceResult(6, false, 6), r);
+        assertEquals(new AdvanceResult(6, false), r);
         assertEquals(2, b.progress(0));
         assertEquals(1, b.progress(1));
     }

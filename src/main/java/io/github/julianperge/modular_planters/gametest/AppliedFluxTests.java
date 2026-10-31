@@ -22,7 +22,7 @@ public final class AppliedFluxTests {
     }
 
     public static void register(Map<String, TestCase> into) {
-        into.put("flux_refills_last_tick_demand", new TestCase(200, AppliedFluxTests::fluxRefillsLastTickDemand));
+        into.put("flux_fills_the_power_blocks", new TestCase(200, AppliedFluxTests::fluxFillsThePowerBlocks));
         into.put("no_flux_without_fe_in_me", new TestCase(100, AppliedFluxTests::noFluxWithoutFeInMe));
     }
 
@@ -45,7 +45,7 @@ public final class AppliedFluxTests {
                 .insert(fe(), amount, Actionable.MODULATE, IActionSource.ofMachine(me));
     }
 
-    private static void fluxRefillsLastTickDemand(GameTestHelper helper) {
+    private static void fluxFillsThePowerBlocks(GameTestHelper helper) {
         Fixtures.Rig rig = Fixtures.meRig(helper, 1);
         Fixtures.addFluxCell(helper);
         CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
@@ -60,8 +60,8 @@ public final class AppliedFluxTests {
                         "FE inserted into ME"))
                 .thenWaitUntil(() -> {
                     helper.assertValueEqual(planter.status(), PlanterStatus.GROWING, "status");
-                    helper.assertValueEqual(power.stored(), 0, "nothing stored ahead");
-                    helper.assertTrue(meFe(helper, me) < FE_IN_ME, "FE came from ME");
+                    helper.assertValueEqual(meFe(helper, me), 0L, "all FE moved out of ME");
+                    helper.assertTrue(power.stored() > 0, "the power block holds what the planter did not use");
                 })
                 .thenSucceed();
     }

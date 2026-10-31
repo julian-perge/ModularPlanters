@@ -43,7 +43,6 @@ public class CoreBlockEntity extends BlockEntity {
     private @Nullable ResourceHandler<ItemResource> items;
     private boolean dirty = true;
     private boolean poolsStale;
-    private long wantedLastTick;
 
     public CoreBlockEntity(BlockPos pos, BlockState state) {
         super(MPBlockEntities.CORE.get(), pos, state);
@@ -61,22 +60,18 @@ public class CoreBlockEntity extends BlockEntity {
     // The pools are null while the core waits for an unloaded chunk, and the planters then keep their progress without ticking.
     private void tickPlanters(ServerLevel level) {
         if (multiblock == null || power == null || fertilizer == null || outputs == null || !allPartsLoaded()) {
-            wantedLastTick = 0;
             return;
         }
         MeLink link = onlineMe();
-        if (link != null && wantedLastTick > 0) {
-            power.refillFrom(link, wantedLastTick);
+        if (link != null) {
+            power.refillFrom(link);
         }
         TickContext context = new TickContext(level, level.getRandom(), AteBridge.numbers(), power, fertilizer.budget(), outputs);
-        long wanted = 0;
         for (BlockPos pos : multiblock.planters()) {
             if (level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
                 planter.tickFromCore(context);
-                wanted += planter.lastWanted();
             }
         }
-        wantedLastTick = wanted;
         if (link != null && (level.getGameTime() + tickOffset()) % MPConfig.ME_INTERVAL.get() == 0) {
             outputs.moveExportsInto(link);
             fertilizer.topUpFrom(link);
