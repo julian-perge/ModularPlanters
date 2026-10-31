@@ -90,7 +90,7 @@ The filter slot is a ghost slot. Click it with a fertilizer to set it, or with a
 
 ### Applied Flux
 
-With Applied Flux installed, the ME block refills the power blocks from ME every tick with what the planter blocks asked for the tick before. That includes planter blocks that paused for power. The refill is capped by free room, so the power blocks are never filled ahead of need.
+With Applied Flux installed, the ME block fills the power blocks' free room from ME's FE every tick, before the planter blocks run, so the power blocks stay full. Filling empty power blocks takes up to their whole buffer (4,000,000 RF each by default) out of ME once.
 
 A Flux Accessor placed against the core or a power block also charges it, with or without an ME block.
 
