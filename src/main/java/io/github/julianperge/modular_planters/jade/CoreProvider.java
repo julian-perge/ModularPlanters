@@ -5,26 +5,18 @@ import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
-import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
-import snownee.jade.api.ITooltip;
-import snownee.jade.api.config.IPluginConfig;
 
-public enum CoreProvider implements IServerDataProvider<BlockAccessor>, IBlockComponentProvider {
+public enum CoreProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final Identifier ID = Identifier.fromNamespaceAndPath(ModularPlanters.MOD_ID, "core");
+    static final Identifier ID = Identifier.fromNamespaceAndPath(ModularPlanters.MOD_ID, "core");
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         if (accessor.getBlockEntity() instanceof CoreBlockEntity blockEntity) {
             data.merge(JadeInfo.core(blockEntity));
         }
-    }
-
-    @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        JadeInfo.coreLines(accessor.getServerData()).forEach(tooltip::add);
     }
 
     @Override

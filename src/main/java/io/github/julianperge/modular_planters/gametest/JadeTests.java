@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.fml.ModList;
 
 public final class JadeTests {
     private JadeTests() {
@@ -26,6 +27,15 @@ public final class JadeTests {
         into.put("planter_shows_status_and_growing_seeds", new TestCase(20, JadeTests::planterShowsStatusAndGrowingSeeds));
         into.put("unformed_planter_shows_idle", new TestCase(20, JadeTests::unformedPlanterShowsIdle));
         into.put("empty_server_data_shows_no_lines", new TestCase(20, JadeTests::emptyServerDataShowsNoLines));
+        into.put("jade_data_providers_are_server_only", new TestCase(20, JadeTests::jadeDataProvidersAreServerOnly));
+    }
+
+    // Jade logs a plugin that throws while registering and keeps running, so without this check a broken plugin only shows up as empty tooltips in game.
+    private static void jadeDataProvidersAreServerOnly(GameTestHelper helper) {
+        if (ModList.get().isLoaded("jade")) {
+            helper.assertTrue(JadeRegistration.dataProvidersAreServerOnly(), "no data provider is also a tooltip provider");
+        }
+        helper.succeed();
     }
 
     private static void formedCoreShowsItsPartCount(GameTestHelper helper) {
