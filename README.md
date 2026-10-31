@@ -126,6 +126,10 @@ ATE's numbers are never copied into this config. They are read from ATE.
 
 With Jade installed, looking at a core shows "Formed: N / cap parts" or "Not formed: <problem>". Looking at a planter block shows its status and how many of its seeds are growing, as "growing/total seeds growing". Both can be turned off in Jade's plugin settings.
 
+## Guide
+
+The in-game guide is an Oracle Index book. Its pages live in `wiki/` and `processResources` copies them into the jar. Oracle Index is optional and this mod has no code for it.
+
 ## Build
 
 ```

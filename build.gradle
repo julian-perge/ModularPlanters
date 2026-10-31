@@ -121,6 +121,12 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+tasks.named('processResources', ProcessResources) {
+    from('wiki') {
+        into 'assets/oracle_index/books/modular_planters'
+    }
+}
+
 tasks.named('jar') {
     exclude '**/gametest/**', '**/datagen/**', 'data/modular_planters/structure/empty.nbt'
     from('LICENSE', 'LICENSE-ATE.txt')
