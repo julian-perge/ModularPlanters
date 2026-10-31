@@ -9,7 +9,7 @@ out/
 .recall/
 .superpowers/
 src/generated/resources/.cache/
-docs/
+/docs/
 NOTES.md
 
 graphify-out/cache/

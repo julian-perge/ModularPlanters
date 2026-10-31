@@ -31,6 +31,12 @@ class WikiStructureTest {
     }
 
     @Test
+    void theBookHasItsFolders() {
+        PAGE_ROOTS.forEach(WikiStructureTest::assertRootExists);
+        assertTrue(Files.isRegularFile(WIKI.resolve("docs/overview.mdx")), "wiki/docs/overview.mdx must exist");
+    }
+
+    @Test
     void everyPageHasATitle() throws IOException {
         for (Path page : pages(PAGE_ROOTS)) {
             List<String> front = frontmatter(page);
@@ -68,6 +74,7 @@ class WikiStructureTest {
             Matcher matcher = MOD_ASSET.matcher(Files.readString(page));
             while (matcher.find()) {
                 String[] location = matcher.group(1).split(":", 2);
+                assertEquals(2, location.length, page + " has a ModAsset location without a namespace: " + matcher.group(1));
                 Path image = WIKI.resolve("assets").resolve(location[0]).resolve(location[1] + ".png");
                 assertTrue(Files.isRegularFile(image), page + " references missing " + image);
             }
@@ -78,7 +85,12 @@ class WikiStructureTest {
         return JsonParser.parseString(Files.readString(file)).getAsJsonObject();
     }
 
+    private static void assertRootExists(Path root) {
+        assertTrue(Files.isDirectory(root), root + " must exist and be a directory");
+    }
+
     private static List<Path> folders(Path root) throws IOException {
+        assertRootExists(root);
         try (Stream<Path> walk = Files.walk(root)) {
             return walk.filter(Files::isDirectory).toList();
         }
@@ -87,6 +99,7 @@ class WikiStructureTest {
     private static List<Path> pages(List<Path> roots) throws IOException {
         List<Path> pages = new ArrayList<>();
         for (Path root : roots) {
+            assertRootExists(root);
             try (Stream<Path> walk = Files.walk(root)) {
                 walk.filter(p -> p.getFileName().toString().endsWith(".mdx")).forEach(pages::add);
             }
