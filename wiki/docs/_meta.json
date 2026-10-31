@@ -1,3 +1,8 @@
 {
-  "overview.mdx": "Overview"
+  "overview.mdx": "Overview",
+  "building.mdx": "Building Rules",
+  "growing.mdx": "How a Planter Block Grows",
+  "cloche.mdx": "Built-in Cloche",
+  "ae2.mdx": "AE2 and Applied Flux",
+  "logistics_networks.mdx": "Logistics Networks"
 }
