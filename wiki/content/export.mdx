@@ -1,0 +1,22 @@
+---
+title: Modular Planter Export Block
+id: modular_planters:export
+type: block
+---
+
+The export block has 54 slots that hold outputs until something pulls them out. Only the multiblock can insert. Anything can extract. It drops its contents when broken.
+
+**Crafting**
+<CraftingRecipe
+    slots={[
+        'minecraft:iron_block', 'minecraft:hopper', 'minecraft:iron_block',
+        'minecraft:hopper', 'agritechevolved:silo', 'minecraft:hopper',
+        'minecraft:iron_block', 'minecraft:hopper', 'minecraft:iron_block'
+    ]}
+    result="modular_planters:export"
+    count={1}
+/>
+
+Items extracted from the [core](@modular_planters:core) come out of the export blocks.
+
+When there is no room in the export blocks, [planter blocks](@modular_planters:planter) wait. Nothing is voided. With an [ME block](@modular_planters:me), harvests go into ME first and whatever ME does not take goes into the export blocks.

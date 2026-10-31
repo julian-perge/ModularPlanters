@@ -1,0 +1,22 @@
+---
+title: Modular Planter Fertilizer Block
+id: modular_planters:fertilizer
+type: block
+---
+
+The fertilizer block has 27 slots shared by every planter block. It accepts only ATE fertilizers. It drops its contents when broken.
+
+**Crafting**
+<CraftingRecipe
+    slots={[
+        'minecraft:iron_block', 'minecraft:bone_block', 'minecraft:iron_block',
+        'minecraft:bone_block', 'agritechevolved:fertilizer_spreader', 'minecraft:bone_block',
+        'minecraft:iron_block', 'minecraft:bone_block', 'minecraft:iron_block'
+    ]}
+    result="modular_planters:fertilizer"
+    count={1}
+/>
+
+Items inserted into the [core](@modular_planters:core) go to the fertilizer blocks, and only fertilizers are accepted.
+
+Fertilizer is taken from the first non-empty slot of the fertilizer blocks. Each tick, [planter blocks](@modular_planters:planter) claim it in position order, and each group claims one item for every one of its seeds or nothing. A group without a claim grows and harvests unfertilized that tick. A claim uses up fertilizer only when its group harvests.

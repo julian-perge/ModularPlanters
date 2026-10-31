@@ -1,0 +1,30 @@
+---
+title: Modular Planter Block
+id: modular_planters:planter
+type: block
+---
+
+The planter block grows one seed type, up to 64 seeds. It has a seed slot, a soil slot and two module slots.
+
+**Crafting**
+<CraftingRecipe
+    slots={[
+        'modular_planters:frame', 'modular_planters:frame', 'modular_planters:frame',
+        'modular_planters:frame', 'agritechevolved:infused_farmland', 'modular_planters:frame',
+        'modular_planters:frame', 'modular_planters:frame', 'modular_planters:frame'
+    ]}
+    result="modular_planters:planter"
+    count={1}
+/>
+
+A planter block costs 8 [frames](@modular_planters:frame), so 64 Powered Planters plus 8 blocks of iron and one Infused Farmland.
+
+**Growing**
+- Growing seeds is the smaller of the seed count and the soil count. Seeds past that stay idle.
+- One module covers one seed. Module 1 covers the first seeds in the bin and module 2 does the same, so seeds fill both modules first.
+- Seeds with the same modules and the same seed data grow as a group. Each seed levels on its own, as it would in its own Powered Planter.
+- Growth time, power and fertilizer follow ATE's formulas and are read from ATE's live config.
+- When there is no room in the [export blocks](@modular_planters:export), planter blocks wait. Nothing is voided.
+- Breaking a block drops everything it holds.
+
+The [core](@modular_planters:core) applies a built-in cloche to every planter block. It always works and needs no item.

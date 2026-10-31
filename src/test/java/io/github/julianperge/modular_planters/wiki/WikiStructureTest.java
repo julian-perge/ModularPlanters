@@ -1,5 +1,6 @@
 package io.github.julianperge.modular_planters.wiki;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -22,6 +24,14 @@ class WikiStructureTest {
     private static final String MOD_ID = "modular_planters";
     private static final Path WIKI = Path.of("wiki");
     private static final List<Path> PAGE_ROOTS = List.of(WIKI.resolve("docs"), WIKI.resolve("content"));
+    private static final Path RECIPES = Path.of("src/generated/resources/data/modular_planters/recipe");
+    static final Map<String, String> SHOWN_FOR_TAG = Map.of(
+            "#c:glass_blocks", "minecraft:glass",
+            "#ae2:interface", "ae2:interface",
+            "#c:gems/fluix", "ae2:fluix_crystal");
+    private static final Pattern CRAFTING_RECIPE = Pattern.compile(
+            "<CraftingRecipe\\s+slots=\\{\\[(.*?)\\]\\}\\s+result=\"([^\"]+)\"", Pattern.DOTALL);
+    private static final Pattern QUOTED = Pattern.compile("'([^']*)'");
     private static final Pattern MOD_ASSET = Pattern.compile("<ModAsset\\s+location=\"([^\"]+)\"");
 
     @Test
@@ -79,6 +89,52 @@ class WikiStructureTest {
                 assertTrue(Files.isRegularFile(image), page + " references missing " + image);
             }
         }
+    }
+
+    @Test
+    void blockPagesMatchTheirRecipes() throws IOException {
+        List<Path> recipes;
+        try (Stream<Path> list = Files.list(RECIPES)) {
+            recipes = list.filter(p -> p.getFileName().toString().endsWith(".json")).sorted().toList();
+        }
+        assertEquals(7, recipes.size(), "recipe count");
+        for (Path recipe : recipes) {
+            String name = recipe.getFileName().toString().replaceFirst("\\.json$", "");
+            JsonObject json = readJson(recipe);
+            Path page = WIKI.resolve("content").resolve(name + ".mdx");
+            assertTrue(Files.isRegularFile(page), page + " does not exist");
+
+            Matcher matcher = CRAFTING_RECIPE.matcher(Files.readString(page));
+            assertTrue(matcher.find(), page + " has no <CraftingRecipe>");
+            String slotsText = matcher.group(1);
+            String result = matcher.group(2);
+            assertTrue(!matcher.find(), page + " has more than one <CraftingRecipe>");
+            assertEquals(json.getAsJsonObject("result").get("id").getAsString(), result, page + " result");
+
+            JsonObject key = json.getAsJsonObject("key");
+            List<String> expected = new ArrayList<>();
+            for (JsonElement row : json.getAsJsonArray("pattern")) {
+                for (char c : row.getAsString().toCharArray()) {
+                    expected.add(c == ' ' ? "" : shown(key.get(String.valueOf(c)).getAsString()));
+                }
+            }
+            List<String> actual = new ArrayList<>();
+            Matcher quoted = QUOTED.matcher(slotsText);
+            while (quoted.find()) {
+                actual.add(quoted.group(1));
+            }
+            assertEquals(9, actual.size(), page + " slot count");
+            assertEquals(expected, actual, page + " slots");
+        }
+    }
+
+    private static String shown(String item) {
+        if (!item.startsWith("#")) {
+            return item;
+        }
+        String shown = SHOWN_FOR_TAG.get(item);
+        assertTrue(shown != null, "tag " + item + " is missing from SHOWN_FOR_TAG");
+        return shown;
     }
 
     private static JsonObject readJson(Path file) throws IOException {

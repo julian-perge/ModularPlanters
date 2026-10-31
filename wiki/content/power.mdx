@@ -1,0 +1,28 @@
+---
+title: Modular Planter Power Block
+id: modular_planters:power
+type: block
+---
+
+The power block stores energy. Several power blocks pool their storage. Energy goes in but can't be taken out. A broken power block keeps its energy in the dropped item.
+
+**Crafting**
+<CraftingRecipe
+    slots={[
+        'minecraft:iron_block', 'minecraft:redstone_block', 'minecraft:iron_block',
+        'minecraft:redstone_block', 'agritechevolved:capacitor_tier3', 'minecraft:redstone_block',
+        'minecraft:iron_block', 'minecraft:redstone_block', 'minecraft:iron_block'
+    ]}
+    result="modular_planters:power"
+    count={1}
+/>
+
+**Buffer**
+Each power block holds 4,000,000 RF by default. The `power_block_buffer` option in the server config sets it.
+
+**How energy gets in**
+Energy inserted into the [core](@modular_planters:core) goes to the power blocks, and the power blocks also expose their own storage directly. A Flux Accessor placed against the core or a power block also charges it.
+
+Power is drawn each tick for every seed that is still growing. If the power blocks can't cover a planter block's full draw, its seeds stop growing for that tick. Seeds that are already ready still harvest.
+
+With Applied Flux installed, the [ME block](@modular_planters:me) fills the power blocks' free room from ME's FE every tick, so the power blocks stay full.
