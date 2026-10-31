@@ -122,6 +122,10 @@ Example with ATE's default numbers: one full planter block of 64 nickel seeds wi
 
 ATE's numbers are never copied into this config. They are read from ATE.
 
+## Jade
+
+With Jade installed, looking at a core shows "Formed: N / cap parts" or "Not formed: <problem>". Looking at a planter block shows its status and how many of its seeds are growing, as "growing/total seeds growing". Both can be turned off in Jade's plugin settings.
+
 ## Build
 
 ```

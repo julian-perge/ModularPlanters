@@ -63,6 +63,8 @@ public class MPLang extends LanguageProvider {
         add("modular_planters.jade.formed", "Formed: %s / %s parts");
         add("modular_planters.jade.not_formed", "Not formed: %s");
         add("modular_planters.jade.growing", "%s/%s seeds growing");
+        add("config.jade.plugin_modular_planters.core", "Modular Planters core");
+        add("config.jade.plugin_modular_planters.planter", "Modular Planters planter block");
         add("block.modular_planters.me", "Modular Planter ME Block");
         add("modular_planters.screen.me.filter", "Fertilizer from ME");
         add("modular_planters.screen.me.status", "Status: %s");
