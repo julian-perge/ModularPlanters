@@ -12,9 +12,9 @@
     "semantic_hash": "5d1b8599ac4cf69810968b0aa4296a07"
   },
   "build.gradle": {
-    "mtime": 1793489365.5931153,
-    "seen": 1793489527.741271,
-    "ast_hash": "75c1d73b7c10d98b9b076a7a4cf2bfb4",
+    "mtime": 1793743649.8696086,
+    "seen": 1793745042.821672,
+    "ast_hash": "2c1fe6ad3b8e08324c16f428d232ec71",
     "semantic_hash": ""
   },
   "gradlew": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/PlanterLifecycleTests.java": {
-    "mtime": 1793489223.1679654,
-    "seen": 1793489527.7413461,
-    "ast_hash": "77dfac1a1082b0b885ace5b67e767014",
+    "mtime": 1793490451.2881317,
+    "seen": 1793745042.821752,
+    "ast_hash": "77aaa20d7e054823b6af2d13bf1c7086",
     "semantic_hash": ""
   },
   "src/main/java/io/github/julianperge/modular_planters/gametest/PlanterTests.java": {
@@ -900,9 +900,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793489442.1301694,
-    "seen": 1793489527.7414,
-    "ast_hash": "d2e491fc154d1a549530241819b61aca",
+    "mtime": 1793744056.5814767,
+    "seen": 1793745042.821812,
+    "ast_hash": "00cd867dc7f71f0ac7c046363da03563",
     "semantic_hash": ""
   },
   "mockups/core-screen.html": {
@@ -1032,9 +1032,9 @@
     "semantic_hash": ""
   },
   "src/test/java/io/github/julianperge/modular_planters/wiki/WikiStructureTest.java": {
-    "mtime": 1793476396.053974,
-    "seen": 1793489527.7413929,
-    "ast_hash": "58d24b46bcd0336be411307e564d8af2",
+    "mtime": 1793743714.3890078,
+    "seen": 1793745042.821801,
+    "ast_hash": "924989fe3e1fccae125e3e59ab1d1a5a",
     "semantic_hash": ""
   },
   "wiki/content/_meta.json": {
@@ -1044,9 +1044,9 @@
     "semantic_hash": ""
   },
   "wiki/docs/_meta.json": {
-    "mtime": 1793476396.0576696,
-    "seen": 1793489527.7413938,
-    "ast_hash": "442ee077420ba74cb61f4a708f3702ef",
+    "mtime": 1793743736.1218898,
+    "seen": 1793745042.821804,
+    "ast_hash": "2feaa67d20ac5486e7f15e4f01a6fa24",
     "semantic_hash": ""
   },
   "wiki/sinytra-wiki.json": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "wiki/docs/overview.mdx": {
-    "mtime": 1793489442.1303303,
-    "seen": 1793489527.7414122,
-    "ast_hash": "cea228e93890f1c64e3636c3ee220dda",
+    "mtime": 1793743736.3224838,
+    "seen": 1793745042.821826,
+    "ast_hash": "5b93106cd551581e99e28707d31c0d64",
     "semantic_hash": ""
   },
   "wiki/assets/modular_planters/builds/raised_bed.png": {
@@ -1203,6 +1203,132 @@
     "mtime": 1793230770.6089103,
     "seen": 1793489527.741399,
     "ast_hash": "a56f5ed6dd84a0486c6d97225e71a5d1",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/bug_report.yml": {
+    "mtime": 1793743956.9761117,
+    "seen": 1793745042.821669,
+    "ast_hash": "97d2b35510b6c88282440279517daf74",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/config.yml": {
+    "mtime": 1793743946.8484647,
+    "seen": 1793745042.8216698,
+    "ast_hash": "020a472ff26be3d76d3e929a6c1434a2",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/feature_request.yml": {
+    "mtime": 1793743946.7396672,
+    "seen": 1793745042.821671,
+    "ast_hash": "45801bdf5758e2c53eed05b5fe446a29",
+    "semantic_hash": ""
+  },
+  "src/test/java/io/github/julianperge/modular_planters/assets/LogoTest.java": {
+    "mtime": 1793743758.4971185,
+    "seen": 1793745042.821791,
+    "ast_hash": "78c27ad049a1342c19832eb950051916",
+    "semantic_hash": ""
+  },
+  "src/test/java/io/github/julianperge/modular_planters/docs/ProjectDocsTest.java": {
+    "mtime": 1793745095.62926,
+    "seen": 1793745110.9249861,
+    "ast_hash": "d1301034e08ad469c5faca06e05ecd80",
+    "semantic_hash": ""
+  },
+  "tools/render_logo.py": {
+    "mtime": 1793744970.2643478,
+    "seen": 1793745042.821802,
+    "ast_hash": "4f515e4735e94460d217cfa09cbb01c6",
+    "semantic_hash": ""
+  },
+  ".github/PULL_REQUEST_TEMPLATE.md": {
+    "mtime": 1793743946.9506562,
+    "seen": 1793745042.8218062,
+    "ast_hash": "d2b9b505ef96af8c82be11d6370aec37",
+    "semantic_hash": ""
+  },
+  "CONTRIBUTING.md": {
+    "mtime": 1793743946.5147724,
+    "seen": 1793745042.821808,
+    "ast_hash": "e4c75dbedfe626e6ba1c1030163dc1b2",
+    "semantic_hash": ""
+  },
+  "DEVELOPMENT.md": {
+    "mtime": 1793745010.8235152,
+    "seen": 1793745042.8218088,
+    "ast_hash": "da4b63ab7890f17b1ac85114f0655fae",
+    "semantic_hash": ""
+  },
+  "docs/description.md": {
+    "mtime": 1793745010.9671292,
+    "seen": 1793745042.821812,
+    "ast_hash": "8581dee334dc807169460835c9404a1b",
+    "semantic_hash": ""
+  },
+  "wiki/docs/config.mdx": {
+    "mtime": 1793743724.4104078,
+    "seen": 1793745042.821822,
+    "ast_hash": "75955f57b6722284e1035b8eb9486219",
+    "semantic_hash": ""
+  },
+  "wiki/docs/jade.mdx": {
+    "mtime": 1793743736.0122745,
+    "seen": 1793745042.821825,
+    "ast_hash": "48e27a7dd0afda76e7c9ab75dcabc63a",
+    "semantic_hash": ""
+  },
+  "docs/media/banner.jpg": {
+    "mtime": 1793743850.0530698,
+    "seen": 1793745042.8218272,
+    "ast_hash": "1595fb32ab2687a82ffb51abd408af56",
+    "semantic_hash": ""
+  },
+  "docs/media/builds.jpg": {
+    "mtime": 1793743850.2116551,
+    "seen": 1793745042.8218281,
+    "ast_hash": "52ed66a6ca1cc07b9534f4644417728f",
+    "semantic_hash": ""
+  },
+  "docs/media/core-screen.png": {
+    "mtime": 1793744796.5181787,
+    "seen": 1793745042.821829,
+    "ast_hash": "09748b8f883d6b620ef592679c92dc59",
+    "semantic_hash": ""
+  },
+  "docs/media/guide-page.png": {
+    "mtime": 1793744796.9316509,
+    "seen": 1793745042.821829,
+    "ast_hash": "14a038eef16a34b3e0a9a53b9e957ad5",
+    "semantic_hash": ""
+  },
+  "docs/media/jade.png": {
+    "mtime": 1793744796.2249973,
+    "seen": 1793745042.8218298,
+    "ast_hash": "c8b9f9aa4b06dae3ebe3f77d57bd9551",
+    "semantic_hash": ""
+  },
+  "docs/media/ln-node.png": {
+    "mtime": 1793744796.7877688,
+    "seen": 1793745042.821831,
+    "ast_hash": "f6368ff05a920406cf12736f17ba88ca",
+    "semantic_hash": ""
+  },
+  "docs/media/logo.png": {
+    "mtime": 1793744970.973224,
+    "seen": 1793745042.821832,
+    "ast_hash": "8c3749f483de80994eb7ab4e9fe67a59",
+    "semantic_hash": ""
+  },
+  "docs/media/me-block.jpg": {
+    "mtime": 1793743850.0862634,
+    "seen": 1793745042.821832,
+    "ast_hash": "3c0e0aabe47fe45fbff161070a39bf89",
+    "semantic_hash": ""
+  },
+  "src/main/resources/logo.png": {
+    "mtime": 1793744970.9814947,
+    "seen": 1793745042.8218439,
+    "ast_hash": "5fa6f8fb6cc746ddebbb6750a241e82d",
     "semantic_hash": ""
   }
 }
