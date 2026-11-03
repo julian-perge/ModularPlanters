@@ -8,8 +8,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,6 +35,7 @@ class WikiStructureTest {
             "<CraftingRecipe\\s+slots=\\{\\[(.*?)\\]\\}\\s+result=\"([^\"]+)\"", Pattern.DOTALL);
     private static final Pattern QUOTED = Pattern.compile("'([^']*)'");
     private static final Pattern MOD_ASSET = Pattern.compile("<ModAsset\\s+location=\"([^\"]+)\"");
+    private static final Pattern CONFIG_OPTION = Pattern.compile("defineInRange\\(\"(\\w+)\", ([\\d_]+), (\\d+), ([\\w.]+)\\)");
 
     @Test
     void wikiIdIsTheModId() throws IOException {
@@ -126,6 +129,25 @@ class WikiStructureTest {
             assertEquals(9, actual.size(), page + " slot count");
             assertEquals(expected, actual, page + " slots");
         }
+    }
+
+    @Test
+    void guideCoversEveryServerConfigOption() throws IOException {
+        String config = Files.readString(Path.of("src/main/java/io/github/julianperge/modular_planters/MPConfig.java"));
+        Path page = WIKI.resolve("docs/config.mdx");
+        assertTrue(Files.isRegularFile(page), page + " does not exist");
+        String text = Files.readString(page);
+        Matcher matcher = CONFIG_OPTION.matcher(config);
+        int options = 0;
+        while (matcher.find()) {
+            options++;
+            String name = matcher.group(1);
+            String shownDefault = NumberFormat.getIntegerInstance(Locale.US)
+                    .format(Long.parseLong(matcher.group(2).replace("_", "")));
+            assertTrue(text.contains("`" + name + "`"), page + " does not name `" + name + "`");
+            assertTrue(text.contains(shownDefault), page + " does not give " + name + "'s default " + shownDefault);
+        }
+        assertEquals(3, options, "server config options in MPConfig");
     }
 
     private static String shown(String item) {

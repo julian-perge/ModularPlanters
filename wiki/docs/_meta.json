@@ -5,5 +5,7 @@
   "growing.mdx": "How a Planter Block Grows",
   "cloche.mdx": "Built-in Cloche",
   "ae2.mdx": "AE2 and Applied Flux",
-  "logistics_networks.mdx": "Logistics Networks"
+  "logistics_networks.mdx": "Logistics Networks",
+  "jade.mdx": "Jade",
+  "config.mdx": "Server Config"
 }
