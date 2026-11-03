@@ -5,6 +5,7 @@ runs/
 out/
 .DS_Store
 src/generated/resources/.cache/
+__pycache__/
 /docs/superpowers/
 NOTES.md
 
