@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.12.2",
+  "checkpoint_id": "01M6HRC2MKM9HY8DM9VDA9CNVG",
+  "strategy": "manual-commit",
+  "branch": "plan-4-pages",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/test/java/io/github/julianperge/modular_planters/docs/ProjectDocsTest.java"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 36,
+    "cache_creation_tokens": 37147,
+    "cache_read_tokens": 6727626,
+    "output_tokens": 15459,
+    "api_call_count": 16,
+    "subagent_tokens": {
+      "input_tokens": 6,
+      "cache_creation_tokens": 54141,
+      "cache_read_tokens": 86079,
+      "output_tokens": 873,
+      "api_call_count": 3
+    }
+  },
+  "redaction": {
+    "replacements": 15,
+    "layers": {
+      "betterleaks": 9,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 6,
+      "credentialed_uri": 0,
+      "entropy": 0,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
