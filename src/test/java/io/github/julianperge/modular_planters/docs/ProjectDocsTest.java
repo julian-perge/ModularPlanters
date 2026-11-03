@@ -26,7 +26,8 @@ class ProjectDocsTest {
             Path.of(".github/ISSUE_TEMPLATE/bug_report.yml"),
             Path.of(".github/ISSUE_TEMPLATE/feature_request.yml"),
             Path.of(".github/ISSUE_TEMPLATE/config.yml"),
-            Path.of(".github/PULL_REQUEST_TEMPLATE.md"));
+            Path.of(".github/PULL_REQUEST_TEMPLATE.md"),
+            Path.of("README.md"));
 
     private static final Pattern BARE_BLOCK_NAME =
             Pattern.compile("(?<!Modular )Planter (Core|Block|Power|Fertilizer|Export|ME|Frame)");
@@ -35,6 +36,14 @@ class ProjectDocsTest {
     private static final Pattern REPO_URL = Pattern.compile(
             "https://(?:raw\\.githubusercontent\\.com/julian-perge/ModularPlanters/main/"
                     + "|github\\.com/julian-perge/ModularPlanters/(?:blob|tree)/main/)([^\\s)\"'>#]+)");
+
+    @Test
+    void readmeLinksGuideContributorDocsAndLogo() throws IOException {
+        List<String> targets = targets(Files.readString(Path.of("README.md")));
+        for (String expected : List.of("wiki/", "CONTRIBUTING.md", "DEVELOPMENT.md", "docs/media/logo.png")) {
+            assertTrue(targets.contains(expected), "README.md does not link " + expected);
+        }
+    }
 
     @Test
     void filesExist() {
