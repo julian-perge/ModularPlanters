@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01Wsw8aoEEcio7YY5x6n1p5y",
+  "agent_id": "ae3175f723ae52969",
+  "subagent_type": "general-purpose",
+  "task_description": "Builder check on plan 5 design",
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 98842,
+    "cache_read_tokens": 1045725,
+    "output_tokens": 32966,
+    "api_call_count": 17
+  },
+  "started_at": "2026-11-03T17:53:48.296313-05:00",
+  "completed_at": "2026-11-03T17:59:31.322113-05:00"
+}
