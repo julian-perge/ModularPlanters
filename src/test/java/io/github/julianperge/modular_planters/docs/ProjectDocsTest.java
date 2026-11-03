@@ -21,7 +21,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ProjectDocsTest {
     static final List<Path> DOCS = List.of(
             Path.of("docs/description.md"),
-            Path.of("DEVELOPMENT.md"));
+            Path.of("DEVELOPMENT.md"),
+            Path.of("CONTRIBUTING.md"),
+            Path.of(".github/ISSUE_TEMPLATE/bug_report.yml"),
+            Path.of(".github/ISSUE_TEMPLATE/feature_request.yml"),
+            Path.of(".github/ISSUE_TEMPLATE/config.yml"),
+            Path.of(".github/PULL_REQUEST_TEMPLATE.md"));
 
     private static final Pattern BARE_BLOCK_NAME =
             Pattern.compile("(?<!Modular )Planter (Core|Block|Power|Fertilizer|Export|ME|Frame)");

@@ -1,0 +1,24 @@
+name: Feature Request
+description: Suggest an idea or improvement for Modular Planters
+labels: enhancement
+body:
+  - type: markdown
+    attributes:
+      value: "*Please search the open and closed issues before requesting a feature. New content or balance changes may not fit the mod, so this is a place to talk it through first.*"
+  - type: textarea
+    id: feature
+    attributes:
+      label: The feature you'd like
+      description: What should the mod do, and what problem does it solve for you?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Other ways you've thought of solving the same problem.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, builds or anything else that helps explain the request.

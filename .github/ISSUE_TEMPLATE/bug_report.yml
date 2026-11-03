@@ -1,0 +1,64 @@
+name: Bug Report
+description: Report a bug or problem with Modular Planters
+labels: bug
+body:
+  - type: markdown
+    attributes:
+      value: "*Please search the open and closed issues before reporting a bug.*"
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue description
+      description: What happened, and what did you expect to happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The steps that make the issue happen. This field is almost always needed.
+      placeholder: |
+        1. Build a multiblock with...
+        2. Put ... in the Modular Planter Block
+        3. See the result described above
+    validations:
+      required: true
+  - type: dropdown
+    id: minecraft-version
+    attributes:
+      label: Minecraft version
+      options:
+        - 26.1.2
+    validations:
+      required: true
+  - type: input
+    id: neoforge-version
+    attributes:
+      label: NeoForge version
+      placeholder: e.g. 26.1.2.116
+    validations:
+      required: true
+  - type: input
+    id: modular-planters-version
+    attributes:
+      label: Modular Planters version
+      placeholder: e.g. 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: ate-version
+    attributes:
+      label: "Agritech: Evolved version"
+      placeholder: e.g. 2.2.0
+    validations:
+      required: true
+  - type: textarea
+    id: other-mods
+    attributes:
+      label: Other relevant mods
+      description: If the issue involves other mods, list them with their versions, e.g. AE2, Applied Flux, Jade, Productive Farming or Logistics Networks.
+  - type: input
+    id: log
+    attributes:
+      label: Log link
+      description: "A link to your log on [mclo.gs](https://mclo.gs/), a [gist](https://gist.github.com/) or [pastebin](https://pastebin.com/). Make sure it doesn't expire. A log is almost always relevant."
