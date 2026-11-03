@@ -7,8 +7,9 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="Julian Perge"
+logoFile="logo.png"
 description='''
-An Agritech: Evolved addon that builds multiblock planters out of modular blocks.
+Build Agritech: Evolved planters into one multiblock with shared power, fertilizer and outputs
 '''
 
 [[dependencies.${mod_id}]]
