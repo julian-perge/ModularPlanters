@@ -12,9 +12,9 @@
     "semantic_hash": "5d1b8599ac4cf69810968b0aa4296a07"
   },
   "build.gradle": {
-    "mtime": 1793747702.2169461,
-    "seen": 1793748194.7044532,
-    "ast_hash": "c32c07cb28e9a6ea21da1c0ea76224c0",
+    "mtime": 1793749164.8107882,
+    "seen": 1793749223.173096,
+    "ast_hash": "4683b8292832a5296ce761703af9cff5",
     "semantic_hash": ""
   },
   "gradlew": {
@@ -1254,9 +1254,9 @@
     "semantic_hash": ""
   },
   "DEVELOPMENT.md": {
-    "mtime": 1793748173.5256088,
-    "seen": 1793748194.704585,
-    "ast_hash": "6361091e6a51399b408d9d6bde175f3b",
+    "mtime": 1793749181.080866,
+    "seen": 1793749223.173229,
+    "ast_hash": "22b35533fbda0a16353c2259cf0dcdd0",
     "semantic_hash": ""
   },
   "docs/description.md": {
@@ -1338,21 +1338,21 @@
     "semantic_hash": ""
   },
   ".github/workflows/checks.yml": {
-    "mtime": 1793748023.5045238,
-    "seen": 1793748194.704451,
-    "ast_hash": "ae9911cd315cfadedd1f24f6cd9a9e0b",
+    "mtime": 1793749164.2424996,
+    "seen": 1793749223.1730938,
+    "ast_hash": "40ebf7569db9a45d56aac2ae06fbcf94",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
-    "mtime": 1793748023.7231379,
-    "seen": 1793748194.704452,
-    "ast_hash": "2bcb9b4b0724decf8e7f62b64769ba87",
+    "mtime": 1793749164.6841557,
+    "seen": 1793749223.173095,
+    "ast_hash": "3194baa663f3716a79a14a2298e9325e",
     "semantic_hash": ""
   },
   "src/test/java/io/github/julianperge/modular_planters/release/ReleaseScriptsTest.java": {
-    "mtime": 1793747896.1840594,
-    "seen": 1793748194.7045739,
-    "ast_hash": "c398e50a2770d723f700e59143bc6b02",
+    "mtime": 1793749131.3983803,
+    "seen": 1793749223.173217,
+    "ast_hash": "a8a8a70134f189580b84f942942bb493",
     "semantic_hash": ""
   },
   "tools/changelog-section.sh": {
@@ -1362,9 +1362,9 @@
     "semantic_hash": ""
   },
   "tools/check-release.sh": {
-    "mtime": 1793747405.659238,
-    "seen": 1793748194.704576,
-    "ast_hash": "61ee54153032ebdb309fb4237fcb2820",
+    "mtime": 1793749144.7717233,
+    "seen": 1793749223.1732202,
+    "ast_hash": "9c162fbc094832d31750adffb9cbf236",
     "semantic_hash": ""
   },
   "tools/release-version.sh": {
