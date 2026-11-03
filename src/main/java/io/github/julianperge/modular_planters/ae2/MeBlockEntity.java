@@ -28,129 +28,148 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
-public class MeBlockEntity extends BlockEntity implements MeLink, IInWorldGridNodeHost, IActionHost, MenuProvider {
-    private final IManagedGridNode mainNode = GridHelper.createManagedNode(this,
-                    (MeBlockEntity owner, IGridNode node) -> owner.setChanged())
-            .setFlags(GridFlags.REQUIRE_CHANNEL)
-            .setInWorldNode(true)
-            .setIdlePowerUsage(1.0)
-            .setVisualRepresentation(Ae2Integration.ME_ITEM.get());
-    private final IActionSource source = IActionSource.ofMachine(this);
-    private ItemResource fertilizerFilter = ItemResource.EMPTY;
+public class MeBlockEntity extends BlockEntity
+    implements MeLink, IInWorldGridNodeHost, IActionHost, MenuProvider {
+  private final IManagedGridNode mainNode =
+      GridHelper.createManagedNode(
+              this, (MeBlockEntity owner, IGridNode node) -> owner.setChanged())
+          .setFlags(GridFlags.REQUIRE_CHANNEL)
+          .setInWorldNode(true)
+          .setIdlePowerUsage(1.0)
+          .setVisualRepresentation(Ae2Integration.ME_ITEM.get());
+  private final IActionSource source = IActionSource.ofMachine(this);
+  private ItemResource fertilizerFilter = ItemResource.EMPTY;
 
-    public MeBlockEntity(BlockPos pos, BlockState state) {
-        super(Ae2Integration.ME_BLOCK_ENTITY.get(), pos, state);
-    }
+  public MeBlockEntity(BlockPos pos, BlockState state) {
+    super(Ae2Integration.ME_BLOCK_ENTITY.get(), pos, state);
+  }
 
-    public IManagedGridNode mainNode() {
-        return mainNode;
-    }
+  public IManagedGridNode mainNode() {
+    return mainNode;
+  }
 
-    @Override
-    public void clearRemoved() {
-        super.clearRemoved();
-        GridHelper.onFirstTick(this, be -> be.mainNode().create(be.getLevel(), be.getBlockPos()));
-    }
+  @Override
+  public void clearRemoved() {
+    super.clearRemoved();
+    GridHelper.onFirstTick(this, be -> be.mainNode().create(be.getLevel(), be.getBlockPos()));
+  }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        mainNode.destroy();
-    }
+  @Override
+  public void setRemoved() {
+    super.setRemoved();
+    mainNode.destroy();
+  }
 
-    @Override
-    public void onChunkUnloaded() {
-        super.onChunkUnloaded();
-        mainNode.destroy();
-    }
+  @Override
+  public void onChunkUnloaded() {
+    super.onChunkUnloaded();
+    mainNode.destroy();
+  }
 
-    @Override
-    protected void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
-        mainNode.serialize(output);
-        output.store("filter", ItemResource.OPTIONAL_CODEC, fertilizerFilter);
-    }
+  @Override
+  protected void saveAdditional(ValueOutput output) {
+    super.saveAdditional(output);
+    mainNode.serialize(output);
+    output.store("filter", ItemResource.OPTIONAL_CODEC, fertilizerFilter);
+  }
 
-    @Override
-    protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        mainNode.deserialize(input);
-        fertilizerFilter = input.read("filter", ItemResource.OPTIONAL_CODEC).orElse(ItemResource.EMPTY);
-    }
+  @Override
+  protected void loadAdditional(ValueInput input) {
+    super.loadAdditional(input);
+    mainNode.deserialize(input);
+    fertilizerFilter = input.read("filter", ItemResource.OPTIONAL_CODEC).orElse(ItemResource.EMPTY);
+  }
 
-    @Override
-    public @Nullable IGridNode getGridNode(Direction dir) {
-        return mainNode.getNode();
-    }
+  @Override
+  public @Nullable IGridNode getGridNode(Direction dir) {
+    return mainNode.getNode();
+  }
 
-    @Override
-    public @Nullable IGridNode getActionableNode() {
-        return mainNode.getNode();
-    }
+  @Override
+  public @Nullable IGridNode getActionableNode() {
+    return mainNode.getNode();
+  }
 
-    @Override
-    public MeStatus status() {
-        if (!mainNode.isPowered()) {
-            return MeStatus.OFFLINE;
-        }
-        return mainNode.isActive() ? MeStatus.ONLINE : MeStatus.NO_CHANNEL;
+  @Override
+  public MeStatus status() {
+    if (!mainNode.isPowered()) {
+      return MeStatus.OFFLINE;
     }
+    return mainNode.isActive() ? MeStatus.ONLINE : MeStatus.NO_CHANNEL;
+  }
 
-    @Override
-    public long insertItem(ItemResource resource, long amount, boolean simulate) {
-        AEItemKey key = AEItemKey.of(resource);
-        IGrid grid = mainNode.getGrid();
-        if (key == null || grid == null || !mainNode.isActive()) {
-            return 0;
-        }
-        return Math.min(amount, StorageHelper.poweredInsert(grid.getEnergyService(),
-                grid.getStorageService().getInventory(), key, amount, source,
-                simulate ? Actionable.SIMULATE : Actionable.MODULATE));
+  @Override
+  public long insertItem(ItemResource resource, long amount, boolean simulate) {
+    AEItemKey key = AEItemKey.of(resource);
+    IGrid grid = mainNode.getGrid();
+    if (key == null || grid == null || !mainNode.isActive()) {
+      return 0;
     }
+    return Math.min(
+        amount,
+        StorageHelper.poweredInsert(
+            grid.getEnergyService(),
+            grid.getStorageService().getInventory(),
+            key,
+            amount,
+            source,
+            simulate ? Actionable.SIMULATE : Actionable.MODULATE));
+  }
 
-    @Override
-    public long extractItem(ItemResource resource, long amount, boolean simulate) {
-        AEItemKey key = AEItemKey.of(resource);
-        IGrid grid = mainNode.getGrid();
-        if (key == null || grid == null || !mainNode.isActive()) {
-            return 0;
-        }
-        return Math.min(amount, StorageHelper.poweredExtraction(grid.getEnergyService(),
-                grid.getStorageService().getInventory(), key, amount, source,
-                simulate ? Actionable.SIMULATE : Actionable.MODULATE));
+  @Override
+  public long extractItem(ItemResource resource, long amount, boolean simulate) {
+    AEItemKey key = AEItemKey.of(resource);
+    IGrid grid = mainNode.getGrid();
+    if (key == null || grid == null || !mainNode.isActive()) {
+      return 0;
     }
+    return Math.min(
+        amount,
+        StorageHelper.poweredExtraction(
+            grid.getEnergyService(),
+            grid.getStorageService().getInventory(),
+            key,
+            amount,
+            source,
+            simulate ? Actionable.SIMULATE : Actionable.MODULATE));
+  }
 
-    @Override
-    public long extractEnergy(long amount, boolean simulate) {
-        IGrid grid = mainNode.getGrid();
-        if (!Ae2Integration.APPLIED_FLUX || grid == null || !mainNode.isActive()) {
-            return 0;
-        }
-        return Math.min(amount, FluxBridge.extractFe(grid.getStorageService().getInventory(), amount,
-                simulate ? Actionable.SIMULATE : Actionable.MODULATE, source));
+  @Override
+  public long extractEnergy(long amount, boolean simulate) {
+    IGrid grid = mainNode.getGrid();
+    if (!Ae2Integration.APPLIED_FLUX || grid == null || !mainNode.isActive()) {
+      return 0;
     }
+    return Math.min(
+        amount,
+        FluxBridge.extractFe(
+            grid.getStorageService().getInventory(),
+            amount,
+            simulate ? Actionable.SIMULATE : Actionable.MODULATE,
+            source));
+  }
 
-    @Override
-    public ItemResource fertilizerFilter() {
-        return fertilizerFilter;
-    }
+  @Override
+  public ItemResource fertilizerFilter() {
+    return fertilizerFilter;
+  }
 
-    public boolean setFertilizerFilter(ItemResource filter) {
-        if (!filter.isEmpty() && AteBridge.fertilizer(filter) == null) {
-            return false;
-        }
-        fertilizerFilter = filter;
-        setChanged();
-        return true;
+  public boolean setFertilizerFilter(ItemResource filter) {
+    if (!filter.isEmpty() && AteBridge.fertilizer(filter) == null) {
+      return false;
     }
+    fertilizerFilter = filter;
+    setChanged();
+    return true;
+  }
 
-    @Override
-    public Component getDisplayName() {
-        return Component.translatable("block.modular_planters.me");
-    }
+  @Override
+  public Component getDisplayName() {
+    return Component.translatable("block.modular_planters.me");
+  }
 
-    @Override
-    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new MeMenu(id, inventory, this);
-    }
+  @Override
+  public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+    return new MeMenu(id, inventory, this);
+  }
 }

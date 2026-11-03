@@ -7,15 +7,15 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
 public enum CoreTooltipProvider implements IBlockComponentProvider {
-    INSTANCE;
+  INSTANCE;
 
-    @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        JadeInfo.coreLines(accessor.getServerData()).forEach(tooltip::add);
-    }
+  @Override
+  public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+    JadeInfo.coreLines(accessor.getServerData()).forEach(tooltip::add);
+  }
 
-    @Override
-    public Identifier getUid() {
-        return CoreProvider.ID;
-    }
+  @Override
+  public Identifier getUid() {
+    return CoreProvider.ID;
+  }
 }

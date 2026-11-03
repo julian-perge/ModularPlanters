@@ -4,6 +4,10 @@ import io.github.julianperge.modular_planters.logic.AteNumbers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 
-public record TickContext(ServerLevel level, RandomSource random, AteNumbers numbers, PowerPool power,
-                          FertilizerPool.Budget fertilizer, OutputSink outputs) {
-}
+public record TickContext(
+    ServerLevel level,
+    RandomSource random,
+    AteNumbers numbers,
+    PowerPool power,
+    FertilizerPool.Budget fertilizer,
+    OutputSink outputs) {}

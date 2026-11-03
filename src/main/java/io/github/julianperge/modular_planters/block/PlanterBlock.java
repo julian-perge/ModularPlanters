@@ -21,38 +21,42 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 public class PlanterBlock extends PartBlock implements EntityBlock {
-    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+  public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
-    public PlanterBlock(Properties properties) {
-        super(properties, PartType.PLANTER);
-        registerDefaultState(stateDefinition.any().setValue(ACTIVE, false));
-    }
+  public PlanterBlock(Properties properties) {
+    super(properties, PartType.PLANTER);
+    registerDefaultState(stateDefinition.any().setValue(ACTIVE, false));
+  }
 
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(ACTIVE);
-    }
+  @Override
+  protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    builder.add(ACTIVE);
+  }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
-                && level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
-            PlanterMenu.open(serverPlayer, planter, pos, false);
-        }
-        return InteractionResult.SUCCESS;
+  @Override
+  protected InteractionResult useWithoutItem(
+      BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    if (!level.isClientSide()
+        && player instanceof ServerPlayer serverPlayer
+        && level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
+      PlanterMenu.open(serverPlayer, planter, pos, false);
     }
+    return InteractionResult.SUCCESS;
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide() || type != MPBlockEntities.PLANTER.get()) {
-            return null;
-        }
-        return (BlockEntityTicker<T>) (BlockEntityTicker<PlanterBlockEntity>) PlanterBlockEntity::serverTick;
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
+      Level level, BlockState state, BlockEntityType<T> type) {
+    if (level.isClientSide() || type != MPBlockEntities.PLANTER.get()) {
+      return null;
     }
+    return (BlockEntityTicker<T>)
+        (BlockEntityTicker<PlanterBlockEntity>) PlanterBlockEntity::serverTick;
+  }
 
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new PlanterBlockEntity(pos, state);
-    }
+  @Override
+  public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    return new PlanterBlockEntity(pos, state);
+  }
 }

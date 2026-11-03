@@ -14,25 +14,26 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class MPBlocks {
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ModularPlanters.MOD_ID);
+  public static final DeferredRegister.Blocks BLOCKS =
+      DeferredRegister.createBlocks(ModularPlanters.MOD_ID);
 
-    public static final DeferredBlock<CoreBlock> CORE =
-            BLOCKS.registerBlock("core", CoreBlock::new, MPBlocks::metal);
-    public static final DeferredBlock<PartBlock> FRAME =
-            BLOCKS.registerBlock("frame", properties -> new PartBlock(properties, PartType.FRAME), MPBlocks::metal);
-    public static final DeferredBlock<PowerBlock> POWER =
-            BLOCKS.registerBlock("power", PowerBlock::new, MPBlocks::metal);
-    public static final DeferredBlock<FertilizerBlock> FERTILIZER =
-            BLOCKS.registerBlock("fertilizer", FertilizerBlock::new, MPBlocks::metal);
-    public static final DeferredBlock<ExportBlock> EXPORT =
-            BLOCKS.registerBlock("export", ExportBlock::new, MPBlocks::metal);
-    public static final DeferredBlock<PlanterBlock> PLANTER =
-            BLOCKS.registerBlock("planter", PlanterBlock::new, MPBlocks::metal);
+  public static final DeferredBlock<CoreBlock> CORE =
+      BLOCKS.registerBlock("core", CoreBlock::new, MPBlocks::metal);
+  public static final DeferredBlock<PartBlock> FRAME =
+      BLOCKS.registerBlock(
+          "frame", properties -> new PartBlock(properties, PartType.FRAME), MPBlocks::metal);
+  public static final DeferredBlock<PowerBlock> POWER =
+      BLOCKS.registerBlock("power", PowerBlock::new, MPBlocks::metal);
+  public static final DeferredBlock<FertilizerBlock> FERTILIZER =
+      BLOCKS.registerBlock("fertilizer", FertilizerBlock::new, MPBlocks::metal);
+  public static final DeferredBlock<ExportBlock> EXPORT =
+      BLOCKS.registerBlock("export", ExportBlock::new, MPBlocks::metal);
+  public static final DeferredBlock<PlanterBlock> PLANTER =
+      BLOCKS.registerBlock("planter", PlanterBlock::new, MPBlocks::metal);
 
-    private MPBlocks() {
-    }
+  private MPBlocks() {}
 
-    public static BlockBehaviour.Properties metal(BlockBehaviour.Properties properties) {
-        return properties.strength(3.0f, 6.0f).requiresCorrectToolForDrops().sound(SoundType.METAL);
-    }
+  public static BlockBehaviour.Properties metal(BlockBehaviour.Properties properties) {
+    return properties.strength(3.0f, 6.0f).requiresCorrectToolForDrops().sound(SoundType.METAL);
+  }
 }

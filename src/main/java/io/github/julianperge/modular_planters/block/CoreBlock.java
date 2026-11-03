@@ -18,30 +18,33 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 public class CoreBlock extends PartBlock implements EntityBlock {
-    public CoreBlock(Properties properties) {
-        super(properties, PartType.CORE);
-    }
+  public CoreBlock(Properties properties) {
+    super(properties, PartType.CORE);
+  }
 
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new CoreBlockEntity(pos, state);
-    }
+  @Override
+  public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    return new CoreBlockEntity(pos, state);
+  }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
-                && level.getBlockEntity(pos) instanceof CoreBlockEntity core) {
-            CoreMenu.open(serverPlayer, core);
-        }
-        return InteractionResult.SUCCESS;
+  @Override
+  protected InteractionResult useWithoutItem(
+      BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    if (!level.isClientSide()
+        && player instanceof ServerPlayer serverPlayer
+        && level.getBlockEntity(pos) instanceof CoreBlockEntity core) {
+      CoreMenu.open(serverPlayer, core);
     }
+    return InteractionResult.SUCCESS;
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide() || type != MPBlockEntities.CORE.get()) {
-            return null;
-        }
-        return (BlockEntityTicker<T>) (BlockEntityTicker<CoreBlockEntity>) CoreBlockEntity::serverTick;
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
+      Level level, BlockState state, BlockEntityType<T> type) {
+    if (level.isClientSide() || type != MPBlockEntities.CORE.get()) {
+      return null;
     }
+    return (BlockEntityTicker<T>) (BlockEntityTicker<CoreBlockEntity>) CoreBlockEntity::serverTick;
+  }
 }

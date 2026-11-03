@@ -1,40 +1,41 @@
 package io.github.julianperge.modular_planters.multiblock;
 
-import net.minecraft.world.level.block.entity.BlockEntity;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 final class LiveBlocks {
-    private LiveBlocks() {
-    }
+  private LiveBlocks() {}
 
-    // A pool is only rebuilt when the core's scan changes, so a block broken or unloaded since then is still listed.
-    // This returns only the blocks that are not removed and asks the core to rescan when it finds a removed one.
-    static <T extends BlockEntity> List<T> of(List<T> blocks, Runnable onStale) {
-        List<T> live = new ArrayList<>(blocks.size());
-        boolean stale = false;
-        for (T block : blocks) {
-            if (block.isRemoved()) {
-                stale = true;
-            } else {
-                live.add(block);
-            }
-        }
-        if (stale) {
-            onStale.run();
-        }
-        return live;
+  // A pool is only rebuilt when the core's scan changes, so a block broken or unloaded since then
+  // is still listed.
+  // This returns only the blocks that are not removed and asks the core to rescan when it finds a
+  // removed one.
+  static <T extends BlockEntity> List<T> of(List<T> blocks, Runnable onStale) {
+    List<T> live = new ArrayList<>(blocks.size());
+    boolean stale = false;
+    for (T block : blocks) {
+      if (block.isRemoved()) {
+        stale = true;
+      } else {
+        live.add(block);
+      }
     }
+    if (stale) {
+      onStale.run();
+    }
+    return live;
+  }
 
-    // This is the check of() makes, without building a list, for handlers that are asked on every transfer.
-    static <T extends BlockEntity> boolean allLive(List<T> blocks, Runnable onStale) {
-        for (T block : blocks) {
-            if (block.isRemoved()) {
-                onStale.run();
-                return false;
-            }
-        }
-        return true;
+  // This is the check of() makes, without building a list, for handlers that are asked on every
+  // transfer.
+  static <T extends BlockEntity> boolean allLive(List<T> blocks, Runnable onStale) {
+    for (T block : blocks) {
+      if (block.isRemoved()) {
+        onStale.run();
+        return false;
+      }
     }
+    return true;
+  }
 }

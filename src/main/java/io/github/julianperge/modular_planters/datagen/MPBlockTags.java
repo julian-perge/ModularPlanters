@@ -10,19 +10,19 @@ import net.minecraft.tags.BlockTags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 
 public class MPBlockTags extends BlockTagsProvider {
-    public MPBlockTags(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries, ModularPlanters.MOD_ID);
-    }
+  public MPBlockTags(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+    super(output, registries, ModularPlanters.MOD_ID);
+  }
 
-    @Override
-    protected void addTags(HolderLookup.Provider registries) {
-        tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(MPBlocks.CORE.get())
-                .add(MPBlocks.FRAME.get())
-                .add(MPBlocks.POWER.get())
-                .add(MPBlocks.FERTILIZER.get())
-                .add(MPBlocks.EXPORT.get())
-                .add(MPBlocks.PLANTER.get())
-                .addOptional(Ae2Integration.ME_BLOCK.get());
-    }
+  @Override
+  protected void addTags(HolderLookup.Provider registries) {
+    tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .add(MPBlocks.CORE.get())
+        .add(MPBlocks.FRAME.get())
+        .add(MPBlocks.POWER.get())
+        .add(MPBlocks.FERTILIZER.get())
+        .add(MPBlocks.EXPORT.get())
+        .add(MPBlocks.PLANTER.get())
+        .addOptional(Ae2Integration.ME_BLOCK.get());
+  }
 }

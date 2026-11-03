@@ -34,125 +34,137 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 public final class AteBridge {
-    private static Set<Item> cachedSoils = Set.of();
-    private static int cachedSoilRevision = -1;
+  private static Set<Item> cachedSoils = Set.of();
+  private static int cachedSoilRevision = -1;
 
-    private AteBridge() {
+  private AteBridge() {}
+
+  public record PlantRecipe(List<DropEntry> drops, Predicate<ItemStack> soilMatches) {}
+
+  // ATE raises RECIPE_REVISION when recipes reload, so the memo forgets every recipe it holds when
+  // the revision changes.
+  public static final class RecipeMemo {
+    private final Map<Item, Optional<PlantRecipe>> recipes = new HashMap<>();
+    private int revision = -1;
+
+    public Optional<PlantRecipe> get(Level level, ItemStack seed) {
+      if (seed.isEmpty() || !(level instanceof ServerLevel server)) {
+        return Optional.empty();
+      }
+      if (revision != AgritechEvolved.RECIPE_REVISION) {
+        recipes.clear();
+        revision = AgritechEvolved.RECIPE_REVISION;
+      }
+      return recipes.computeIfAbsent(seed.getItem(), item -> recipe(server, seed));
     }
+  }
 
-    public record PlantRecipe(List<DropEntry> drops, Predicate<ItemStack> soilMatches) {
+  public static AteNumbers numbers() {
+    return new AteNumbers(
+        Config.getAdvancedPlanterBaseProcessingTime(),
+        Config.getPlanterBasePowerConsumption(),
+        Config.getSpeedModuleMk1Multiplier(),
+        Config.getSpeedModuleMk2Multiplier(),
+        Config.getSpeedModuleMk3Multiplier(),
+        Config.getSpeedModuleMk1PowerMultiplier(),
+        Config.getSpeedModuleMk2PowerMultiplier(),
+        Config.getSpeedModuleMk3PowerMultiplier(),
+        Config.getYieldModuleMk1Multiplier(),
+        Config.getYieldModuleMk2Multiplier(),
+        Config.getYieldModuleMk3Multiplier(),
+        Config.getYieldModuleMk1SpeedPenalty(),
+        Config.getYieldModuleMk2SpeedPenalty(),
+        Config.getYieldModuleMk3SpeedPenalty(),
+        Config.getClocheSpeedMultiplier(),
+        Config.getClocheYieldMultiplier());
+  }
+
+  public static boolean isUpgrade(ItemStack stack) {
+    return stack.is(ATETags.Items.ATE_MODULES);
+  }
+
+  public static UpgradeKind upgradeKind(ItemStack stack) {
+    return UpgradeKind.fromItemId(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+  }
+
+  // This follows AdvancedPlanterBlockEntity.getSoilGrowthModifier, so a soil grows seeds at the
+  // same speed here as in a single planter.
+  public static float soilModifier(ItemStack soil) {
+    if (soil.isEmpty()) {
+      return 1.0f;
     }
+    SoilModifierData data = soil.typeHolder().getData(ATEDataMaps.SOIL_MODIFIERS);
+    return data != null ? data.growthModifier() : 1.0f;
+  }
 
-    // ATE raises RECIPE_REVISION when recipes reload, so the memo forgets every recipe it holds when the revision changes.
-    public static final class RecipeMemo {
-        private final Map<Item, Optional<PlantRecipe>> recipes = new HashMap<>();
-        private int revision = -1;
+  public static @Nullable FertilizerData fertilizer(ItemResource resource) {
+    return resource.typeHolder().getData(ATEDataMaps.FERTILIZERS);
+  }
 
-        public Optional<PlantRecipe> get(Level level, ItemStack seed) {
-            if (seed.isEmpty() || !(level instanceof ServerLevel server)) {
-                return Optional.empty();
-            }
-            if (revision != AgritechEvolved.RECIPE_REVISION) {
-                recipes.clear();
-                revision = AgritechEvolved.RECIPE_REVISION;
-            }
-            return recipes.computeIfAbsent(seed.getItem(), item -> recipe(server, seed));
+  // This follows AdvancedPlanterBlockEntity.refreshRecipeCacheIfNeeded, which tries crop recipes
+  // before tree recipes.
+  public static Optional<PlantRecipe> recipe(ServerLevel level, ItemStack seed) {
+    if (seed.isEmpty()) {
+      return Optional.empty();
+    }
+    SingleRecipeInput input = new SingleRecipeInput(seed);
+    Optional<RecipeHolder<CropRecipe>> crop =
+        level.recipeAccess().getRecipeFor(ATERecipeTypes.CROP_TYPE.get(), input, level);
+    if (crop.isPresent()) {
+      CropRecipe recipe = crop.get().value();
+      return Optional.of(new PlantRecipe(recipe.getDrops(), recipe::matchesSoil));
+    }
+    Optional<RecipeHolder<TreeRecipe>> tree =
+        level.recipeAccess().getRecipeFor(ATERecipeTypes.TREE_TYPE.get(), input, level);
+    return tree.map(
+        holder -> new PlantRecipe(holder.value().getDrops(), holder.value()::matchesSoil));
+  }
+
+  // This follows AdvancedPlanterBlockEntity.getValidSoils, whose soil set refreshes only when
+  // AgritechEvolved.RECIPE_REVISION changes.
+  // Ingredient.items() is deprecated, but NeoForge's replacement getValues() throws on custom
+  // ingredients, and ATE lists soils with items() too.
+  @SuppressWarnings("deprecation")
+  public static boolean isSoilForAnyRecipe(ServerLevel level, ItemStack soil) {
+    if (soil.isEmpty()) {
+      return false;
+    }
+    if (cachedSoilRevision != AgritechEvolved.RECIPE_REVISION) {
+      Set<Item> soils = new HashSet<>();
+      for (RecipeHolder<?> holder : level.recipeAccess().getRecipes()) {
+        List<Ingredient> ingredients;
+        if (holder.value() instanceof CropRecipe crop) {
+          ingredients = crop.getSoils();
+        } else if (holder.value() instanceof TreeRecipe tree) {
+          ingredients = tree.getSoils();
+        } else {
+          continue;
         }
-    }
-
-    public static AteNumbers numbers() {
-        return new AteNumbers(
-                Config.getAdvancedPlanterBaseProcessingTime(), Config.getPlanterBasePowerConsumption(),
-                Config.getSpeedModuleMk1Multiplier(), Config.getSpeedModuleMk2Multiplier(),
-                Config.getSpeedModuleMk3Multiplier(),
-                Config.getSpeedModuleMk1PowerMultiplier(), Config.getSpeedModuleMk2PowerMultiplier(),
-                Config.getSpeedModuleMk3PowerMultiplier(),
-                Config.getYieldModuleMk1Multiplier(), Config.getYieldModuleMk2Multiplier(),
-                Config.getYieldModuleMk3Multiplier(),
-                Config.getYieldModuleMk1SpeedPenalty(), Config.getYieldModuleMk2SpeedPenalty(),
-                Config.getYieldModuleMk3SpeedPenalty(),
-                Config.getClocheSpeedMultiplier(), Config.getClocheYieldMultiplier());
-    }
-
-    public static boolean isUpgrade(ItemStack stack) {
-        return stack.is(ATETags.Items.ATE_MODULES);
-    }
-
-    public static UpgradeKind upgradeKind(ItemStack stack) {
-        return UpgradeKind.fromItemId(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
-    }
-
-    // This follows AdvancedPlanterBlockEntity.getSoilGrowthModifier, so a soil grows seeds at the same speed here as in a single planter.
-    public static float soilModifier(ItemStack soil) {
-        if (soil.isEmpty()) {
-            return 1.0f;
+        for (Ingredient ingredient : ingredients) {
+          ingredient.items().map(Holder::value).forEach(soils::add);
         }
-        SoilModifierData data = soil.typeHolder().getData(ATEDataMaps.SOIL_MODIFIERS);
-        return data != null ? data.growthModifier() : 1.0f;
+      }
+      cachedSoils = soils;
+      cachedSoilRevision = AgritechEvolved.RECIPE_REVISION;
     }
+    return cachedSoils.contains(soil.getItem());
+  }
 
-    public static @Nullable FertilizerData fertilizer(ItemResource resource) {
-        return resource.typeHolder().getData(ATEDataMaps.FERTILIZERS);
+  // This follows AdvancedPlanterBlockEntity.getHarvestDrops, except that an entry whose rolled
+  // count is 0 is skipped.
+  public static List<ItemStack> rollDrops(List<DropEntry> drops, RandomSource random) {
+    List<ItemStack> rolled = new ArrayList<>();
+    for (DropEntry entry : drops) {
+      if (random.nextFloat() <= entry.chance()) {
+        int count =
+            entry.max() > entry.min()
+                ? entry.min() + random.nextInt(entry.max() - entry.min() + 1)
+                : entry.min();
+        if (count > 0) {
+          rolled.add(new ItemStack(entry.item(), count));
+        }
+      }
     }
-
-    // This follows AdvancedPlanterBlockEntity.refreshRecipeCacheIfNeeded, which tries crop recipes before tree recipes.
-    public static Optional<PlantRecipe> recipe(ServerLevel level, ItemStack seed) {
-        if (seed.isEmpty()) {
-            return Optional.empty();
-        }
-        SingleRecipeInput input = new SingleRecipeInput(seed);
-        Optional<RecipeHolder<CropRecipe>> crop =
-                level.recipeAccess().getRecipeFor(ATERecipeTypes.CROP_TYPE.get(), input, level);
-        if (crop.isPresent()) {
-            CropRecipe recipe = crop.get().value();
-            return Optional.of(new PlantRecipe(recipe.getDrops(), recipe::matchesSoil));
-        }
-        Optional<RecipeHolder<TreeRecipe>> tree =
-                level.recipeAccess().getRecipeFor(ATERecipeTypes.TREE_TYPE.get(), input, level);
-        return tree.map(holder -> new PlantRecipe(holder.value().getDrops(), holder.value()::matchesSoil));
-    }
-
-    // This follows AdvancedPlanterBlockEntity.getValidSoils, whose soil set refreshes only when AgritechEvolved.RECIPE_REVISION changes.
-    // Ingredient.items() is deprecated, but NeoForge's replacement getValues() throws on custom ingredients, and ATE lists soils with items() too.
-    @SuppressWarnings("deprecation")
-    public static boolean isSoilForAnyRecipe(ServerLevel level, ItemStack soil) {
-        if (soil.isEmpty()) {
-            return false;
-        }
-        if (cachedSoilRevision != AgritechEvolved.RECIPE_REVISION) {
-            Set<Item> soils = new HashSet<>();
-            for (RecipeHolder<?> holder : level.recipeAccess().getRecipes()) {
-                List<Ingredient> ingredients;
-                if (holder.value() instanceof CropRecipe crop) {
-                    ingredients = crop.getSoils();
-                } else if (holder.value() instanceof TreeRecipe tree) {
-                    ingredients = tree.getSoils();
-                } else {
-                    continue;
-                }
-                for (Ingredient ingredient : ingredients) {
-                    ingredient.items().map(Holder::value).forEach(soils::add);
-                }
-            }
-            cachedSoils = soils;
-            cachedSoilRevision = AgritechEvolved.RECIPE_REVISION;
-        }
-        return cachedSoils.contains(soil.getItem());
-    }
-
-    // This follows AdvancedPlanterBlockEntity.getHarvestDrops, except that an entry whose rolled count is 0 is skipped.
-    public static List<ItemStack> rollDrops(List<DropEntry> drops, RandomSource random) {
-        List<ItemStack> rolled = new ArrayList<>();
-        for (DropEntry entry : drops) {
-            if (random.nextFloat() <= entry.chance()) {
-                int count = entry.max() > entry.min()
-                        ? entry.min() + random.nextInt(entry.max() - entry.min() + 1)
-                        : entry.min();
-                if (count > 0) {
-                    rolled.add(new ItemStack(entry.item(), count));
-                }
-            }
-        }
-        return rolled;
-    }
+    return rolled;
+  }
 }

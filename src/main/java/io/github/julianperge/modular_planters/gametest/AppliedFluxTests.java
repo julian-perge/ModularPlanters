@@ -16,70 +16,81 @@ import java.util.Map;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 public final class AppliedFluxTests {
-    private static final long FE_IN_ME = 1_000_000L;
+  private static final long FE_IN_ME = 1_000_000L;
 
-    private AppliedFluxTests() {
-    }
+  private AppliedFluxTests() {}
 
-    public static void register(Map<String, TestCase> into) {
-        into.put("flux_fills_the_power_blocks", new TestCase(200, AppliedFluxTests::fluxFillsThePowerBlocks));
-        into.put("no_flux_without_fe_in_me", new TestCase(100, AppliedFluxTests::noFluxWithoutFeInMe));
-    }
+  public static void register(Map<String, TestCase> into) {
+    into.put(
+        "flux_fills_the_power_blocks",
+        new TestCase(200, AppliedFluxTests::fluxFillsThePowerBlocks));
+    into.put("no_flux_without_fe_in_me", new TestCase(100, AppliedFluxTests::noFluxWithoutFeInMe));
+  }
 
-    private static IGrid grid(GameTestHelper helper, MeBlockEntity me) {
-        IGrid grid = me.mainNode().getGrid();
-        helper.assertTrue(grid != null, "the ME block has a grid");
-        return grid;
-    }
+  private static IGrid grid(GameTestHelper helper, MeBlockEntity me) {
+    IGrid grid = me.mainNode().getGrid();
+    helper.assertTrue(grid != null, "the ME block has a grid");
+    return grid;
+  }
 
-    private static AEKey fe() {
-        return FluxKey.of(EnergyType.FE);
-    }
+  private static AEKey fe() {
+    return FluxKey.of(EnergyType.FE);
+  }
 
-    private static long meFe(GameTestHelper helper, MeBlockEntity me) {
-        return grid(helper, me).getStorageService().getInventory().getAvailableStacks().get(fe());
-    }
+  private static long meFe(GameTestHelper helper, MeBlockEntity me) {
+    return grid(helper, me).getStorageService().getInventory().getAvailableStacks().get(fe());
+  }
 
-    private static long insertFe(GameTestHelper helper, MeBlockEntity me, long amount) {
-        return grid(helper, me).getStorageService().getInventory()
-                .insert(fe(), amount, Actionable.MODULATE, IActionSource.ofMachine(me));
-    }
+  private static long insertFe(GameTestHelper helper, MeBlockEntity me, long amount) {
+    return grid(helper, me)
+        .getStorageService()
+        .getInventory()
+        .insert(fe(), amount, Actionable.MODULATE, IActionSource.ofMachine(me));
+  }
 
-    private static void fluxFillsThePowerBlocks(GameTestHelper helper) {
-        Fixtures.Rig rig = Fixtures.meRig(helper, 1);
-        Fixtures.addFluxCell(helper);
-        CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
-        MeBlockEntity me = helper.getBlockEntity(Fixtures.ME, MeBlockEntity.class);
-        PlanterBlockEntity planter = PlanterTests.planter(helper, rig, 0);
-        PowerBlockEntity power = PlanterTests.power(helper, rig);
-        Fixtures.plant(planter, 64, 64, 0);
-        power.setStored(0);
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
-                .thenWaitUntil(() -> helper.assertValueEqual(insertFe(helper, me, FE_IN_ME), FE_IN_ME,
-                        "FE inserted into ME"))
-                .thenWaitUntil(() -> {
-                    helper.assertValueEqual(planter.status(), PlanterStatus.GROWING, "status");
-                    helper.assertValueEqual(meFe(helper, me), 0L, "all FE moved out of ME");
-                    helper.assertTrue(power.stored() > 0, "the power block holds what the planter did not use");
-                })
-                .thenSucceed();
-    }
+  private static void fluxFillsThePowerBlocks(GameTestHelper helper) {
+    Fixtures.Rig rig = Fixtures.meRig(helper, 1);
+    Fixtures.addFluxCell(helper);
+    CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
+    MeBlockEntity me = helper.getBlockEntity(Fixtures.ME, MeBlockEntity.class);
+    PlanterBlockEntity planter = PlanterTests.planter(helper, rig, 0);
+    PowerBlockEntity power = PlanterTests.power(helper, rig);
+    Fixtures.plant(planter, 64, 64, 0);
+    power.setStored(0);
+    helper
+        .startSequence()
+        .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
+        .thenWaitUntil(
+            () ->
+                helper.assertValueEqual(
+                    insertFe(helper, me, FE_IN_ME), FE_IN_ME, "FE inserted into ME"))
+        .thenWaitUntil(
+            () -> {
+              helper.assertValueEqual(planter.status(), PlanterStatus.GROWING, "status");
+              helper.assertValueEqual(meFe(helper, me), 0L, "all FE moved out of ME");
+              helper.assertTrue(
+                  power.stored() > 0, "the power block holds what the planter did not use");
+            })
+        .thenSucceed();
+  }
 
-    private static void noFluxWithoutFeInMe(GameTestHelper helper) {
-        Fixtures.Rig rig = Fixtures.meRig(helper, 1);
-        Fixtures.addFluxCell(helper);
-        CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
-        PlanterBlockEntity planter = PlanterTests.planter(helper, rig, 0);
-        PowerBlockEntity power = PlanterTests.power(helper, rig);
-        Fixtures.plant(planter, 64, 64, 0);
-        power.setStored(0);
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
-                .thenExecuteAfter(60, () -> {
-                    helper.assertValueEqual(planter.status(), PlanterStatus.PAUSED_FOR_POWER, "status");
-                    helper.assertValueEqual(power.stored(), 0, "stored");
-                })
-                .thenSucceed();
-    }
+  private static void noFluxWithoutFeInMe(GameTestHelper helper) {
+    Fixtures.Rig rig = Fixtures.meRig(helper, 1);
+    Fixtures.addFluxCell(helper);
+    CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
+    PlanterBlockEntity planter = PlanterTests.planter(helper, rig, 0);
+    PowerBlockEntity power = PlanterTests.power(helper, rig);
+    Fixtures.plant(planter, 64, 64, 0);
+    power.setStored(0);
+    helper
+        .startSequence()
+        .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
+        .thenExecuteAfter(
+            60,
+            () -> {
+              helper.assertValueEqual(planter.status(), PlanterStatus.PAUSED_FOR_POWER, "status");
+              helper.assertValueEqual(power.stored(), 0, "stored");
+            })
+        .thenSucceed();
+  }
 }

@@ -14,10 +14,10 @@ import io.github.julianperge.modular_planters.logic.Coverage;
 import io.github.julianperge.modular_planters.logic.Group;
 import io.github.julianperge.modular_planters.logic.Grouping;
 import io.github.julianperge.modular_planters.logic.GrowthMath;
-import io.github.julianperge.modular_planters.logic.UpgradeKind;
 import io.github.julianperge.modular_planters.logic.PlanterTicker;
 import io.github.julianperge.modular_planters.logic.RemainderLedger;
 import io.github.julianperge.modular_planters.logic.SeedBin;
+import io.github.julianperge.modular_planters.logic.UpgradeKind;
 import io.github.julianperge.modular_planters.multiblock.OutputSink;
 import io.github.julianperge.modular_planters.multiblock.TickContext;
 import io.github.julianperge.modular_planters.registry.MPBlockEntities;
@@ -44,341 +44,395 @@ import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import org.jspecify.annotations.Nullable;
 
 public class PlanterBlockEntity extends BlockEntity {
-    public static final int SOIL = 0, UPGRADE_1 = 1, UPGRADE_2 = 2;
-    public static final int ACTIVE_OFF_DELAY = 20;
-    public static final int STALE_TICKS = 40;
+  public static final int SOIL = 0, UPGRADE_1 = 1, UPGRADE_2 = 2;
+  public static final int ACTIVE_OFF_DELAY = 20;
+  public static final int STALE_TICKS = 40;
 
-    // A planter block holds at most what one harvest of one group did not fit, so this allows 256 full stacks for each of a group's 64 seeds, far more than any recipe and harvest event add.
-    private static final int HELD_OUTPUTS_CAP = SeedBin.CAPACITY * 256;
+  // A planter block holds at most what one harvest of one group did not fit, so this allows 256
+  // full stacks for each of a group's 64 seeds, far more than any recipe and harvest event add.
+  private static final int HELD_OUTPUTS_CAP = SeedBin.CAPACITY * 256;
 
-    private static final Codec<Map<String, Long>> REMAINDERS_CODEC = Codec.unboundedMap(Codec.STRING, Codec.LONG);
+  private static final Codec<Map<String, Long>> REMAINDERS_CODEC =
+      Codec.unboundedMap(Codec.STRING, Codec.LONG);
 
-    private final SeedBin<ItemStack> seeds = new SeedBin<>(ItemStack::isSameItemSameComponents, s -> s.copyWithCount(1));
-    private final ItemStacksResourceHandler soilAndUpgrades = new ItemStacksResourceHandler(3) {
+  private final SeedBin<ItemStack> seeds =
+      new SeedBin<>(ItemStack::isSameItemSameComponents, s -> s.copyWithCount(1));
+  private final ItemStacksResourceHandler soilAndUpgrades =
+      new ItemStacksResourceHandler(3) {
         @Override
         protected int getCapacity(int index, ItemResource resource) {
-            return Math.min(SeedBin.CAPACITY, super.getCapacity(index, resource));
+          return Math.min(SeedBin.CAPACITY, super.getCapacity(index, resource));
         }
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
-            ItemStack current = getResource(index).toStack(getAmountAsInt(index));
-            if (index == SOIL && !current.isEmpty()) {
-                if (!lastSoil.isEmpty() && !ItemStack.isSameItem(lastSoil, current)) {
-                    seeds.resetAll();
-                }
-                lastSoil = current.copyWithCount(1);
+          ItemStack current = getResource(index).toStack(getAmountAsInt(index));
+          if (index == SOIL && !current.isEmpty()) {
+            if (!lastSoil.isEmpty() && !ItemStack.isSameItem(lastSoil, current)) {
+              seeds.resetAll();
             }
-            setChanged();
+            lastSoil = current.copyWithCount(1);
+          }
+          setChanged();
         }
-    };
-    private final RemainderLedger<String> clocheRemainders = new RemainderLedger<>();
-    private final AteBridge.RecipeMemo recipes = new AteBridge.RecipeMemo();
-    private final List<ItemStack> heldOutputs = new ArrayList<>();
-    // The last non-empty soil is kept so that emptying the soil slot and then adding a different soil still resets progress.
-    private ItemStack lastSoil = ItemStack.EMPTY;
-    private PlanterStatus status = PlanterStatus.IDLE;
-    private int ticksSinceCore;
-    private int inactiveTicks;
-    private long lastDraw;
-    private int growing;
-    private int upgraded;
+      };
+  private final RemainderLedger<String> clocheRemainders = new RemainderLedger<>();
+  private final AteBridge.RecipeMemo recipes = new AteBridge.RecipeMemo();
+  private final List<ItemStack> heldOutputs = new ArrayList<>();
+  // The last non-empty soil is kept so that emptying the soil slot and then adding a different soil
+  // still resets progress.
+  private ItemStack lastSoil = ItemStack.EMPTY;
+  private PlanterStatus status = PlanterStatus.IDLE;
+  private int ticksSinceCore;
+  private int inactiveTicks;
+  private long lastDraw;
+  private int growing;
+  private int upgraded;
 
-    public PlanterBlockEntity(BlockPos pos, BlockState state) {
-        super(MPBlockEntities.PLANTER.get(), pos, state);
+  public PlanterBlockEntity(BlockPos pos, BlockState state) {
+    super(MPBlockEntities.PLANTER.get(), pos, state);
+  }
+
+  public SeedBin<ItemStack> seeds() {
+    return seeds;
+  }
+
+  public ItemStacksResourceHandler soilAndUpgrades() {
+    return soilAndUpgrades;
+  }
+
+  public RemainderLedger<String> clocheRemainders() {
+    return clocheRemainders;
+  }
+
+  public List<ItemStack> heldOutputs() {
+    return Collections.unmodifiableList(heldOutputs);
+  }
+
+  public PlanterStatus status() {
+    return status;
+  }
+
+  public long lastDraw() {
+    return lastDraw;
+  }
+
+  public int growing() {
+    return growing;
+  }
+
+  public int upgraded() {
+    return upgraded;
+  }
+
+  public static void serverTick(
+      Level level, BlockPos pos, BlockState state, PlanterBlockEntity planter) {
+    if (planter.ticksSinceCore <= STALE_TICKS && ++planter.ticksSinceCore > STALE_TICKS) {
+      planter.stopFromCore();
+    }
+    boolean wantActive =
+        planter.status == PlanterStatus.GROWING || planter.status == PlanterStatus.SHORT_ON_SOIL;
+    planter.inactiveTicks = wantActive ? 0 : Math.min(planter.inactiveTicks + 1, ACTIVE_OFF_DELAY);
+    boolean active = state.getValue(PlanterBlock.ACTIVE);
+    if (wantActive != active && (wantActive || planter.inactiveTicks >= ACTIVE_OFF_DELAY)) {
+      level.setBlock(pos, state.setValue(PlanterBlock.ACTIVE, wantActive), Block.UPDATE_ALL);
+    }
+  }
+
+  public void tickFromCore(TickContext ctx) {
+    ticksSinceCore = 0;
+    lastDraw = 0;
+    boolean holding = false;
+    if (!heldOutputs.isEmpty()) {
+      flushHeldOutputs(ctx.outputs());
+      setChanged();
+      holding = !heldOutputs.isEmpty();
     }
 
-    public SeedBin<ItemStack> seeds() {
-        return seeds;
+    int soilCount = soilAndUpgrades.getAmountAsInt(SOIL);
+    ItemStack soil = soilAndUpgrades.getResource(SOIL).toStack(soilCount);
+    Optional<AteBridge.PlantRecipe> recipe =
+        seeds.size() == 0 || soil.isEmpty()
+            ? Optional.empty()
+            : recipes.get(ctx.level(), seeds.seed(0));
+    if (recipe.isEmpty() || !recipe.get().soilMatches().test(soil)) {
+      if (holding) {
+        setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
+        return;
+      }
+      seeds.resetAll();
+      growing = 0;
+      upgraded = 0;
+      setStatus(PlanterStatus.IDLE);
+      setChanged();
+      return;
     }
 
-    public ItemStacksResourceHandler soilAndUpgrades() {
-        return soilAndUpgrades;
+    int nowGrowing = Coverage.growing(seeds.size(), soilCount);
+    UpgradeKind kind1 = upgradeKind(UPGRADE_1);
+    UpgradeKind kind2 = upgradeKind(UPGRADE_2);
+    int count1 = upgradeCount(UPGRADE_1, kind1);
+    int count2 = upgradeCount(UPGRADE_2, kind2);
+    List<Group> groups =
+        Grouping.of(seeds, Coverage.assign(nowGrowing, kind1, count1, kind2, count2));
+
+    // Each group decides once per tick, before any pause, so a paused group still holds its claim
+    // and one decision sets both its growth time and its harvest.
+    Map<Group, FertilizerData> fertilized = new HashMap<>();
+    for (Group group : groups) {
+      FertilizerData claimed = ctx.fertilizer().claim(group.size());
+      if (claimed != null) {
+        fertilized.put(group, claimed);
+      }
+    }
+    if (holding) {
+      setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
+      return;
     }
 
-    public RemainderLedger<String> clocheRemainders() {
-        return clocheRemainders;
+    growing = nowGrowing;
+    seeds.resetFrom(growing);
+    upgraded = Coverage.upgraded(growing, count1, count2);
+
+    AteNumbers numbers = ctx.numbers();
+    float soilModifier = AteBridge.soilModifier(soil);
+    PlanterStatus paused = null;
+    PlanterTicker.AdvanceResult result =
+        PlanterTicker.advance(
+            seeds,
+            groups,
+            group -> processingTime(ctx, group, soilModifier, fertilized.get(group)),
+            upgrades -> GrowthMath.powerPerSeedTick(numbers, upgrades),
+            ctx.power().stored());
+    if (result.pausedForPower()) {
+      paused = PlanterStatus.PAUSED_FOR_POWER;
+    } else {
+      // This take can't fail, because advance was given ctx.power().stored() and only charges what
+      // that covers.
+      ctx.power().tryTake(result.energyUsed());
+      lastDraw = result.energyUsed();
     }
 
-    public List<ItemStack> heldOutputs() {
-        return Collections.unmodifiableList(heldOutputs);
+    for (Group group : groups) {
+      if (!seeds.ready(group.first())) {
+        continue;
+      }
+      FertilizerData fertilizer = fertilized.get(group);
+      float fertilizerYield = fertilizer != null ? fertilizer.yieldMultiplier() : 1.0f;
+      float upgradeYield = group.upgrades().yieldModifier(numbers);
+      float modifier = fertilizerYield * upgradeYield * (float) numbers.clocheYield();
+      if (!ctx.outputs().hasRoomFor(listedDrops(recipe.get().drops(), modifier, group.size()))) {
+        paused = PlanterStatus.PAUSED_EXPORT_FULL;
+        break;
+      }
+      for (int seed : group.seeds()) {
+        harvest(ctx, seed, fertilizer != null, fertilizerYield, upgradeYield, modifier);
+      }
+      // Outputs that did not fit are held until they leave, so later groups wait instead of adding
+      // more to the pile.
+      if (!heldOutputs.isEmpty()) {
+        break;
+      }
     }
 
-    public PlanterStatus status() {
-        return status;
+    if (!heldOutputs.isEmpty()) {
+      setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
+    } else if (paused != null) {
+      setStatus(paused);
+    } else if (growing < seeds.size()) {
+      setStatus(PlanterStatus.SHORT_ON_SOIL);
+    } else {
+      setStatus(PlanterStatus.GROWING);
+    }
+    setChanged();
+  }
+
+  public void stopFromCore() {
+    lastDraw = 0;
+    growing = 0;
+    upgraded = 0;
+    setStatus(PlanterStatus.IDLE);
+  }
+
+  private UpgradeKind upgradeKind(int slot) {
+    return AteBridge.upgradeKind(soilAndUpgrades.getResource(slot).toStack());
+  }
+
+  private int upgradeCount(int slot, UpgradeKind kind) {
+    return kind == UpgradeKind.NONE ? 0 : soilAndUpgrades.getAmountAsInt(slot);
+  }
+
+  private int processingTime(
+      TickContext ctx, Group group, float soilModifier, @Nullable FertilizerData fertilizer) {
+    float fertilizerSpeed = fertilizer != null ? fertilizer.speedMultiplier() : 1.0f;
+    int time =
+        GrowthMath.growthTime(ctx.numbers(), soilModifier, group.upgrades(), fertilizerSpeed);
+    return NeoForge.EVENT_BUS
+        .post(new PlanterProcessingTimeEvent(this, seeds.seed(group.first()).copy(), time))
+        .getProcessingTime();
+  }
+
+  // Each drop entry gets one more item per seed than ATE's rounding gives, because the cloche adds
+  // at most one extra item per drop and harvest.
+  private static List<ItemStack> listedDrops(List<DropEntry> drops, float modifier, int seedCount) {
+    List<ItemStack> listed = new ArrayList<>(drops.size());
+    for (DropEntry entry : drops) {
+      listed.add(
+          new ItemStack(
+              entry.item(), (ClocheYield.ateCount(entry.max(), modifier) + 1) * seedCount));
+    }
+    return listed;
+  }
+
+  private void harvest(
+      TickContext ctx,
+      int index,
+      boolean fertilized,
+      float fertilizerYield,
+      float upgradeYield,
+      float modifier) {
+    ItemStack stored = seeds.seed(index);
+    ItemStack seed =
+        NeoForge.EVENT_BUS.post(new PlanterPreHarvestEvent(this, stored.copy())).getSeed();
+    if (!seed.isEmpty() && !ItemStack.matches(seed, stored)) {
+      seeds.replaceSeed(index, seed.copyWithCount(1));
     }
 
-    public long lastDraw() {
-        return lastDraw;
+    List<ItemStack> rolled =
+        recipes
+            .get(ctx.level(), seed)
+            .map(recipe -> AteBridge.rollDrops(recipe.drops(), ctx.random()))
+            .orElse(List.of());
+    List<ItemStack> drops = new ArrayList<>(rolled.size());
+    List<ItemStack> extras = new ArrayList<>();
+    for (ItemStack raw : rolled) {
+      drops.add(raw.copyWithCount(ClocheYield.ateCount(raw.getCount(), modifier)));
+      long kept =
+          ClocheYield.keptMicros(
+              raw.getCount(), fertilizerYield, upgradeYield, ctx.numbers().clocheYield());
+      int extra =
+          clocheRemainders.addAndTakeWhole(
+              BuiltInRegistries.ITEM.getKey(raw.getItem()).toString(), kept);
+      if (extra > 0) {
+        extras.add(raw.copyWithCount(extra));
+      }
     }
 
-    public int growing() {
-        return growing;
+    PlanterPostHarvestEvent post =
+        NeoForge.EVENT_BUS.post(new PlanterPostHarvestEvent(this, seeds.seed(index).copy(), drops));
+    for (ItemStack drop : post.getDrops()) {
+      hold(ctx.outputs().insert(drop));
+    }
+    for (ItemStack extra : extras) {
+      hold(ctx.outputs().insert(extra));
     }
 
-    public int upgraded() {
-        return upgraded;
+    if (fertilized) {
+      // The claim made at the start of this tick guarantees these items are there, so consuming
+      // them cannot come up short.
+      ctx.fertilizer().consume(1);
     }
+    seeds.reset(index);
+  }
 
-    public static void serverTick(Level level, BlockPos pos, BlockState state, PlanterBlockEntity planter) {
-        if (planter.ticksSinceCore <= STALE_TICKS && ++planter.ticksSinceCore > STALE_TICKS) {
-            planter.stopFromCore();
-        }
-        boolean wantActive = planter.status == PlanterStatus.GROWING || planter.status == PlanterStatus.SHORT_ON_SOIL;
-        planter.inactiveTicks = wantActive ? 0 : Math.min(planter.inactiveTicks + 1, ACTIVE_OFF_DELAY);
-        boolean active = state.getValue(PlanterBlock.ACTIVE);
-        if (wantActive != active && (wantActive || planter.inactiveTicks >= ACTIVE_OFF_DELAY)) {
-            level.setBlock(pos, state.setValue(PlanterBlock.ACTIVE, wantActive), Block.UPDATE_ALL);
-        }
+  private void flushHeldOutputs(OutputSink outputs) {
+    List<ItemStack> held = new ArrayList<>(heldOutputs);
+    heldOutputs.clear();
+    for (ItemStack stack : held) {
+      hold(outputs.insert(stack));
     }
+  }
 
-    public void tickFromCore(TickContext ctx) {
-        ticksSinceCore = 0;
-        lastDraw = 0;
-        boolean holding = false;
-        if (!heldOutputs.isEmpty()) {
-            flushHeldOutputs(ctx.outputs());
-            setChanged();
-            holding = !heldOutputs.isEmpty();
-        }
-
-        int soilCount = soilAndUpgrades.getAmountAsInt(SOIL);
-        ItemStack soil = soilAndUpgrades.getResource(SOIL).toStack(soilCount);
-        Optional<AteBridge.PlantRecipe> recipe = seeds.size() == 0 || soil.isEmpty()
-                ? Optional.empty() : recipes.get(ctx.level(), seeds.seed(0));
-        if (recipe.isEmpty() || !recipe.get().soilMatches().test(soil)) {
-            if (holding) {
-                setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
-                return;
-            }
-            seeds.resetAll();
-            growing = 0;
-            upgraded = 0;
-            setStatus(PlanterStatus.IDLE);
-            setChanged();
-            return;
-        }
-
-        int nowGrowing = Coverage.growing(seeds.size(), soilCount);
-        UpgradeKind kind1 = upgradeKind(UPGRADE_1);
-        UpgradeKind kind2 = upgradeKind(UPGRADE_2);
-        int count1 = upgradeCount(UPGRADE_1, kind1);
-        int count2 = upgradeCount(UPGRADE_2, kind2);
-        List<Group> groups = Grouping.of(seeds, Coverage.assign(nowGrowing, kind1, count1, kind2, count2));
-
-        // Each group decides once per tick, before any pause, so a paused group still holds its claim and one decision sets both its growth time and its harvest.
-        Map<Group, FertilizerData> fertilized = new HashMap<>();
-        for (Group group : groups) {
-            FertilizerData claimed = ctx.fertilizer().claim(group.size());
-            if (claimed != null) {
-                fertilized.put(group, claimed);
-            }
-        }
-        if (holding) {
-            setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
-            return;
-        }
-
-        growing = nowGrowing;
-        seeds.resetFrom(growing);
-        upgraded = Coverage.upgraded(growing, count1, count2);
-
-        AteNumbers numbers = ctx.numbers();
-        float soilModifier = AteBridge.soilModifier(soil);
-        PlanterStatus paused = null;
-        PlanterTicker.AdvanceResult result = PlanterTicker.advance(seeds, groups,
-                group -> processingTime(ctx, group, soilModifier, fertilized.get(group)),
-                upgrades -> GrowthMath.powerPerSeedTick(numbers, upgrades),
-                ctx.power().stored());
-        if (result.pausedForPower()) {
-            paused = PlanterStatus.PAUSED_FOR_POWER;
-        } else {
-            // This take can't fail, because advance was given ctx.power().stored() and only charges what that covers.
-            ctx.power().tryTake(result.energyUsed());
-            lastDraw = result.energyUsed();
-        }
-
-        for (Group group : groups) {
-            if (!seeds.ready(group.first())) {
-                continue;
-            }
-            FertilizerData fertilizer = fertilized.get(group);
-            float fertilizerYield = fertilizer != null ? fertilizer.yieldMultiplier() : 1.0f;
-            float upgradeYield = group.upgrades().yieldModifier(numbers);
-            float modifier = fertilizerYield * upgradeYield * (float) numbers.clocheYield();
-            if (!ctx.outputs().hasRoomFor(listedDrops(recipe.get().drops(), modifier, group.size()))) {
-                paused = PlanterStatus.PAUSED_EXPORT_FULL;
-                break;
-            }
-            for (int seed : group.seeds()) {
-                harvest(ctx, seed, fertilizer != null, fertilizerYield, upgradeYield, modifier);
-            }
-            // Outputs that did not fit are held until they leave, so later groups wait instead of adding more to the pile.
-            if (!heldOutputs.isEmpty()) {
-                break;
-            }
-        }
-
-        if (!heldOutputs.isEmpty()) {
-            setStatus(PlanterStatus.PAUSED_EXPORT_FULL);
-        } else if (paused != null) {
-            setStatus(paused);
-        } else if (growing < seeds.size()) {
-            setStatus(PlanterStatus.SHORT_ON_SOIL);
-        } else {
-            setStatus(PlanterStatus.GROWING);
-        }
-        setChanged();
+  // Held stacks are split to their item's stack size, because the item stack codec that saves them
+  // rejects counts above 99.
+  private void hold(ItemStack stack) {
+    while (!stack.isEmpty()) {
+      heldOutputs.add(stack.split(stack.getMaxStackSize()));
     }
+  }
 
-    public void stopFromCore() {
-        lastDraw = 0;
-        growing = 0;
-        upgraded = 0;
-        setStatus(PlanterStatus.IDLE);
+  private void setStatus(PlanterStatus next) {
+    status = next;
+  }
+
+  @Override
+  public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+    if (level == null) {
+      return;
     }
-
-    private UpgradeKind upgradeKind(int slot) {
-        return AteBridge.upgradeKind(soilAndUpgrades.getResource(slot).toStack());
+    for (SeedBin.Combo<ItemStack> combo : seeds.combos()) {
+      dropAll(pos, combo.seed().copyWithCount(combo.count()));
     }
-
-    private int upgradeCount(int slot, UpgradeKind kind) {
-        return kind == UpgradeKind.NONE ? 0 : soilAndUpgrades.getAmountAsInt(slot);
+    seeds.clear();
+    for (int slot = 0; slot < soilAndUpgrades.size(); slot++) {
+      dropAll(pos, soilAndUpgrades.getResource(slot).toStack(soilAndUpgrades.getAmountAsInt(slot)));
+      soilAndUpgrades.set(slot, ItemResource.EMPTY, 0);
     }
+    heldOutputs.forEach(stack -> dropAll(pos, stack));
+    heldOutputs.clear();
+  }
 
-    private int processingTime(TickContext ctx, Group group, float soilModifier, @Nullable FertilizerData fertilizer) {
-        float fertilizerSpeed = fertilizer != null ? fertilizer.speedMultiplier() : 1.0f;
-        int time = GrowthMath.growthTime(ctx.numbers(), soilModifier, group.upgrades(), fertilizerSpeed);
-        return NeoForge.EVENT_BUS.post(new PlanterProcessingTimeEvent(this, seeds.seed(group.first()).copy(), time))
-                .getProcessingTime();
+  private void dropAll(BlockPos pos, ItemStack stack) {
+    while (!stack.isEmpty()) {
+      Containers.dropItemStack(
+          level, pos.getX(), pos.getY(), pos.getZ(), stack.split(stack.getMaxStackSize()));
     }
+  }
 
-    // Each drop entry gets one more item per seed than ATE's rounding gives, because the cloche adds at most one extra item per drop and harvest.
-    private static List<ItemStack> listedDrops(List<DropEntry> drops, float modifier, int seedCount) {
-        List<ItemStack> listed = new ArrayList<>(drops.size());
-        for (DropEntry entry : drops) {
-            listed.add(new ItemStack(entry.item(), (ClocheYield.ateCount(entry.max(), modifier) + 1) * seedCount));
-        }
-        return listed;
+  @Override
+  protected void saveAdditional(ValueOutput output) {
+    super.saveAdditional(output);
+    output.putString("status", status.name());
+    if (!lastSoil.isEmpty()) {
+      output.store("last_soil", ItemStack.CODEC, lastSoil);
     }
-
-    private void harvest(TickContext ctx, int index, boolean fertilized, float fertilizerYield, float upgradeYield,
-                         float modifier) {
-        ItemStack stored = seeds.seed(index);
-        ItemStack seed = NeoForge.EVENT_BUS.post(new PlanterPreHarvestEvent(this, stored.copy())).getSeed();
-        if (!seed.isEmpty() && !ItemStack.matches(seed, stored)) {
-            seeds.replaceSeed(index, seed.copyWithCount(1));
-        }
-
-        List<ItemStack> rolled = recipes.get(ctx.level(), seed)
-                .map(recipe -> AteBridge.rollDrops(recipe.drops(), ctx.random()))
-                .orElse(List.of());
-        List<ItemStack> drops = new ArrayList<>(rolled.size());
-        List<ItemStack> extras = new ArrayList<>();
-        for (ItemStack raw : rolled) {
-            drops.add(raw.copyWithCount(ClocheYield.ateCount(raw.getCount(), modifier)));
-            long kept = ClocheYield.keptMicros(raw.getCount(), fertilizerYield, upgradeYield, ctx.numbers().clocheYield());
-            int extra = clocheRemainders.addAndTakeWhole(BuiltInRegistries.ITEM.getKey(raw.getItem()).toString(), kept);
-            if (extra > 0) {
-                extras.add(raw.copyWithCount(extra));
-            }
-        }
-
-        PlanterPostHarvestEvent post = NeoForge.EVENT_BUS.post(
-                new PlanterPostHarvestEvent(this, seeds.seed(index).copy(), drops));
-        for (ItemStack drop : post.getDrops()) {
-            hold(ctx.outputs().insert(drop));
-        }
-        for (ItemStack extra : extras) {
-            hold(ctx.outputs().insert(extra));
-        }
-
-        if (fertilized) {
-            // The claim made at the start of this tick guarantees these items are there, so consuming them cannot come up short.
-            ctx.fertilizer().consume(1);
-        }
-        seeds.reset(index);
+    ValueOutput.ValueOutputList bin = output.childrenList("seeds");
+    for (int i = 0; i < seeds.size(); i++) {
+      ValueOutput entry = bin.addChild();
+      entry.store("seed", ItemStack.CODEC, seeds.seed(i));
+      entry.putInt("progress", seeds.progress(i));
+      entry.putBoolean("ready", seeds.ready(i));
     }
+    // The save key keeps the name from before upgrades were called upgrades, so planter blocks
+    // saved earlier load their soil and upgrades.
+    soilAndUpgrades.serialize(output.child("soil_and_modules"));
+    output.store("cloche_remainders", REMAINDERS_CODEC, clocheRemainders.snapshot());
+    ValueOutput.TypedOutputList<ItemStack> held = output.list("held_outputs", ItemStack.CODEC);
+    heldOutputs.forEach(held::add);
+  }
 
-    private void flushHeldOutputs(OutputSink outputs) {
-        List<ItemStack> held = new ArrayList<>(heldOutputs);
-        heldOutputs.clear();
-        for (ItemStack stack : held) {
-            hold(outputs.insert(stack));
-        }
-    }
-
-    // Held stacks are split to their item's stack size, because the item stack codec that saves them rejects counts above 99.
-    private void hold(ItemStack stack) {
-        while (!stack.isEmpty()) {
-            heldOutputs.add(stack.split(stack.getMaxStackSize()));
-        }
-    }
-
-    private void setStatus(PlanterStatus next) {
-        status = next;
-    }
-
-    @Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        if (level == null) {
-            return;
-        }
-        for (SeedBin.Combo<ItemStack> combo : seeds.combos()) {
-            dropAll(pos, combo.seed().copyWithCount(combo.count()));
-        }
-        seeds.clear();
-        for (int slot = 0; slot < soilAndUpgrades.size(); slot++) {
-            dropAll(pos, soilAndUpgrades.getResource(slot).toStack(soilAndUpgrades.getAmountAsInt(slot)));
-            soilAndUpgrades.set(slot, ItemResource.EMPTY, 0);
-        }
-        heldOutputs.forEach(stack -> dropAll(pos, stack));
-        heldOutputs.clear();
-    }
-
-    private void dropAll(BlockPos pos, ItemStack stack) {
-        while (!stack.isEmpty()) {
-            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack.split(stack.getMaxStackSize()));
-        }
-    }
-
-    @Override
-    protected void saveAdditional(ValueOutput output) {
-        super.saveAdditional(output);
-        output.putString("status", status.name());
-        if (!lastSoil.isEmpty()) {
-            output.store("last_soil", ItemStack.CODEC, lastSoil);
-        }
-        ValueOutput.ValueOutputList bin = output.childrenList("seeds");
-        for (int i = 0; i < seeds.size(); i++) {
-            ValueOutput entry = bin.addChild();
-            entry.store("seed", ItemStack.CODEC, seeds.seed(i));
-            entry.putInt("progress", seeds.progress(i));
-            entry.putBoolean("ready", seeds.ready(i));
-        }
-        // The save key keeps the name from before upgrades were called upgrades, so planter blocks saved earlier load their soil and upgrades.
-        soilAndUpgrades.serialize(output.child("soil_and_modules"));
-        output.store("cloche_remainders", REMAINDERS_CODEC, clocheRemainders.snapshot());
-        ValueOutput.TypedOutputList<ItemStack> held = output.list("held_outputs", ItemStack.CODEC);
-        heldOutputs.forEach(held::add);
-    }
-
-    @Override
-    protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        String savedStatus = input.getStringOr("status", "");
-        status = Arrays.stream(PlanterStatus.values()).filter(value -> value.name().equals(savedStatus)).findFirst()
-                .orElse(PlanterStatus.IDLE);
-        seeds.clear();
-        input.childrenListOrEmpty("seeds").stream().limit(SeedBin.CAPACITY).forEach(entry -> entry.read("seed", ItemStack.CODEC)
-                .ifPresent(seed -> seeds.restore(seed, Math.max(0, entry.getIntOr("progress", 0)),
-                        entry.getBooleanOr("ready", false))));
-        soilAndUpgrades.deserialize(input.childOrEmpty("soil_and_modules"));
-        ItemStack savedSoil = soilAndUpgrades.getResource(SOIL).toStack();
-        lastSoil = input.read("last_soil", ItemStack.CODEC)
-                .orElse(savedSoil.isEmpty() ? ItemStack.EMPTY : savedSoil.copyWithCount(1));
-        clocheRemainders.load(input.read("cloche_remainders", REMAINDERS_CODEC).orElse(Map.of()));
-        heldOutputs.clear();
-        input.listOrEmpty("held_outputs", ItemStack.CODEC).stream().limit(HELD_OUTPUTS_CAP).forEach(heldOutputs::add);
-    }
+  @Override
+  protected void loadAdditional(ValueInput input) {
+    super.loadAdditional(input);
+    String savedStatus = input.getStringOr("status", "");
+    status =
+        Arrays.stream(PlanterStatus.values())
+            .filter(value -> value.name().equals(savedStatus))
+            .findFirst()
+            .orElse(PlanterStatus.IDLE);
+    seeds.clear();
+    input.childrenListOrEmpty("seeds").stream()
+        .limit(SeedBin.CAPACITY)
+        .forEach(
+            entry ->
+                entry
+                    .read("seed", ItemStack.CODEC)
+                    .ifPresent(
+                        seed ->
+                            seeds.restore(
+                                seed,
+                                Math.max(0, entry.getIntOr("progress", 0)),
+                                entry.getBooleanOr("ready", false))));
+    soilAndUpgrades.deserialize(input.childOrEmpty("soil_and_modules"));
+    ItemStack savedSoil = soilAndUpgrades.getResource(SOIL).toStack();
+    lastSoil =
+        input
+            .read("last_soil", ItemStack.CODEC)
+            .orElse(savedSoil.isEmpty() ? ItemStack.EMPTY : savedSoil.copyWithCount(1));
+    clocheRemainders.load(input.read("cloche_remainders", REMAINDERS_CODEC).orElse(Map.of()));
+    heldOutputs.clear();
+    input.listOrEmpty("held_outputs", ItemStack.CODEC).stream()
+        .limit(HELD_OUTPUTS_CAP)
+        .forEach(heldOutputs::add);
+  }
 }

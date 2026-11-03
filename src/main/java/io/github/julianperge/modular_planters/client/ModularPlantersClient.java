@@ -11,17 +11,16 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 @EventBusSubscriber(modid = ModularPlanters.MOD_ID, value = Dist.CLIENT)
 public final class ModularPlantersClient {
-    private ModularPlantersClient() {
-    }
+  private ModularPlantersClient() {}
 
-    @SubscribeEvent
-    public static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(MPMenus.FERTILIZER.get(), StorageScreen::new);
-        event.register(MPMenus.EXPORT.get(), StorageScreen::new);
-        event.register(MPMenus.PLANTER.get(), PlanterScreen::new);
-        event.register(MPMenus.CORE.get(), CoreScreen::new);
-        if (ModList.get().isLoaded("ae2")) {
-            Ae2Client.registerScreens(event);
-        }
+  @SubscribeEvent
+  public static void registerScreens(RegisterMenuScreensEvent event) {
+    event.register(MPMenus.FERTILIZER.get(), StorageScreen::new);
+    event.register(MPMenus.EXPORT.get(), StorageScreen::new);
+    event.register(MPMenus.PLANTER.get(), PlanterScreen::new);
+    event.register(MPMenus.CORE.get(), CoreScreen::new);
+    if (ModList.get().isLoaded("ae2")) {
+      Ae2Client.registerScreens(event);
     }
+  }
 }

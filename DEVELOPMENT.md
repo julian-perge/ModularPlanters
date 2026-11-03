@@ -10,14 +10,14 @@ The first build downloads Minecraft, NeoForge and the dev mods, so it takes a fe
 
 ## Gradle tasks
 
-| Command | What it does |
-|---|---|
-| `./gradlew build` | Compiles, runs the unit tests and builds the jar into `build/libs/` |
-| `./gradlew test` | Runs the unit tests in `src/test` |
+| Command                       | What it does                                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| `./gradlew build`             | Compiles, runs the unit tests and builds the jar into `build/libs/`                            |
+| `./gradlew test`              | Runs the unit tests in `src/test`                                                              |
 | `./gradlew runGameTestServer` | Starts a headless server that runs the in-game tests in `src/main/java/.../gametest` and exits |
-| `./gradlew runClient` | Starts a dev client with the mod and the dev mods below |
-| `./gradlew runServer` | Starts a dev dedicated server with no GUI |
-| `./gradlew runData` | Regenerates `src/generated/resources` (recipes, loot tables, lang, models) |
+| `./gradlew runClient`         | Starts a dev client with the mod and the dev mods below                                        |
+| `./gradlew runServer`         | Starts a dev dedicated server with no GUI                                                      |
+| `./gradlew runData`           | Regenerates `src/generated/resources` (recipes, loot tables, lang, models)                     |
 
 Run `./gradlew test` and `./gradlew runGameTestServer` before opening a pull request.
 
@@ -33,15 +33,15 @@ Run `./gradlew test` and `./gradlew runGameTestServer` before opening a pull req
 
 These are on the dev runtime (`runClient`, `runServer`, `runGameTestServer`) but not in the jar. Agritech: Evolved is the only required dependency. Each switch below leaves a mod out of a run, for example `./gradlew runClient -PnoAe2`.
 
-| Mod | Version | Comes with | Switch |
-|---|---|---|---|
-| Agritech: Evolved | 2.2.0.6 | | required |
-| Jade | 26.1.12 | | `-PnoJade` |
-| AE2 | 26.1.13-beta | GuideME 26.1.15-beta | `-PnoAe2` |
-| Applied Flux | 26.1-1.0.2 | Glodium 26.1-1.2 | `-PnoAppliedFlux`, also off with `-PnoAe2` |
-| Powah | 7.0.4-alpha | Cloth Config 26.1.154, GuideME | `-PnoPowah` |
-| Oracle Index | 2.0.0 | Architectury 20.1.17 | `-PnoOracleIndex` |
-| Logistics Networks | 26.1.2-1.13.0 | | `-PnoLogisticsNetworks` |
+| Mod                | Version       | Comes with                     | Switch                                     |
+| ------------------ | ------------- | ------------------------------ | ------------------------------------------ |
+| Agritech: Evolved  | 2.2.0.6       |                                | required                                   |
+| Jade               | 26.1.12       |                                | `-PnoJade`                                 |
+| AE2                | 26.1.13-beta  | GuideME 26.1.15-beta           | `-PnoAe2`                                  |
+| Applied Flux       | 26.1-1.0.2    | Glodium 26.1-1.2               | `-PnoAppliedFlux`, also off with `-PnoAe2` |
+| Powah              | 7.0.4-alpha   | Cloth Config 26.1.154, GuideME | `-PnoPowah`                                |
+| Oracle Index       | 2.0.0         | Architectury 20.1.17           | `-PnoOracleIndex`                          |
+| Logistics Networks | 26.1.2-1.13.0 |                                | `-PnoLogisticsNetworks`                    |
 
 The mod has code only for Jade, AE2 and Applied Flux. Powah is there for its fast FE source and cables. Oracle Index shows the guide, and Logistics Networks lets you test a node on the core. Most versions match the ones the All the Mods 11 modpack runs. Applied Flux isn't in that pack, and its AE2 build can differ.
 

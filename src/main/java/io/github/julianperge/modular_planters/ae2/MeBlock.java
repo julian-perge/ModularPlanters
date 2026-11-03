@@ -14,21 +14,23 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 public class MeBlock extends PartBlock implements EntityBlock {
-    public MeBlock(Properties properties) {
-        super(properties, PartType.ME);
-    }
+  public MeBlock(Properties properties) {
+    super(properties, PartType.ME);
+  }
 
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new MeBlockEntity(pos, state);
-    }
+  @Override
+  public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    return new MeBlockEntity(pos, state);
+  }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
-                && level.getBlockEntity(pos) instanceof MeBlockEntity entity) {
-            serverPlayer.openMenu(entity, pos);
-        }
-        return InteractionResult.SUCCESS;
+  @Override
+  protected InteractionResult useWithoutItem(
+      BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    if (!level.isClientSide()
+        && player instanceof ServerPlayer serverPlayer
+        && level.getBlockEntity(pos) instanceof MeBlockEntity entity) {
+      serverPlayer.openMenu(entity, pos);
     }
+    return InteractionResult.SUCCESS;
+  }
 }

@@ -9,12 +9,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 public class PowerBlock extends PartBlock implements EntityBlock {
-    public PowerBlock(Properties properties) {
-        super(properties, PartType.POWER);
-    }
+  public PowerBlock(Properties properties) {
+    super(properties, PartType.POWER);
+  }
 
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new PowerBlockEntity(pos, state);
-    }
+  @Override
+  public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    return new PowerBlockEntity(pos, state);
+  }
 }

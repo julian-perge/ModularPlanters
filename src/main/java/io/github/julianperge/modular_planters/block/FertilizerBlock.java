@@ -14,21 +14,23 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 public class FertilizerBlock extends PartBlock implements EntityBlock {
-    public FertilizerBlock(Properties properties) {
-        super(properties, PartType.FERTILIZER);
-    }
+  public FertilizerBlock(Properties properties) {
+    super(properties, PartType.FERTILIZER);
+  }
 
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new FertilizerBlockEntity(pos, state);
-    }
+  @Override
+  public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    return new FertilizerBlockEntity(pos, state);
+  }
 
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
-                && level.getBlockEntity(pos) instanceof FertilizerBlockEntity entity) {
-            serverPlayer.openMenu(entity);
-        }
-        return InteractionResult.SUCCESS;
+  @Override
+  protected InteractionResult useWithoutItem(
+      BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    if (!level.isClientSide()
+        && player instanceof ServerPlayer serverPlayer
+        && level.getBlockEntity(pos) instanceof FertilizerBlockEntity entity) {
+      serverPlayer.openMenu(entity);
     }
+    return InteractionResult.SUCCESS;
+  }
 }
