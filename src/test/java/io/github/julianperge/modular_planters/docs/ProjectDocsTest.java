@@ -6,17 +6,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Checks the project's own docs: the CurseForge and Modrinth page, the README and the contributor files.
- * The page is pasted into CurseForge and Modrinth, so a link to a file that isn't committed breaks there
- * without any build noticing.
+ * The page is pasted into CurseForge and Modrinth, so a link to a file that isn't in git, or that differs in
+ * case, breaks there without any build noticing.
  */
 class ProjectDocsTest {
     static final List<Path> DOCS = List.of(
@@ -29,13 +33,17 @@ class ProjectDocsTest {
             Path.of(".github/PULL_REQUEST_TEMPLATE.md"),
             Path.of("README.md"));
 
+    private static final int EM_DASH = 0x2014;
+    private static final int EN_DASH = 0x2013;
+    private static final Path PAGE = Path.of("docs/description.md");
+    private static final String RAW = "https://raw.githubusercontent.com/julian-perge/ModularPlanters/";
+
     private static final Pattern BARE_BLOCK_NAME =
             Pattern.compile("(?<!Modular )Planter (Core|Block|Power|Fertilizer|Export|ME|Frame)");
     private static final Pattern MARKDOWN_TARGET = Pattern.compile("\\]\\(([^)\\s]+)(?:\\s+\"[^\"]*\")?\\)");
     private static final Pattern HTML_TARGET = Pattern.compile("(?:src|href)=\"([^\"]+)\"");
-    private static final Pattern REPO_URL = Pattern.compile(
-            "https://(?:raw\\.githubusercontent\\.com/julian-perge/ModularPlanters/main/"
-                    + "|github\\.com/julian-perge/ModularPlanters/(?:blob|tree)/main/)([^\\s)\"'>#]+)");
+    private static final Pattern GITHUB_URL = Pattern.compile(
+            "https://(raw\\.githubusercontent\\.com|github\\.com)/([^/\\s)\"'>]+)/([^/\\s)\"'>]+)/?([^\\s)\"'>#?]*)");
 
     @Test
     void readmeLinksGuideContributorDocsAndLogo() throws IOException {
@@ -61,7 +69,7 @@ class ProjectDocsTest {
     void noUnicodeDashes() throws IOException {
         for (Path doc : existing()) {
             String text = Files.readString(doc);
-            assertTrue(text.indexOf('—') < 0 && text.indexOf('–') < 0, doc + " has an em or en dash");
+            assertTrue(text.indexOf(EM_DASH) < 0 && text.indexOf(EN_DASH) < 0, doc + " has an em or en dash");
         }
     }
 
@@ -76,22 +84,103 @@ class ProjectDocsTest {
     }
 
     @Test
-    void linksResolve() throws IOException {
+    void linksResolve() throws IOException, InterruptedException {
+        Set<String> tracked = trackedFiles();
         for (Path doc : existing()) {
-            String text = Files.readString(doc);
-            for (String target : targets(text)) {
-                if (target.startsWith("http://") || target.startsWith("https://") || target.startsWith("#")
-                        || target.startsWith("mailto:")) {
-                    continue;
-                }
-                Path resolved = doc.toAbsolutePath().getParent().resolve(target.replaceFirst("#.*$", "")).normalize();
-                assertTrue(Files.exists(resolved), doc + " links to missing " + target);
+            List<String> broken = brokenLinks(doc, Files.readString(doc), tracked);
+            assertTrue(broken.isEmpty(), doc + " has broken links: " + broken);
+        }
+    }
+
+    @Test
+    void wrongCaseRawUrlIsBroken() {
+        assertEquals(1, brokenLinks(PAGE, "![x](" + RAW + "main/docs/media/BANNER.JPG)", Set.of("docs/media/banner.jpg")).size());
+    }
+
+    @Test
+    void untrackedFileIsBroken() {
+        assertEquals(1, brokenLinks(PAGE, "![x](" + RAW + "main/docs/media/banner.jpg)", Set.of()).size());
+    }
+
+    @Test
+    void otherBranchIsBroken() {
+        assertEquals(1, brokenLinks(PAGE, "![x](" + RAW + "master/docs/media/banner.jpg)", Set.of("docs/media/banner.jpg")).size());
+    }
+
+    @Test
+    void otherOwnerIsBroken() {
+        String url = "https://raw.githubusercontent.com/julian-perg/ModularPlanters/main/docs/media/banner.jpg";
+        assertEquals(1, brokenLinks(PAGE, "![x](" + url + ")", Set.of("docs/media/banner.jpg")).size());
+    }
+
+    @Test
+    void wrongCaseRelativeLinkIsBroken() {
+        assertEquals(1, brokenLinks(Path.of("README.md"), "[x](contributing.md)", Set.of("CONTRIBUTING.md")).size());
+    }
+
+    @Test
+    void trackedLinksAreFine() {
+        String text = "![x](" + RAW + "main/docs/media/banner.jpg) [g](https://github.com/julian-perge/ModularPlanters/tree/main/wiki)"
+                + " [i](https://github.com/julian-perge/ModularPlanters/issues/new?template=bug_report.yml) [w](../wiki/)";
+        assertEquals(List.of(), brokenLinks(PAGE, text, Set.of("docs/media/banner.jpg", "wiki/docs/overview.mdx")));
+    }
+
+    /**
+     * Returns every link in the text that would break on GitHub, CurseForge or Modrinth. Relative links and links
+     * into this repo must name a file or folder in the git index, with the exact case, because GitHub paths are
+     * case-sensitive while the macOS file system is not. A link into the repo must also use the julian-perge owner
+     * and the main branch, since that is what the published page loads.
+     */
+    private static List<String> brokenLinks(Path doc, String text, Set<String> tracked) {
+        List<String> broken = new ArrayList<>();
+        for (String target : targets(text)) {
+            if (target.startsWith("http://") || target.startsWith("https://") || target.startsWith("#")
+                    || target.startsWith("mailto:")) {
+                continue;
             }
-            Matcher repo = REPO_URL.matcher(text);
-            while (repo.find()) {
-                assertTrue(Files.exists(Path.of(repo.group(1))), doc + " links to " + repo.group() + ", which is not in the repo");
+            Path base = doc.getParent() == null ? Path.of("") : doc.getParent();
+            String path = base.resolve(target.replaceFirst("#.*$", "")).normalize().toString();
+            if (!isTracked(path, tracked)) {
+                broken.add(target);
             }
         }
+        Matcher url = GITHUB_URL.matcher(text);
+        while (url.find()) {
+            String owner = url.group(2);
+            String repo = url.group(3);
+            String rest = url.group(4);
+            if (!repo.equalsIgnoreCase("ModularPlanters")) {
+                continue;
+            }
+            if (!owner.equals("julian-perge") || !repo.equals("ModularPlanters")) {
+                broken.add(url.group());
+                continue;
+            }
+            String branchAndPath;
+            if (url.group(1).startsWith("raw.")) {
+                branchAndPath = rest;
+            } else if (rest.startsWith("blob/") || rest.startsWith("tree/")) {
+                branchAndPath = rest.substring("blob/".length());
+            } else {
+                continue;
+            }
+            if (!branchAndPath.startsWith("main/") || !isTracked(branchAndPath.substring("main/".length()), tracked)) {
+                broken.add(url.group());
+            }
+        }
+        return broken;
+    }
+
+    private static boolean isTracked(String path, Set<String> tracked) {
+        String file = path.replaceFirst("/$", "");
+        return tracked.contains(file) || tracked.stream().anyMatch(entry -> entry.startsWith(file + "/"));
+    }
+
+    private static Set<String> trackedFiles() throws IOException, InterruptedException {
+        Process git = new ProcessBuilder("git", "ls-files").redirectErrorStream(true).start();
+        Set<String> files = new TreeSet<>(Arrays.asList(new String(git.getInputStream().readAllBytes()).split("\n")));
+        assertEquals(0, git.waitFor(), "git ls-files failed: " + files);
+        return files;
     }
 
     private static List<String> targets(String text) {
