@@ -1,6 +1,7 @@
 package io.github.julianperge.modular_planters.docs;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -16,6 +18,7 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Checks the project's own docs: the CurseForge and Modrinth page, the README and the contributor files.
@@ -85,11 +88,18 @@ class ProjectDocsTest {
 
     @Test
     void linksResolve() throws IOException, InterruptedException {
-        Set<String> tracked = trackedFiles();
+        Optional<Set<String>> files = trackedFiles(Path.of("").toAbsolutePath());
+        assumeTrue(files.isPresent(), "not a git clone, so the link check is skipped");
+        Set<String> tracked = files.get();
         for (Path doc : existing()) {
             List<String> broken = brokenLinks(doc, Files.readString(doc), tracked);
             assertTrue(broken.isEmpty(), doc + " has broken links: " + broken);
         }
+    }
+
+    @Test
+    void noTrackedFilesOutsideAGitClone(@TempDir Path dir) throws IOException, InterruptedException {
+        assertEquals(Optional.empty(), trackedFiles(dir));
     }
 
     @Test
@@ -176,11 +186,21 @@ class ProjectDocsTest {
         return tracked.contains(file) || tracked.stream().anyMatch(entry -> entry.startsWith(file + "/"));
     }
 
-    private static Set<String> trackedFiles() throws IOException, InterruptedException {
-        Process git = new ProcessBuilder("git", "ls-files").redirectErrorStream(true).start();
-        Set<String> files = new TreeSet<>(Arrays.asList(new String(git.getInputStream().readAllBytes()).split("\n")));
-        assertEquals(0, git.waitFor(), "git ls-files failed: " + files);
-        return files;
+    /**
+     * Returns the files git tracks in the folder, or nothing when the folder isn't a git clone or git isn't
+     * installed, as with source downloaded as a zip. The link check then skips instead of failing the build.
+     */
+    private static Optional<Set<String>> trackedFiles(Path dir) throws InterruptedException {
+        try {
+            Process git = new ProcessBuilder("git", "ls-files").directory(dir.toFile()).redirectErrorStream(true).start();
+            String output = new String(git.getInputStream().readAllBytes());
+            if (git.waitFor() != 0) {
+                return Optional.empty();
+            }
+            return Optional.of(new TreeSet<>(Arrays.asList(output.split("\n"))));
+        } catch (IOException e) {
+            return Optional.empty();
+        }
     }
 
     private static List<String> targets(String text) {
