@@ -34,6 +34,7 @@ class ProjectDocsTest {
             Path.of(".github/ISSUE_TEMPLATE/feature_request.yml"),
             Path.of(".github/ISSUE_TEMPLATE/config.yml"),
             Path.of(".github/PULL_REQUEST_TEMPLATE.md"),
+            Path.of("CHANGELOG.md"),
             Path.of("README.md"));
 
     private static final int EM_DASH = 0x2014;
