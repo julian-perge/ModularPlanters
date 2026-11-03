@@ -150,6 +150,10 @@ neoForge.ideSyncTask generateModMetadata
 
 tasks.named('test') {
     useJUnitPlatform()
+    // The release script and docs tests read these files from the repo instead of the classpath, so Gradle has to track them to rerun those tests after an edit.
+    inputs.files('tools', '.github', 'docs/description.md', 'docs/media', 'README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'DEVELOPMENT.md')
+            .withPropertyName('repoFilesReadByTests')
+            .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
 tasks.named('processResources', ProcessResources) {
