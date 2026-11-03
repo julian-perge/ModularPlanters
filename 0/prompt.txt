@@ -1,0 +1,13 @@
+1. plan looks good
+2. For the banner, `terrace-front_right__a.png` is the banner I want to use, but cant remember what the page sections were for choosing those images.
+3. .gitignore can be committed, build.gradle can also be committed .
+4. Those changes will stay local for now.
+5. Summary length is 256 characters from CurseForge. Current summary is fine though, no need to change.
+
+---
+
+Ive selected the ones in the html page, and for 2 use @~/Documents/moduarplanters_cropped_planter_core_screen.png  , for 5 Jade GUI use @~/Documents/modularplanters_jade_gui.png  . I will need to take a screenshot of the guide page and Logistics Network node attached
+
+---
+
+native, commits approved
