@@ -167,7 +167,7 @@ tasks.named('jar') {
     from('LICENSE.md', 'LICENSE-ATE.md')
 }
 
-// The release workflow builds and tests the jar in one job and passes it here with -PpublishJar, so the published jar is the one that was tested.
+// The release workflow's checks build the jar once, and each publish job downloads that jar and passes it here with -PpublishJar, so every site gets the same jar instead of a rebuild.
 def publishJar = providers.gradleProperty('publishJar')
 
 publishMods {
@@ -176,7 +176,7 @@ publishMods {
         commandLine 'bash', file('tools/changelog-section.sh').path, project.version.toString(), file('CHANGELOG.md').path
     }.standardOutput.asText
     displayName = "${mod_name} ${project.version}"
-    type =mod_version.contains('-alpha') ? ALPHA : mod_version.contains('-beta') ? BETA : STABLE
+    type = mod_version.contains('-alpha') ? ALPHA : mod_version.contains('-beta') ? BETA : STABLE
     modLoaders.add('neoforge')
     dryRun = providers.environmentVariable('DRY_RUN').present
 

@@ -28,7 +28,7 @@ Run `just` to list the recipes. Each one wraps a Gradle task or a script in `too
 | `just changelog <tag>`  | Prints the changelog notes for one release                                                                |
 | `just release-check`    | Checks that the version is ready to tag, then dry-runs the publish                                        |
 
-Run `just check` and `just lint` before opening a pull request. The Build workflow runs the same checks on every push and pull request.
+Run `just check` and `just lint` before opening a pull request. After changing anything in `datagen`, also run `just data` and commit the result. The Build workflow runs all of these on every push and pull request, and fails if `runData` would change `src/generated`.
 
 ## Where things live
 
@@ -58,11 +58,11 @@ The mod has code only for Jade, AE2 and Applied Flux. Powah is there for its fas
 
 ## Releasing
 
-A release tag is `<minecraft_version>-<mod_version>`, for example `26.1.2-0.1.0`. Pushing one runs the Release workflow. It checks the tag, runs the same checks as every push, then uploads the jar those checks built to a GitHub release, CurseForge and Modrinth.
+A release tag is `<minecraft_version>-<mod_version>`, for example `26.1.2-0.1.0` or `26.3-0.2.0`. Pushing one runs the Release workflow. It checks the tag and runs the same checks as every push. Then it makes a GitHub release with the jar those checks built, and after that uploads the same jar to CurseForge and Modrinth.
 
-1. Set `mod_version` in `gradle.properties`. A `-alpha` or `-beta` suffix, such as `0.2.0-beta`, publishes an alpha or a beta. Without one it is a full release.
+1. Set `mod_version` in `gradle.properties` to three numbers, such as `0.2.0`. A `-alpha` or `-beta` suffix, such as `0.2.0-beta`, publishes an alpha or a beta. Without one it is a full release.
 2. Add a `## <tag>` section to the top of `CHANGELOG.md`, below the intro line. Its notes become the release notes on all three sites.
-3. Run `just release-check`. It fails if the tag and `gradle.properties` disagree or the changelog has no notes for the tag, then dry-runs the publish.
+3. Run `just release-check`. It builds the tag from `gradle.properties`, fails if the tag has the wrong format or the changelog has no notes for it, then dry-runs the publish.
 4. Commit, then run `git tag <tag> && git push origin main <tag>`.
 
 The workflow reads the repository secrets `CURSEFORGE_API_KEY` and `MODRINTH_API_KEY`, and the project ids `curseforge_project_id` and `modrinth_project_id` in `gradle.properties`. An empty id skips that site, and the run logs a notice saying so. The GitHub release uses the workflow's own token.

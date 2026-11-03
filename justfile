@@ -26,7 +26,7 @@ test:
 gametest *flags:
     ./gradlew runGameTestServer "$@"
 
-[doc('Run the unit tests, then the in-game tests with all dev mods, without AE2 and without Applied Flux, like CI does')]
+[doc('Run the unit tests, then the in-game tests with all dev mods, without AE2 and without Applied Flux, the three ways CI runs them')]
 [group('gradle')]
 check:
     ./gradlew test
