@@ -46,6 +46,13 @@ class ProjectDocsTest {
     }
 
     @Test
+    void noShotPlaceholdersLeft() throws IOException {
+        for (Path doc : existing()) {
+            assertTrue(!Files.readString(doc).contains("<!-- shot:"), doc + " still has a screenshot placeholder");
+        }
+    }
+
+    @Test
     void filesExist() {
         DOCS.forEach(doc -> assertTrue(Files.isRegularFile(doc), doc + " does not exist"));
     }

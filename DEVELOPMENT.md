@@ -26,7 +26,7 @@ Run `./gradlew test` and `./gradlew runGameTestServer` before opening a pull req
 - `src/main/java`: the mod. The `gametest` and `datagen` packages are left out of the jar.
 - `src/generated/resources`: output of `runData`. It is committed, so run `runData` and commit the result after changing anything in `datagen`.
 - `wiki/`: the guide's pages. `processResources` copies them into the jar, where Oracle Index reads them as a book.
-- `docs/description.md` and `docs/media/`: the CurseForge and Modrinth page and its images.
+- `docs/description.md` and `docs/media/`: the CurseForge and Modrinth page and its images. World shots are JPEG. Screenshots of screens are PNG, compressed with `pngquant --quality=80-95 --speed 1 --strip --force --ext .png <files>` and then `oxipng -o 4 --strip safe <files>` (`brew install pngquant oxipng`). The logo PNGs are left as `tools/render_logo.py` writes them.
 - `tools/render_logo.py`: draws the logo from the block textures. Run `uv run tools/render_logo.py` after changing a block texture, and commit both `docs/media/logo.png` and `src/main/resources/logo.png`.
 
 ## Dev mods

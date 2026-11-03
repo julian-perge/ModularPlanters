@@ -29,7 +29,7 @@ The Modular Planter Core's screen lists every Modular Planter Block with its see
 
 Energy and fertilizer go in through the Modular Planter Core, and harvests come out of it. One Logistics Networks node, cable or pipe on the core runs the whole multiblock.
 
-<!-- shot: ln-node.png -->
+![A Logistics Networks node on a Modular Planter Core](https://raw.githubusercontent.com/julian-perge/ModularPlanters/main/docs/media/ln-node.png)
 
 ## AE2 and Applied Flux
 
@@ -43,7 +43,7 @@ The full guide is in game through Oracle Index. Jade shows whether a Modular Pla
 
 ![A Jade tooltip on a Modular Planter Core](https://raw.githubusercontent.com/julian-perge/ModularPlanters/main/docs/media/jade.png)
 
-<!-- shot: guide-page.png -->
+![The Modular Planters guide in Oracle Index](https://raw.githubusercontent.com/julian-perge/ModularPlanters/main/docs/media/guide-page.png)
 
 ## Credits
 
