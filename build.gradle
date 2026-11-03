@@ -105,6 +105,18 @@ dependencies {
         localRuntime "org.appliedenergistics:guideme:${guideme_version}"
     }
 
+    // Oracle Index shows the guide book in dev runs. The mod has no code for it. Oracle Index needs Architectury.
+    // z4LDmExp is the Modrinth maven id of the NeoForge 2.0.0 release, because the version number 2.0.0 also names the Fabric jar.
+    if (!project.hasProperty('noOracleIndex')) {
+        localRuntime "maven.modrinth:oracle-index:z4LDmExp"
+        localRuntime "maven.modrinth:architectury-api:20.1.17+neoforge"
+    }
+
+    // Logistics Networks lets dev runs check a node on the core. The mod has no code for it. This is the version ATM11 runs.
+    if (!project.hasProperty('noLogisticsNetworks')) {
+        localRuntime "curse.maven:logistics-networks-1448257:9115811"
+    }
+
     // Structure Lab takes screenshots for the project page. It is a local jar, so it loads only when a path is given.
     if (project.hasProperty('structureLabJar')) {
         localRuntime files(project.property('structureLabJar'))
