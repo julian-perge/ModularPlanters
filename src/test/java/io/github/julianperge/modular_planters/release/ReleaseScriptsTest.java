@@ -63,10 +63,38 @@ class ReleaseScriptsTest {
     assertEquals(1, run(dir, "check-release.sh", "26.1.2-0.1.0", dir.toString()).exit());
   }
 
+  @Test
+  void checkReleaseAcceptsATwoPartMinecraftVersion(@TempDir Path dir) throws Exception {
+    writeRepo(dir, "26.3", "0.2.0", "## 26.3-0.2.0\n\n- second\n");
+    Result result = run(dir, "check-release.sh", "26.3-0.2.0", dir.toString());
+    assertEquals(0, result.exit(), result.stderr());
+  }
+
+  @Test
+  void checkReleaseRejectsAModVersionWithoutThreeParts(@TempDir Path dir) throws Exception {
+    writeRepo(dir, "0.2", "## 26.1.2-0.2\n\n- second\n");
+    assertEquals(1, run(dir, "check-release.sh", "26.1.2-0.2", dir.toString()).exit());
+  }
+
+  @Test
+  void checkReleaseRejectsASuffixOtherThanAlphaOrBeta(@TempDir Path dir) throws Exception {
+    writeRepo(dir, "0.2.0-rc1", "## 26.1.2-0.2.0-rc1\n\n- second\n");
+    assertEquals(1, run(dir, "check-release.sh", "26.1.2-0.2.0-rc1", dir.toString()).exit());
+  }
+
   private static void writeRepo(Path dir, String modVersion, String changelog) throws IOException {
+    writeRepo(dir, "26.1.2", modVersion, changelog);
+  }
+
+  private static void writeRepo(
+      Path dir, String minecraftVersion, String modVersion, String changelog) throws IOException {
     Files.writeString(
         dir.resolve("gradle.properties"),
-        "minecraft_version=26.1.2\nmod_id=modular_planters\nmod_version=" + modVersion + "\n");
+        "minecraft_version="
+            + minecraftVersion
+            + "\nmod_id=modular_planters\nmod_version="
+            + modVersion
+            + "\n");
     Files.writeString(dir.resolve("CHANGELOG.md"), "# Changelog\n\n" + changelog);
   }
 

@@ -1,8 +1,10 @@
 name: Release
 
+# Any tag shaped like a release starts this, such as 26.1.2-0.1.0 or 26.3-0.2.0, and the verify job stops every tag that
+# isn't the version in gradle.properties.
 on:
   push:
-    tags: ["*.*.*-*.*.*"]
+    tags: ["*.*-*.*.*"]
 
 permissions:
   contents: read
@@ -46,7 +48,7 @@ jobs:
         with:
           distribution: microsoft
           java-version: "25"
-      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
       - uses: actions/download-artifact@v8
         with:
           name: jar
@@ -56,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   curseforge:
-    needs: [verify, checks]
+    needs: [verify, github]
     if: needs.verify.outputs.curseforge != ''
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +67,7 @@ jobs:
         with:
           distribution: microsoft
           java-version: "25"
-      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
       - uses: actions/download-artifact@v8
         with:
           name: jar
@@ -75,7 +77,7 @@ jobs:
           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
 
   modrinth:
-    needs: [verify, checks]
+    needs: [verify, github]
     if: needs.verify.outputs.modrinth != ''
     runs-on: ubuntu-latest
     steps:
@@ -84,7 +86,7 @@ jobs:
         with:
           distribution: microsoft
           java-version: "25"
-      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+      - uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
       - uses: actions/download-artifact@v8
         with:
           name: jar
