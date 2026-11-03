@@ -2,8 +2,8 @@
 
 ## Setup
 
-- JDK 25. Gradle's toolchain finds it, or downloads one if none is installed.
-- The Gradle wrapper in this repo (`./gradlew`). Nothing else needs installing.
+- A JDK 17 or newer on your `PATH` or in `JAVA_HOME`, to start Gradle 9.2.1 through the wrapper (`./gradlew`).
+- The build compiles and runs with JDK 25. Gradle finds an installed JDK 25 or downloads one through the Foojay toolchain resolver, so installing JDK 25 yourself covers both needs.
 - An IDE is optional. IntelliJ IDEA imports the project from `build.gradle`, and the `idea` plugin downloads sources and javadoc for Minecraft and NeoForge.
 
 The first build downloads Minecraft, NeoForge and the dev mods, so it takes a few minutes.
@@ -43,7 +43,7 @@ These are on the dev runtime (`runClient`, `runServer`, `runGameTestServer`) but
 | Oracle Index | 2.0.0 | Architectury 20.1.17 | `-PnoOracleIndex` |
 | Logistics Networks | 26.1.2-1.13.0 | | `-PnoLogisticsNetworks` |
 
-The mod has code only for Jade, AE2 and Applied Flux. Powah is there for its fast FE source and cables. Oracle Index shows the guide, and Logistics Networks lets you test a node on the core. The versions match the ones ATM11 runs.
+The mod has code only for Jade, AE2 and Applied Flux. Powah is there for its fast FE source and cables. Oracle Index shows the guide, and Logistics Networks lets you test a node on the core. Most versions match the ones the All the Mods 11 modpack runs. Applied Flux isn't in that pack, and its AE2 build can differ.
 
 ## Screenshots with Structure Lab
 

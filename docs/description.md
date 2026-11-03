@@ -15,7 +15,7 @@ Needs Minecraft 26.1.2, NeoForge 26.1.2.116 or newer, and Agritech: Evolved 2.2.
 
 ## Build it your way
 
-Connect a Modular Planter Core to power, fertilizer, export and planter blocks in any shape, face to face, up to 24 parts. Modular Planter Frames fill the gaps.
+Connect a Modular Planter Core to power, fertilizer, export and planter blocks in any shape, face to face, up to 24 parts by default. Modular Planter Frames fill the gaps.
 
 ![A vertical farm, a rosette and a trellis](https://raw.githubusercontent.com/julian-perge/ModularPlanters/main/docs/media/builds.jpg)
 
