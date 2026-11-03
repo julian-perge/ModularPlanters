@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'net.neoforged.moddev' version '2.0.141'
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.1'
     id 'idea'
 }
 
@@ -160,6 +161,52 @@ tasks.named('processResources', ProcessResources) {
 tasks.named('jar') {
     exclude '**/gametest/**', '**/datagen/**', 'data/modular_planters/structure/empty.nbt'
     from('LICENSE.md', 'LICENSE-ATE.md')
+}
+
+// The release workflow builds and tests the jar in one job and passes it here with -PpublishJar, so the published jar is the one that was tested.
+def publishJar = providers.gradleProperty('publishJar')
+
+publishMods {
+    file = publishJar.present ? layout.projectDirectory.file(publishJar.get()) : jar.archiveFile
+    changelog = providers.exec {
+        commandLine 'bash', file('tools/changelog-section.sh').path, project.version.toString(), file('CHANGELOG.md').path
+    }.standardOutput.asText
+    displayName = "${mod_name} ${project.version}"
+    type =mod_version.contains('-alpha') ? ALPHA : mod_version.contains('-beta') ? BETA : STABLE
+    modLoaders.add('neoforge')
+    dryRun = providers.environmentVariable('DRY_RUN').present
+
+    github {
+        accessToken = providers.environmentVariable('GITHUB_TOKEN')
+        repository = 'julian-perge/ModularPlanters'
+        tagName = project.version.toString()
+        commitish = providers.environmentVariable('GITHUB_SHA').orElse('main')
+    }
+
+    if (curseforge_project_id) {
+        curseforge {
+            accessToken = providers.environmentVariable('CURSEFORGE_API_KEY')
+            projectId = curseforge_project_id
+            minecraftVersions.add(minecraft_version)
+            javaVersions.add(JavaVersion.VERSION_25)
+            client = true
+            server = true
+            requires('agritech-evolved')
+            optional('applied-energistics-2', 'applied-flux', 'jade', 'oracle-index', 'logistics-networks')
+        }
+    }
+
+    // Logistics Networks is not on Modrinth, and Applied Flux's Modrinth slug is appflux.
+    if (modrinth_project_id) {
+        modrinth {
+            accessToken = providers.environmentVariable('MODRINTH_API_KEY')
+            projectId = modrinth_project_id
+            minecraftVersions.add(minecraft_version)
+            environment = CLIENT_AND_SERVER
+            requires('agritech-evolved')
+            optional('ae2', 'appflux', 'jade', 'oracle-index')
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
