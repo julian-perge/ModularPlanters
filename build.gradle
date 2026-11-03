@@ -98,6 +98,18 @@ dependencies {
         }
     }
 
+    // Powah gives dev runs a fast FE source and FE cables. The mod has no code for it. Powah needs Cloth Config and GuideME.
+    if (!project.hasProperty('noPowah')) {
+        localRuntime "maven.modrinth:powah:7.0.4-alpha-neoforge"
+        localRuntime "maven.modrinth:cloth-config:26.1.154+neoforge"
+        localRuntime "org.appliedenergistics:guideme:${guideme_version}"
+    }
+
+    // Structure Lab takes screenshots for the project page. It is a local jar, so it loads only when a path is given.
+    if (project.hasProperty('structureLabJar')) {
+        localRuntime files(project.property('structureLabJar'))
+    }
+
     testImplementation platform("org.junit:junit-bom:5.13.4")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "com.google.code.gson:gson:2.13.2"
