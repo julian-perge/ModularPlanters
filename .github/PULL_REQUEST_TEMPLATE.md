@@ -2,7 +2,7 @@
 
 ## What changed and why
 
-<!-- Remove the next line if there's no issue. -->
+<!-- Remove the Fixes line if there's no issue. -->
 
 Fixes #
 
