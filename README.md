@@ -37,10 +37,10 @@ The guide is in game through [Oracle Index](https://modrinth.com/mod/oracle-inde
 ## Building from source
 
 ```
-./gradlew build
+just build
 ```
 
-The jar is written to `build/libs/`. [DEVELOPMENT.md](DEVELOPMENT.md) covers the dev runs, tests and optional dev mods.
+Without [just](https://just.systems), run `./gradlew build`. The jar is written to `build/libs/`. [DEVELOPMENT.md](DEVELOPMENT.md) covers the dev runs, tests and optional dev mods.
 
 ## License
 

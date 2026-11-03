@@ -13,7 +13,8 @@ I have a specific vision for the mod and what content fits it. Before working on
 
 - Make one pull request per change. Separate fixes are easier to review and to revert.
 - Link the issue the pull request fixes.
-- Say how you tested it. At least run `./gradlew test` and `./gradlew runGameTestServer`, and check client-side changes in game and on a dedicated server.
+- Say how you tested it. At least run `just check` and `just lint`, and check client-side changes in game and on a dedicated server.
+- Run `prek install` once in your clone, so each commit is formatted the way the Build workflow checks it.
 - Check your spelling and grammar in text players see, such as the guide in `wiki/` and the lang entries.
 
 [DEVELOPMENT.md](DEVELOPMENT.md) explains how to set up the project and run it locally.
