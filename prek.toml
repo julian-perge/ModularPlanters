@@ -1,0 +1,48 @@
+#:schema https://www.schemastore.org/prek.json
+minimum_prek_version = "0.5.0"
+# Generated data and the knowledge graph are rewritten by their own tools, so formatting them would only make churn.
+exclude = '^(src/generated/resources/|graphify-out/)'
+
+[[repos]]
+repo = "builtin"
+hooks = [
+    { id = "check-added-large-files" },
+    { id = "check-case-conflict" },
+    { id = "check-merge-conflict" },
+    { id = "detect-private-key" },
+    { id = "trailing-whitespace" },
+    { id = "end-of-file-fixer", exclude = '\.json$' },
+    # The mods.toml template holds ${...} placeholders that only become valid TOML when Gradle fills them in.
+    { id = "check-toml", exclude = '^src/main/templates/' },
+    { id = "check-yaml" },
+]
+
+[[repos]]
+repo = "https://github.com/macisamuele/language-formatters-pre-commit-hooks"
+rev = "v2.16.0"
+hooks = [
+    { id = "pretty-format-java", args = ["--autofix", "--google-java-formatter-version=1.37.0"] },
+]
+
+# Prettier skips the wiki's .mdx pages, which Oracle Index parses and Prettier's markdown formatting could break.
+# It also skips the files that Entire and Claude Code rewrite in their own format, which would otherwise flip back and forth.
+[[repos]]
+repo = "https://github.com/rbubley/mirrors-prettier"
+rev = "v3.9.10"
+hooks = [
+    { id = "prettier", types_or = ["markdown", "yaml", "json"], exclude = '(\.mdx$|^\.claude/|^\.entire/|^AGENTS\.md$|^CLAUDE\.md$)' },
+]
+
+[[repos]]
+repo = "https://github.com/rhysd/actionlint"
+rev = "v1.7.12"
+hooks = [
+    { id = "actionlint" },
+]
+
+[[repos]]
+repo = "https://github.com/shellcheck-py/shellcheck-py"
+rev = "v0.11.0.1"
+hooks = [
+    { id = "shellcheck" },
+]
