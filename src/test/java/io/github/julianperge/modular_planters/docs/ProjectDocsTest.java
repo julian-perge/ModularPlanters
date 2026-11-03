@@ -20,7 +20,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class ProjectDocsTest {
     static final List<Path> DOCS = List.of(
-            Path.of("docs/description.md"));
+            Path.of("docs/description.md"),
+            Path.of("DEVELOPMENT.md"));
 
     private static final Pattern BARE_BLOCK_NAME =
             Pattern.compile("(?<!Modular )Planter (Core|Block|Power|Fertilizer|Export|ME|Frame)");
