@@ -7,6 +7,7 @@
 Run with `uv run tools/render_logo.py`. It writes docs/media/logo.png (512x512, for the project pages)
 and src/main/resources/logo.png (256x256, the NeoForge mod list logo). Re-run it after changing block textures.
 """
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw, ImageEnhance
@@ -18,8 +19,8 @@ TEXTURE_SIZE = 256
 BLOCK_WIDTH = 280
 RENDER_SIZE = 1024
 MARGIN = 0.04
+MIN_CORE_SHARE = 0.01
 
-# Each part's top and side textures.
 FACES = {
     "core": ("core_top", "core_side"),
     "planter": ("planter_top", "planter_side_on"),
@@ -29,13 +30,14 @@ FACES = {
     "frame": ("frame_side", "frame_side"),
 }
 
-# Grid position (x, y, z) to part, with z up and larger x + y nearer the viewer. The core sits in the
-# middle row, the power, fertilizer and export blocks behind it, and planter blocks in front.
+# The keys are grid positions (x, y, z), where z is up and a larger x + y is nearer the viewer. The core sits
+# in the middle, with the power, fertilizer and export blocks behind it and a row of planter blocks in front.
+# The two raised planter blocks stand on the left and right corners, where they don't hide the core.
 LAYOUT = {
     (0, 0, 0): "power", (1, 0, 0): "fertilizer", (2, 0, 0): "export",
     (0, 1, 0): "frame", (1, 1, 0): "core", (2, 1, 0): "frame",
     (0, 2, 0): "planter", (1, 2, 0): "planter", (2, 2, 0): "planter",
-    (0, 2, 1): "planter", (2, 2, 1): "planter",
+    (0, 2, 1): "planter", (2, 0, 1): "planter",
 }
 
 
@@ -45,9 +47,9 @@ def texture(name):
 
 
 def affine_to_texture(corners):
-    """Coefficients mapping an output pixel back to the texture, from three output corners of a face.
+    """Return the affine coefficients that map an output pixel back to a texture pixel.
 
-    The corners are where the texture's (0, 0), (size, 0) and (0, size) land.
+    The three corners are where the texture's (0, 0), (size, 0) and (0, size) land in the output.
     """
     (x0, y0), (x1, y1), (x2, y2) = corners
     det = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)
@@ -78,12 +80,12 @@ def draw_cube(canvas, part, ox, oy, w):
     draw_face(canvas, side, [(ox + w / 2, oy + w / 2), (ox + w, oy + w / 4), (ox + w / 2, oy + w / 2 + h)], 0.62)
 
 
-def render():
+def render(layout):
     w = BLOCK_WIDTH
     canvas = Image.new("RGBA", (5 * w, 5 * w), (0, 0, 0, 0))
     left, top = canvas.width / 2 - w / 2, w
-    for x, y, z in sorted(LAYOUT, key=lambda p: (p[0] + p[1], p[2])):
-        draw_cube(canvas, LAYOUT[(x, y, z)], left + (x - y) * w / 2, top + (x + y) * w / 4 - z * 0.577 * w, w)
+    for x, y, z in sorted(layout, key=lambda p: (p[0] + p[1], p[2])):
+        draw_cube(canvas, layout[(x, y, z)], left + (x - y) * w / 2, top + (x + y) * w / 4 - z * 0.577 * w, w)
     canvas = canvas.crop(canvas.getbbox())
     side = round(max(canvas.size) * (1 + 2 * MARGIN))
     square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
@@ -91,8 +93,21 @@ def render():
     return square.resize((RENDER_SIZE, RENDER_SIZE), Image.LANCZOS)
 
 
+def visible_core_share(logo):
+    """Return the share of the logo's pixels that change when the core is drawn as a frame instead.
+
+    A layout that hides the core behind other blocks returns 0, because swapping it changes nothing.
+    """
+    without_core = render({pos: "frame" if part == "core" else part for pos, part in LAYOUT.items()})
+    changed = ImageChops.difference(logo, without_core).convert("L").point(lambda v: 255 if v else 0)
+    return changed.histogram()[255] / (RENDER_SIZE * RENDER_SIZE)
+
+
 def main():
-    logo = render()
+    logo = render(LAYOUT)
+    share = visible_core_share(logo)
+    if share < MIN_CORE_SHARE:
+        sys.exit(f"the core covers {share:.1%} of the logo, under {MIN_CORE_SHARE:.0%}; move the blocks in front of it")
     for path, size in OUTPUTS.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         logo.resize((size, size), Image.LANCZOS).save(path)
