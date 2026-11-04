@@ -41,26 +41,6 @@
           }
         ],
         "matcher": "Edit|Write|MultiEdit|NotebookEdit"
-      },
-      {
-        "matcher": "Bash|Grep",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh -c 'if ! command -v graphify >/dev/null 2>&1; then exit 0; fi; exec graphify hook-guard search'",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Read|Glob",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh -c 'if ! command -v graphify >/dev/null 2>&1; then exit 0; fi; exec graphify hook-guard read'",
-            "timeout": 10
-          }
-        ]
       }
     ],
     "SessionEnd": [

@@ -1,7 +1,7 @@
 #:schema https://www.schemastore.org/prek.json
 minimum_prek_version = "0.5.0"
-# Generated data and the knowledge graph are rewritten by their own tools, so formatting them would only make churn.
-exclude = '^(src/generated/resources/|graphify-out/)'
+# Generated data is rewritten by datagen, so formatting it would only make churn.
+exclude = '^src/generated/resources/'
 
 [[repos]]
 repo = "builtin"

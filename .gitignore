@@ -10,20 +10,8 @@ __pycache__/
 NOTES.md
 
 ### ai
-.claude/*.graphify-bak
 .recall/
 .superpowers/
-
-### graphifyy
-graphify-out/cache/
-graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
-graphify-out/.graphify_*
-!graphify-out/.graphify_labels.json
-!graphify-out/cost.json
-!graphify-out/graph.html
-!graphify-out/graph.json
-!graphify-out/GRAPH_REPORT.md
-!graphify-out/manifest.json
 
 ### Java template
 # Compiled class file
