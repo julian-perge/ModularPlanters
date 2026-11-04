@@ -184,6 +184,7 @@ publishMods {
         accessToken = providers.environmentVariable('GITHUB_TOKEN')
         repository = 'julian-perge/ModularPlanters'
         tagName = project.version.toString()
+        displayName = project.version.toString()
         commitish = providers.environmentVariable('GITHUB_SHA').orElse('main')
     }
 
