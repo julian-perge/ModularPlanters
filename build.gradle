@@ -196,7 +196,7 @@ publishMods {
             client = true
             server = true
             requires('agritech-evolved')
-            optional('applied-energistics-2', 'applied-flux', 'jade', 'oracle-index', 'logistics-networks')
+            optional('applied-energistics-2', 'applied-flux', 'jade', 'oracle-index', 'logistics-network')
         }
     }
 
