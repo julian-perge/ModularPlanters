@@ -47,4 +47,7 @@ The full guide is in game through Oracle Index. Jade shows whether a Modular Pla
 
 ## Credits
 
-Block textures are adapted from Agritech: Evolved (MIT).
+- Block textures are adapted from Agritech: Evolved (MIT).
+- The multiblock design follows ModularBees: a core that links its parts, wall blocks between them, and an ME block for AE2. None of its code is used.
+- The in-game guide is set up for Oracle Index the way Oritech sets up its own.
+- The Modular Planter Core's screen is modeled on the Node Table in the Logistics Networks Computer.
