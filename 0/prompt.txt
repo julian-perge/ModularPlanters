@@ -1,0 +1,38 @@
+@"/Users/sweetjp/Downloads/Claude 2.0 Desktop Guide.pdf"
+
+<pasted_content id="a9d1">
+I've attached a guide to the new Claude desktop app. Go through it with me one section at a time.
+For each section, tell me in one sentence what it does for me, do the parts you can do yourself, and
+tell me exactly where to click for the settings I need to switch on myself. Ask me before you change
+or turn off anything.
+</pasted_content id="a9d1">
+
+---
+
+brew install poppler for me and try reading the psf again
+
+---
+
+run the context clean-up check
+
+---
+
+Turn off or remove 4 as it will be a per-directory mcp setup with a `.mcp.json` file which I will manually confirm for the repo if I open it in a JetBrains product.
+
+For 5, turn off or remove opentofu as it will be a per-repo addition. context7 can be removed entirely.
+
+for 2 and 3, I installed the entire CLI  as it has a few helper toolings like `entire brain` that I thought would help reduce the amount of tokens used when searching in a directory when i set it up for the directory, but I also have graphifyy (name installed as graphify) installed as it's another tooling for reducing tokens uses when searching through a code base. Ive cloned the graphifyy repo locally at @/Users/sweetjp/DEV/git_repos/graphify/ , and the entire cli at @/Users/sweetjp/DEV/git_repos/entireio/cli/ for referencing, and would like to determine if both are fine to have, or if one or the other is better for helping reduce token usage but also searching through a directory/codebase when setup.
+
+---
+
+Fix 3, the double-hook first. Then, test it on the @/Users/sweetjp/DEV/git_repos/minecraft-mods/ModularPlanters/ repo first, as I have both entire and graphify installed there.
+
+---
+
+Given these findings, remove graphifyy entirely from the ModularPlanters repo, looks like `graphify claude uninstall` should work.
+
+For entire, my understanding was that the global install would be useful for any claude-code session i enter with? Should I only have the entire plugin enabled on a per-directory/repo basis in this case?
+
+---
+
+Yes, make it per-repo
