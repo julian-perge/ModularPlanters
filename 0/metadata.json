@@ -1,0 +1,167 @@
+{
+  "cli_version": "0.12.2",
+  "checkpoint_id": "01M6PQA6A9PPPN4CDJ8SBQPA69",
+  "session_id": "6f49c4e8-7367-4f98-89c4-f1e8a15d7175",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-05T20:44:57.431879Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CLAUDE.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "15b1b1202366",
+  "checkpoint_transcript_start": 1139,
+  "transcript_lines_at_start": 1139,
+  "compact_transcript_start": 121,
+  "token_usage": {
+    "input_tokens": 6,
+    "cache_creation_tokens": 7403,
+    "cache_read_tokens": 537577,
+    "output_tokens": 5839,
+    "api_call_count": 3,
+    "subagent_tokens": {
+      "input_tokens": 0,
+      "cache_creation_tokens": 0,
+      "cache_read_tokens": 0,
+      "output_tokens": 0,
+      "api_call_count": 0
+    }
+  },
+  "redaction": {
+    "replacements": 116,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 97,
+      "credentialed_uri": 0,
+      "entropy": 19,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "prompt-skill-claude-code-mattpocock-skills:grilling-2026-11-05T18:23:41.641818Z",
+      "event_type": "prompt_invocation",
+      "skill": {
+        "name": "mattpocock-skills:grilling"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "prompt_slash_command",
+        "confidence": "explicit"
+      },
+      "turn_id": "f3eebfe6f37b",
+      "timestamp": "2026-11-05T18:23:41.641818Z",
+      "native": {
+        "command": "/mattpocock-skills:grilling"
+      },
+      "collapse": {
+        "target": "user_message",
+        "label": "/mattpocock-skills:grilling",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01XmxPoQAxVxSg3Kvwe29Wvo",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "neoforge-mod-workflow"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "4d4a63e90817",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 164,
+        "end": 165,
+        "entry_ids": [
+          "3bf83950-083c-45ab-9681-936dab9882fa"
+        ],
+        "tool_use_id": "toolu_01XmxPoQAxVxSg3Kvwe29Wvo"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01XmxPoQAxVxSg3Kvwe29Wvo"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: neoforge-mod-workflow",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01JS9WGphKTGSTmgFFK2F72J",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "claude-md-management:claude-md-improver"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "4d4a63e90817",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 1018,
+        "end": 1019,
+        "entry_ids": [
+          "7ab9d031-e481-406f-9e2f-ddcfdcc6d2a0"
+        ],
+        "tool_use_id": "toolu_01JS9WGphKTGSTmgFFK2F72J"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01JS9WGphKTGSTmgFFK2F72J"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: claude-md-management:claude-md-improver",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01Uv9ciytKXh5jXMvE9HdvkF",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "julian-voice"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "4d4a63e90817",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 1090,
+        "end": 1091,
+        "entry_ids": [
+          "c24cefd8-7fff-4ea8-ae55-c35c430ba33b"
+        ],
+        "tool_use_id": "toolu_01Uv9ciytKXh5jXMvE9HdvkF"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01Uv9ciytKXh5jXMvE9HdvkF"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: julian-voice",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 14
+  }
+}
