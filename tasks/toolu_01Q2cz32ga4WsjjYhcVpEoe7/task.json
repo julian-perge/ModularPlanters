@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01Q2cz32ga4WsjjYhcVpEoe7",
+  "agent_id": "ac02988e1fe376412",
+  "subagent_type": "general-purpose",
+  "task_description": "Gradle 10 readiness facts",
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 72885,
+    "cache_read_tokens": 1248160,
+    "output_tokens": 11240,
+    "api_call_count": 22
+  },
+  "started_at": "2026-11-05T13:24:04.797-05:00",
+  "completed_at": "2026-11-05T13:26:13.314493-05:00"
+}
