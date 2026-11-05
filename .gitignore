@@ -36,3 +36,7 @@ replay_pid*
 ### JetBrains template
 
 .idea/
+
+### Claude Code
+
+.mcp.json
