@@ -1,6 +1,8 @@
+//file:noinspection GrUnresolvedAccess
+
 plugins {
     id 'java-library'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.148'
     id 'me.modmuss50.mod-publish-plugin' version '2.2.1'
     id 'idea'
 }
@@ -15,13 +17,13 @@ group = mod_group_id
 repositories {
     mavenCentral()
     maven {
-        url "https://www.cursemaven.com"
+        url = "https://www.cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
     maven {
-        url "https://api.modrinth.com/maven"
+        url = "https://api.modrinth.com/maven"
         content {
             includeGroup "maven.modrinth"
         }
@@ -34,30 +36,33 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+// IntelliJ reads a bare mod_id inside neoForge.runs as a run with that name, so the runs use this typed variable.
+String modId = mod_id
+
 neoForge {
     version = project.neo_version
 
     runs {
         client {
             client()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', modId
         }
 
         server {
             server()
             programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', modId
         }
 
         gameTestServer {
             type = "gameTestServer"
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.enabledGameTestNamespaces', modId
         }
 
         data {
             clientData()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            programArguments.addAll '--mod', modId, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+            systemProperty 'neoforge.enabledGameTestNamespaces', modId
         }
 
         configureEach {
@@ -68,6 +73,7 @@ neoForge {
 
     mods {
         "${mod_id}" {
+            //noinspection GroovyAssignabilityCheck,GrUnresolvedAccess
             sourceSet(sourceSets.main)
         }
     }
@@ -148,7 +154,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
-tasks.named('test') {
+tasks.named('test', Test) {
     useJUnitPlatform()
     // The release script and docs tests read these files from the repo instead of the classpath, so Gradle has to track them to rerun those tests after an edit.
     inputs.files('tools', '.github', 'docs/description.md', 'docs/media', 'README.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'DEVELOPMENT.md')
@@ -162,33 +168,38 @@ tasks.named('processResources', ProcessResources) {
     }
 }
 
-tasks.named('jar') {
+var jarTask = tasks.named('jar', Jar) {
     exclude '**/gametest/**', '**/datagen/**', 'data/modular_planters/structure/empty.nbt'
     from('LICENSE.md', 'LICENSE-ATE.md')
 }
 
 // The release workflow's checks build the jar once, and each publish job downloads that jar and passes it here with -PpublishJar, so every site gets the same jar instead of a rebuild.
-def publishJar = providers.gradleProperty('publishJar')
+Provider<String> publishJar = providers.gradleProperty('publishJar')
+
+// Inside publishMods, a bare version means the plugin's own version property, so the blocks below read the project version from here.
+String releaseTag = version.toString()
 
 publishMods {
-    file = publishJar.present ? layout.projectDirectory.file(publishJar.get()) : jar.archiveFile
+    file = publishJar.present ? layout.projectDirectory.file(publishJar.get()) : jarTask.flatMap { Jar jar -> jar.archiveFile }
     changelog = providers.exec {
-        commandLine 'bash', file('tools/changelog-section.sh').path, project.version.toString(), file('CHANGELOG.md').path
+        commandLine 'bash', file('tools/changelog-section.sh').path, releaseTag, file('CHANGELOG.md').path
     }.standardOutput.asText
-    displayName = "${mod_name} ${project.version}"
+    displayName = "${mod_name} ${releaseTag}"
     type = mod_version.contains('-alpha') ? ALPHA : mod_version.contains('-beta') ? BETA : STABLE
     modLoaders.add('neoforge')
     dryRun = providers.environmentVariable('DRY_RUN').present
 
+    //noinspection GroovyAssignabilityCheck
     github {
         accessToken = providers.environmentVariable('GITHUB_TOKEN')
         repository = 'julian-perge/ModularPlanters'
-        tagName = project.version.toString()
-        displayName = project.version.toString()
+        tagName = releaseTag
+        displayName = releaseTag
         commitish = providers.environmentVariable('GITHUB_SHA').orElse('main')
     }
 
     if (curseforge_project_id) {
+        //noinspection GroovyAssignabilityCheck
         curseforge {
             accessToken = providers.environmentVariable('CURSEFORGE_API_KEY')
             projectId = curseforge_project_id
@@ -203,6 +214,7 @@ publishMods {
 
     // Logistics Networks is not on Modrinth, and Applied Flux's Modrinth slug is appflux.
     if (modrinth_project_id) {
+        //noinspection GroovyAssignabilityCheck
         modrinth {
             accessToken = providers.environmentVariable('MODRINTH_API_KEY')
             projectId = modrinth_project_id
