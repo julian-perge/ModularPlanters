@@ -1,0 +1,46 @@
+Read @~/tmp/2026-11-04-modularplanters-handoff/modularplanters-handoff-2026-11-04.md and start at step 1. It is slightly outdated as the previous commit updated the skills and claude.md
+
+---
+
+I removed just-mcp for now. /research @~/DEV/git_repos/universal-modder/ and how it compares with the existing minecraft skills that were added.
+
+---
+
+<task-notification>
+<task-id>a9402562cbd28e980</task-id>
+<tool-use-id>toolu_01CpnEv5JifUcwhJmexjcCK1</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-sweetjp-DEV-git-repos-minecraft-mods-ModularPlanters/87722a75-0efa-4746-9021-f5146d40b3a7/tasks/a9402562cbd28e980.output</output-file>
+<status>completed</status>
+<summary>Agent "Research universal-modder vs current skills" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Task was to research `universal-modder` and compare it with the current Minecraft tooling; the report is written.
+
+**Recommendation:** adopt parts, read-only, and don't install the plugin. It targets modding finished PC games of any engine through the running game, and NeoForge gets only two lines of its Minecraft playbook. Keep the clone as a searchable reference for `knowledge/`, mainly the 26.2 NeoForge note whose gotcha 19 lists 26.1 to 26.2 API changes.
+
+**Top differences**
+- **Lookups:** it has no API lookup tool and only points at the `minecraft-modding` MCP you already run, so it doesn't close the NeoForge gap.
+- **26.x accuracy:** its skills never state Java 25 and still frame mappings around Loom and `genSources`. No knowledge note targets NeoForge 26.1.x, and AE2 appears only in a Fabric note saying no adapters were written.
+- **Only in `universal-modder`:** cross-game field notes, fal asset generation, a sprite pipeline, video editing and a porting method. Its `um win` command refuses to run on macOS.
+- **Only in the current tools:** exact-version lookups, access-transformer validation, approval checkpoints and 26.x code patterns.
+- **Conflicts if installed:**
+  - `mod-any-game` overlaps the `neoforge-mod-workflow` trigger.
+  - It says to commit each step and treats the running game as the test oracle, against your no-commit rule and `just check`.
+  - The fal MCP server fails to authenticate without `FAL_KEY`, so it would show as failed.
+- **Machine impact:** one `SessionStart` hook that only edits `PATH`, no permission requests, and no telemetry strings in a static search.
+
+**Correction to my earlier finding:** "only a jar target works" was too strong.
+- **`get-class-source`:** works with a `dependency` target and an explicit version.
+- **`get-class-members`:** needs a `jar` target.
+- **`versionFromProject`:** fails here because 16 NeoForge versions are cached.
+- **`workspace` targets:** the patched jars in `build/moddev/artifacts` don't contain `EnergyHandler` or `ModList`.
+- **Jar targets now confirmed:** `ModList` with `loader-11.0.15.jar` (the version in the NeoForge pom) and AE2's `IGrid`.
+
+The report has a suggested target table for `neoforge-mod-workflow`. I didn't run anything from `universal-modder`, so its tests and CLI behavior are read from source only.
+
+Report: `/Users/sweetjp/tmp/2026-11-05-universal-modder-research/universal-modder-comparison.md`</result>
+<usage><subagent_tokens>207765</subagent_tokens><tool_uses>28</tool_uses><duration_ms>254098</duration_ms></usage>
+</task-notification>
+
+---
+
+yes to both, but save current session info and context for now, I will revisit later
