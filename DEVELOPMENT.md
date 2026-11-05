@@ -2,8 +2,10 @@
 
 ## Setup
 
-- JDK 25 on your `PATH`. Gradle 9.2.1 starts with JDK 17 or newer through the wrapper (`./gradlew`), and the build compiles with JDK 25, which Gradle can also download through the Foojay toolchain resolver. The Java formatter hook runs the `java` on your `PATH` and reads the code with that JDK's compiler, so it needs JDK 25.
+- JDK 25 on your `PATH`. Gradle 9.8.2 starts with JDK 17 or newer through the wrapper (`./gradlew`), and the build compiles with JDK 25, which Gradle can also download through the Foojay toolchain resolver. The Java formatter hook runs the `java` on your `PATH` and reads the code with that JDK's compiler, so it needs JDK 25.
 - [just](https://just.systems) for the commands below and [prek](https://prek.j178.dev) for the pre-commit hooks: `brew install just prek`. Run `prek install` once in your clone. After that, each commit formats Java with google-java-format and Markdown, YAML and JSON with Prettier, then checks the workflows and shell scripts.
+- Optional, for redrawing the logo with `just logo`: [uv](https://docs.astral.sh/uv/) (`brew install uv`). For compressing screenshots with `just compress`: `brew install pngquant oxipng`.
+- Optional, for testing the GitHub workflows before pushing: Docker, `brew install zizmor`, and `bun add -g @mizchi/actrun run-local-ci`. `just ci` runs the Build workflow in Docker and `just ci-lint` lints the workflows.
 - An IDE is optional. IntelliJ IDEA imports the project from `build.gradle`, and the `idea` plugin downloads sources and javadoc for Minecraft and NeoForge. `.editorconfig` sets Java to 2-space indents and 100 columns, matching google-java-format.
 
 The first build downloads Minecraft, NeoForge and the dev mods, so it takes a few minutes.
@@ -12,21 +14,24 @@ The first build downloads Minecraft, NeoForge and the dev mods, so it takes a fe
 
 Run `just` to list the recipes. Each one wraps a Gradle task or a script in `tools/`, so `./gradlew runClient` and the rest still work without just.
 
-| Command                 | What it does                                                                                              |
-| ----------------------- | --------------------------------------------------------------------------------------------------------- |
-| `just build`            | Compiles, runs the unit tests and builds the jar into `build/libs/`                                       |
-| `just test`             | Runs the unit tests in `src/test`                                                                         |
-| `just gametest`         | Starts a headless server that runs the in-game tests in `src/main/java/.../gametest` and exits            |
-| `just check`            | Runs the unit tests, then the in-game tests with every dev mod, with `-PnoAe2` and with `-PnoAppliedFlux` |
-| `just client`           | Starts a dev client with the mod and the dev mods below                                                   |
-| `just server`           | Starts a dev dedicated server with no GUI                                                                 |
-| `just data`             | Regenerates `src/generated/resources` (recipes, loot tables, lang, models)                                |
-| `just lint`             | Runs every pre-commit hook on every file                                                                  |
-| `just fmt`              | Formats the Java, Markdown, YAML and JSON files in place                                                  |
-| `just logo`             | Redraws the logo from the block textures                                                                  |
-| `just compress <files>` | Compresses PNG screenshots with pngquant and oxipng                                                       |
-| `just changelog <tag>`  | Prints the changelog notes for one release                                                                |
-| `just release-check`    | Checks that the version is ready to tag, then dry-runs the publish                                        |
+| Command                        | What it does                                                                                              |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `just build`                   | Compiles, runs the unit tests and builds the jar into `build/libs/`                                       |
+| `just test`                    | Runs the unit tests in `src/test`                                                                         |
+| `just gametest`                | Starts a headless server that runs the in-game tests in `src/main/java/.../gametest` and exits            |
+| `just check`                   | Runs the unit tests, then the in-game tests with every dev mod, with `-PnoAe2` and with `-PnoAppliedFlux` |
+| `just client`                  | Starts a dev client with the mod and the dev mods below                                                   |
+| `just server`                  | Starts a dev dedicated server with no GUI                                                                 |
+| `just data`                    | Regenerates `src/generated/resources` (recipes, loot tables, lang, models)                                |
+| `just gradle-update <version>` | Upgrades the Gradle wrapper to that version                                                               |
+| `just lint`                    | Runs every pre-commit hook on every file                                                                  |
+| `just fmt`                     | Formats the Java, Markdown, YAML and JSON files in place                                                  |
+| `just ci-lint`                 | Lints the GitHub workflows with actrun and zizmor                                                         |
+| `just ci`                      | Runs the Build workflow locally in Docker with local-ci, uncommitted changes included                     |
+| `just logo`                    | Redraws the logo from the block textures                                                                  |
+| `just compress <files>`        | Compresses PNG screenshots with pngquant and oxipng                                                       |
+| `just changelog <tag>`         | Prints the changelog notes for one release                                                                |
+| `just release-check`           | Checks that the version is ready to tag, then dry-runs the publish                                        |
 
 Run `just check` and `just lint` before opening a pull request. After changing anything in `datagen`, also run `just data` and commit the result. The Build workflow runs all of these on every push and pull request, and fails if `runData` would change `src/generated`.
 
