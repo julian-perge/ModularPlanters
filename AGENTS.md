@@ -22,6 +22,7 @@ The repo is public, and each push also sends Entire session logs to `origin`, so
 - [GLOSSARY.md](GLOSSARY.md): before naming anything in code, docs or questions. [docs/adr/](docs/adr/) holds the decisions that are hard to reverse.
 - [Verifying changes](docs/agents/verifying.md): before running datagen, or when a change touches Jade or the Oracle Index book.
 - [Optional mods and the ME link](docs/agents/optional-mods.md): before touching `ae2` code, `mod_loaded` conditions or `MeLink`.
+- [Minecraft, NeoForge and addon lookups](docs/agents/minecraft-lookups.md): before using a Minecraft, NeoForge, FML or AE2 class, method, registry id or version.
 - [GameTests](docs/agents/gametests.md): before writing or debugging a GameTest.
 - [Docs, wiki and store pages](docs/agents/docs-and-wiki.md): before editing `wiki/` or `docs/description.md`.
 - [Build and tooling](docs/agents/build-and-tooling.md): before changing CI, hooks or the Gradle setup, or before using `entire graph` for a refactor.
