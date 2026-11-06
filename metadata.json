@@ -1,0 +1,62 @@
+{
+  "cli_version": "0.13.1",
+  "checkpoint_id": "01M6SED1E2D508S3ZG75X048EQ",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 31,
+  "files_touched": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GLOSSARY.md",
+    "docs/adr/0001-seeds-keep-their-own-traits.md",
+    "docs/adr/0002-cloche-keeps-the-rounded-away-yield.md",
+    "docs/adr/0003-power-and-fertilizer-are-all-or-nothing.md",
+    "docs/adr/0004-no-code-from-modularbees.md",
+    "docs/adr/0005-ae2-stays-behind-melink.md",
+    "docs/adr/0006-pure-logic-package.md",
+    "docs/adr/0007-me-block-refills-power-every-tick.md",
+    "docs/adr/0008-free-form-multiblock-shape.md",
+    "docs/adr/0009-multiblock-pauses-on-unloaded-chunks.md",
+    "docs/adr/0010-save-keys-and-ids-are-never-renamed.md",
+    "docs/adr/0011-release-tags-are-minecraft-then-mod-version.md",
+    "docs/adr/0012-gametests-run-every-optional-mod-variant-in-ci.md",
+    "docs/agents/build-and-tooling.md",
+    "docs/agents/docs-and-wiki.md",
+    "docs/agents/domain.md",
+    "docs/agents/gametests.md",
+    "docs/agents/issue-tracker.md",
+    "docs/agents/optional-mods.md",
+    "docs/agents/triage-labels.md",
+    "docs/agents/verifying.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "redaction": {
+    "replacements": 32,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 5,
+      "credentialed_uri": 0,
+      "entropy": 0,
+      "key_context": 27,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
