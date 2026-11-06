@@ -37,6 +37,7 @@ public final class MPTestRegistration {
     StructureTests.register(cases);
     StorageTests.register(cases);
     DoorwayTests.register(cases);
+    LiveMultiblockTests.register(cases);
     AteBridgeTests.register(cases);
     PlanterTests.register(cases);
     PlanterLifecycleTests.register(cases);

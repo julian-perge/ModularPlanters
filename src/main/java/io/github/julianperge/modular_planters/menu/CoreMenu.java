@@ -4,7 +4,7 @@ import io.github.julianperge.modular_planters.MPConfig;
 import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PlanterBlockEntity;
 import io.github.julianperge.modular_planters.logic.ScanResult;
-import io.github.julianperge.modular_planters.multiblock.Multiblock;
+import io.github.julianperge.modular_planters.multiblock.LiveMultiblock;
 import io.github.julianperge.modular_planters.network.CoreRequestPayload;
 import io.github.julianperge.modular_planters.network.CoreTablePayload;
 import io.github.julianperge.modular_planters.registry.MPMenus;
@@ -70,12 +70,11 @@ public final class CoreMenu extends AbstractContainerMenu {
 
   public static CoreTablePayload buildTable(CoreBlockEntity core, int containerId) {
     Level level = core.getLevel();
-    Multiblock multiblock = core.multiblock();
     ScanResult<BlockPos> scan = core.lastScan();
     List<CoreTablePayload.Row> rows = new ArrayList<>();
     long draw = 0;
-    if (level != null && multiblock != null) {
-      for (BlockPos pos : multiblock.planters()) {
+    if (level != null) {
+      for (BlockPos pos : core.planters()) {
         if (level.isLoaded(pos)
             && level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
           rows.add(row(pos, planter));
@@ -83,6 +82,7 @@ public final class CoreMenu extends AbstractContainerMenu {
         }
       }
     }
+    LiveMultiblock.PoolTotals pools = core.totals();
     CoreTablePayload.Totals totals =
         new CoreTablePayload.Totals(
             scan.formed(),
@@ -90,12 +90,12 @@ public final class CoreMenu extends AbstractContainerMenu {
             MPConfig.PART_CAP.get(),
             scan.problem(),
             Optional.ofNullable(scan.problemPos()),
-            core.power() == null ? 0 : core.power().stored(),
-            core.power() == null ? 0 : core.power().capacity(),
+            pools.stored(),
+            pools.capacity(),
             draw,
-            core.fertilizer() == null ? 0 : core.fertilizer().available(),
-            core.outputs() == null ? 0 : core.outputs().fillPercent(),
-            core.meStatus());
+            pools.fertilizer(),
+            pools.outputFillPercent(),
+            pools.me());
     return new CoreTablePayload(containerId, totals, rows);
   }
 
@@ -135,10 +135,7 @@ public final class CoreMenu extends AbstractContainerMenu {
         || !menu.stillValid(player)) {
       return;
     }
-    Multiblock multiblock = menu.core.multiblock();
-    if (!menu.core.lastScan().formed()
-        || multiblock == null
-        || !multiblock.planters().contains(pos)) {
+    if (!menu.core.ownsPlanter(pos)) {
       return;
     }
     if (player.level().isLoaded(pos)

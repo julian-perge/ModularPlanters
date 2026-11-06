@@ -59,7 +59,8 @@ public final class AppliedFluxTests {
     power.setStored(0);
     helper
         .startSequence()
-        .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
+        .thenWaitUntil(
+            () -> helper.assertValueEqual(core.totals().me(), MeStatus.ONLINE, "ME status"))
         .thenWaitUntil(
             () ->
                 helper.assertValueEqual(
@@ -84,7 +85,8 @@ public final class AppliedFluxTests {
     power.setStored(0);
     helper
         .startSequence()
-        .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
+        .thenWaitUntil(
+            () -> helper.assertValueEqual(core.totals().me(), MeStatus.ONLINE, "ME status"))
         .thenExecuteAfter(
             60,
             () -> {

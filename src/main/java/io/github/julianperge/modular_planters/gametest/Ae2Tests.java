@@ -5,13 +5,16 @@ import appeng.api.parts.IPartItem;
 import appeng.api.parts.PartHelper;
 import appeng.api.stacks.AEItemKey;
 import appeng.helpers.IPriorityHost;
+import io.github.julianperge.modular_planters.MPConfig;
 import io.github.julianperge.modular_planters.ae2.Ae2Integration;
 import io.github.julianperge.modular_planters.ae2.MeBlockEntity;
 import io.github.julianperge.modular_planters.ae2.MeMenu;
 import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.ExportBlockEntity;
 import io.github.julianperge.modular_planters.logic.Problem;
+import io.github.julianperge.modular_planters.multiblock.LiveMultiblock;
 import io.github.julianperge.modular_planters.multiblock.MeStatus;
+import io.github.julianperge.modular_planters.multiblock.Multiblock;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -65,6 +68,9 @@ public final class Ae2Tests {
     into.put(
         "storage_bus_takes_outputs_and_fertilizer",
         new TestCase(200, Ae2Tests::storageBusTakesOutputsAndFertilizer));
+    into.put(
+        "live_multiblock_moves_exports_into_me_only_on_the_me_interval",
+        new TestCase(100, Ae2Tests::liveMultiblockMovesExportsOnlyOnTheMeInterval));
   }
 
   private static long meCount(GameTestHelper helper, MeBlockEntity me, Item item) {
@@ -77,7 +83,7 @@ public final class Ae2Tests {
     Fixtures.Rig rig = Fixtures.meRig(helper, 1);
     CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
     helper.succeedWhen(
-        () -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"));
+        () -> helper.assertValueEqual(core.totals().me(), MeStatus.ONLINE, "ME status"));
   }
 
   private static void exportContentsMoveIntoMe(GameTestHelper helper) {
@@ -92,20 +98,58 @@ public final class Ae2Tests {
         });
   }
 
+  // The rig's Core is removed first, because it would move the exports into ME on its own ticks.
+  private static void liveMultiblockMovesExportsOnlyOnTheMeInterval(GameTestHelper helper) {
+    Fixtures.Rig rig = Fixtures.meRig(helper, 1);
+    helper.setBlock(rig.core(), Blocks.AIR);
+    ExportBlockEntity export = helper.getBlockEntity(rig.export(), ExportBlockEntity.class);
+    MeBlockEntity me = helper.getBlockEntity(Fixtures.ME, MeBlockEntity.class);
+    MeLinkTests.fill(export, Items.WHEAT, 64);
+    LiveMultiblock live =
+        LiveMultiblock.running(
+            helper.getLevel(),
+            new Multiblock(
+                List.of(helper.absolutePos(rig.power())),
+                List.of(),
+                List.of(helper.absolutePos(rig.export())),
+                rig.planters().stream().map(helper::absolutePos).toList(),
+                List.of(),
+                helper.absolutePos(Fixtures.ME)),
+            () -> {});
+    long interval = MPConfig.ME_INTERVAL.get();
+
+    helper
+        .startSequence()
+        .thenWaitUntil(
+            () -> helper.assertValueEqual(live.totals().me(), MeStatus.ONLINE, "ME status"))
+        .thenExecute(
+            () -> {
+              live.tick(helper.getLevel(), interval + 1);
+              helper.assertValueEqual(
+                  MeLinkTests.count(export, Items.WHEAT), 64, "wheat in export off the interval");
+              live.tick(helper.getLevel(), interval * 2);
+              helper.assertValueEqual(
+                  MeLinkTests.count(export, Items.WHEAT), 0, "wheat in export on the interval");
+              helper.assertValueEqual(meCount(helper, me, Items.WHEAT), 64L, "wheat in ME");
+            })
+        .thenSucceed();
+  }
+
   private static void meOfflineFallsBackToExport(GameTestHelper helper) {
     Fixtures.Rig rig = Fixtures.meRig(helper, 1);
     CoreBlockEntity core = helper.getBlockEntity(rig.core(), CoreBlockEntity.class);
     ExportBlockEntity export = helper.getBlockEntity(rig.export(), ExportBlockEntity.class);
     helper
         .startSequence()
-        .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
+        .thenWaitUntil(
+            () -> helper.assertValueEqual(core.totals().me(), MeStatus.ONLINE, "ME status"))
         .thenExecute(() -> helper.setBlock(Fixtures.ENERGY_CELL, Blocks.AIR))
         .thenWaitUntil(
-            () -> helper.assertTrue(core.meStatus() != MeStatus.ONLINE, "ME went offline"))
+            () -> helper.assertTrue(core.totals().me() != MeStatus.ONLINE, "ME went offline"))
         .thenExecute(
             () -> {
               helper.assertTrue(
-                  core.outputs().insert(new ItemStack(Items.WHEAT, 64)).isEmpty(),
+                  core.live().outputs().insert(new ItemStack(Items.WHEAT, 64)).isEmpty(),
                   "nothing left over");
               helper.assertValueEqual(
                   MeLinkTests.count(export, Items.WHEAT), 64, "wheat in export");
@@ -119,15 +163,16 @@ public final class Ae2Tests {
     ExportBlockEntity export = helper.getBlockEntity(rig.export(), ExportBlockEntity.class);
     helper
         .startSequence()
-        .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
+        .thenWaitUntil(
+            () -> helper.assertValueEqual(core.totals().me(), MeStatus.ONLINE, "ME status"))
         .thenExecute(() -> helper.getLevel().destroyBlock(helper.absolutePos(Fixtures.ME), true))
         .thenExecuteAfter(
             1,
             () -> {
               helper.assertTrue(core.lastScan().formed(), "still formed");
-              helper.assertValueEqual(core.meStatus(), MeStatus.NONE, "ME status");
+              helper.assertValueEqual(core.totals().me(), MeStatus.NONE, "ME status");
               helper.assertTrue(
-                  core.outputs().insert(new ItemStack(Items.WHEAT, 64)).isEmpty(),
+                  core.live().outputs().insert(new ItemStack(Items.WHEAT, 64)).isEmpty(),
                   "nothing left over");
               helper.assertValueEqual(
                   MeLinkTests.count(export, Items.WHEAT), 64, "wheat in export");
@@ -277,7 +322,8 @@ public final class Ae2Tests {
     helper.assertTrue(me.setFertilizerFilter(ItemResource.of(Items.BONE_MEAL)), "filter set");
     helper
         .startSequence()
-        .thenWaitUntil(() -> helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status"))
+        .thenWaitUntil(
+            () -> helper.assertValueEqual(core.totals().me(), MeStatus.ONLINE, "ME status"))
         .thenExecute(
             () ->
                 helper.assertValueEqual(
@@ -286,7 +332,7 @@ public final class Ae2Tests {
                     "bone meal inserted"))
         .thenWaitUntil(
             () -> {
-              helper.assertValueEqual(core.fertilizer().available(), 100, "fertilizer stored");
+              helper.assertValueEqual(core.totals().fertilizer(), 100, "fertilizer stored");
               helper.assertValueEqual(
                   meCount(helper, me, Items.BONE_MEAL), 0L, "bone meal left in ME");
             })
@@ -332,16 +378,17 @@ public final class Ae2Tests {
         .startSequence()
         .thenWaitUntil(
             () -> {
-              helper.assertValueEqual(core.meStatus(), MeStatus.ONLINE, "ME status");
+              helper.assertValueEqual(core.totals().me(), MeStatus.ONLINE, "ME status");
               helper.assertValueEqual(
-                  core.fertilizer().available(), 100, "fertilizer taken through the bus");
+                  core.totals().fertilizer(), 100, "fertilizer taken through the bus");
             })
         .thenExecute(
             () -> {
               helper.assertTrue(
-                  core.outputs().hasRoomFor(List.of(new ItemStack(Items.WHEAT, 64))), "room");
+                  core.live().outputs().hasRoomFor(List.of(new ItemStack(Items.WHEAT, 64))),
+                  "room");
               helper.assertTrue(
-                  core.outputs().insert(new ItemStack(Items.WHEAT, 64)).isEmpty(),
+                  core.live().outputs().insert(new ItemStack(Items.WHEAT, 64)).isEmpty(),
                   "nothing left over");
               helper.assertValueEqual(chestCount(chest, Items.WHEAT), 64, "wheat in the chest");
               MeLinkTests.fill(export, Items.CARROT, 64);

@@ -258,7 +258,7 @@ public final class DoorwayTests {
         1,
         () -> {
           fillExportExcept(helper, 5);
-          OutputSink outputs = helper.getBlockEntity(CORE, CoreBlockEntity.class).outputs();
+          OutputSink outputs = helper.getBlockEntity(CORE, CoreBlockEntity.class).live().outputs();
           ItemStack left = outputs.insert(new ItemStack(Items.WHEAT, 10));
           helper.assertValueEqual(left.getCount(), 5, "remainder count");
           helper.assertTrue(left.is(Items.WHEAT), "remainder item");
@@ -272,7 +272,7 @@ public final class DoorwayTests {
         1,
         () -> {
           fillExportExcept(helper, 64);
-          OutputSink outputs = helper.getBlockEntity(CORE, CoreBlockEntity.class).outputs();
+          OutputSink outputs = helper.getBlockEntity(CORE, CoreBlockEntity.class).live().outputs();
           helper.assertTrue(
               outputs.hasRoomFor(List.of(new ItemStack(Items.WHEAT, 40))), "room for one stack");
           helper.assertTrue(
@@ -291,15 +291,14 @@ public final class DoorwayTests {
     helper.runAfterDelay(
         1,
         () -> {
+          FertilizerBlockEntity block =
+              helper.getBlockEntity(fertilizerPos(1), FertilizerBlockEntity.class);
           try (Transaction tx = Transaction.openRoot()) {
-            helper
-                .getBlockEntity(fertilizerPos(1), FertilizerBlockEntity.class)
-                .storage()
-                .insert(ItemResource.of(Items.BONE_MEAL), 10, tx);
+            block.storage().insert(ItemResource.of(Items.BONE_MEAL), 10, tx);
             tx.commit();
           }
           FertilizerPool fertilizer =
-              helper.getBlockEntity(CORE, CoreBlockEntity.class).fertilizer();
+              helper.getBlockEntity(CORE, CoreBlockEntity.class).live().fertilizer();
           helper.assertTrue(!fertilizer.consume(11), "consume 11 of 10");
           helper.assertValueEqual(fertilizer.available(), 10, "bone meal left");
           helper.assertTrue(fertilizer.consume(10), "consume 10 of 10");

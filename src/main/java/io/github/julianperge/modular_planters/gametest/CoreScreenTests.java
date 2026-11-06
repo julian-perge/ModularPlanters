@@ -134,7 +134,7 @@ public final class CoreScreenTests {
         .thenWaitUntil(
             () ->
                 helper.assertTrue(
-                    setup.core().lastScan().formed() && setup.core().outputs() != null, "formed"))
+                    setup.core().lastScan().formed() && setup.core().items() != null, "formed"))
         .thenExecute(then)
         .thenSucceed();
   }
@@ -277,7 +277,7 @@ public final class CoreScreenTests {
         .thenWaitUntil(
             () ->
                 helper.assertTrue(
-                    setup.core().lastScan().formed() && setup.core().outputs() != null, "formed"))
+                    setup.core().lastScan().formed() && setup.core().items() != null, "formed"))
         .thenExecute(
             () -> {
               setup.open();

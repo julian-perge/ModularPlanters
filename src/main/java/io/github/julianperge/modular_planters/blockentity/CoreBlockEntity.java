@@ -1,22 +1,14 @@
 package io.github.julianperge.modular_planters.blockentity;
 
 import io.github.julianperge.modular_planters.MPConfig;
-import io.github.julianperge.modular_planters.ate.AteBridge;
 import io.github.julianperge.modular_planters.block.PartBlock;
 import io.github.julianperge.modular_planters.logic.PartType;
 import io.github.julianperge.modular_planters.logic.Problem;
 import io.github.julianperge.modular_planters.logic.ScanResult;
 import io.github.julianperge.modular_planters.logic.StructureScanner;
-import io.github.julianperge.modular_planters.multiblock.DoorwayHandlers;
-import io.github.julianperge.modular_planters.multiblock.FertilizerPool;
-import io.github.julianperge.modular_planters.multiblock.MeLink;
-import io.github.julianperge.modular_planters.multiblock.MeStatus;
+import io.github.julianperge.modular_planters.multiblock.LiveMultiblock;
 import io.github.julianperge.modular_planters.multiblock.Multiblock;
-import io.github.julianperge.modular_planters.multiblock.OutputSink;
-import io.github.julianperge.modular_planters.multiblock.PowerPool;
-import io.github.julianperge.modular_planters.multiblock.TickContext;
 import io.github.julianperge.modular_planters.registry.MPBlockEntities;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
@@ -35,12 +28,7 @@ public class CoreBlockEntity extends BlockEntity {
 
   private ScanResult<BlockPos> lastScan =
       new ScanResult<>(Problem.WAITING_FOR_CHUNKS, null, Map.of());
-  private @Nullable Multiblock multiblock;
-  private @Nullable PowerPool power;
-  private @Nullable FertilizerPool fertilizer;
-  private @Nullable OutputSink outputs;
-  private @Nullable MeLink me;
-  private @Nullable ResourceHandler<ItemResource> items;
+  private @Nullable LiveMultiblock live;
   private boolean dirty = true;
   private boolean poolsStale;
 
@@ -52,55 +40,14 @@ public class CoreBlockEntity extends BlockEntity {
     if (core.dirty || (level.getGameTime() + core.tickOffset()) % RESCAN_INTERVAL == 0) {
       core.scan(level);
     }
-    if (level instanceof ServerLevel serverLevel) {
-      core.tickPlanters(serverLevel);
+    if (core.live != null && level instanceof ServerLevel serverLevel) {
+      core.live.tick(serverLevel, serverLevel.getGameTime() + core.tickOffset());
     }
-  }
-
-  // The pools are null while the core waits for an unloaded chunk, and the planters then keep their
-  // progress without ticking.
-  private void tickPlanters(ServerLevel level) {
-    if (multiblock == null
-        || power == null
-        || fertilizer == null
-        || outputs == null
-        || !allPartsLoaded()) {
-      return;
-    }
-    MeLink link = onlineMe();
-    if (link != null) {
-      power.refillFrom(link);
-    }
-    TickContext context =
-        new TickContext(
-            level, level.getRandom(), AteBridge.numbers(), power, fertilizer.budget(), outputs);
-    for (BlockPos pos : multiblock.planters()) {
-      if (level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
-        planter.tickFromCore(context);
-      }
-    }
-    if (link != null && (level.getGameTime() + tickOffset()) % MPConfig.ME_INTERVAL.get() == 0) {
-      outputs.moveExportsInto(link);
-      fertilizer.topUpFrom(link);
-    }
-  }
-
-  // This returns the link only while it is online, and a removed link counts as absent and marks
-  // the pools stale so the next scan rebuilds them without it.
-  private @Nullable MeLink onlineMe() {
-    if (me == null) {
-      return null;
-    }
-    if (me.isRemoved()) {
-      markPoolsStale();
-      return null;
-    }
-    return me.online() ? me : null;
   }
 
   // Cores spread their rescans and ME transfers over different ticks by position, so many cores
   // don't all work on the same tick.
-  public int tickOffset() {
+  private int tickOffset() {
     return Math.floorMod(worldPosition.hashCode(), RESCAN_INTERVAL);
   }
 
@@ -120,32 +67,32 @@ public class CoreBlockEntity extends BlockEntity {
   }
 
   public @Nullable Multiblock multiblock() {
-    return multiblock;
+    return live == null ? null : live.multiblock();
   }
 
-  public @Nullable PowerPool power() {
-    return power;
+  // Only the GameTests need the live multiblock itself, to reach the output pool.
+  public @Nullable LiveMultiblock live() {
+    return live;
   }
 
-  public @Nullable FertilizerPool fertilizer() {
-    return fertilizer;
+  public List<BlockPos> planters() {
+    return live == null ? List.of() : live.planters();
   }
 
-  public @Nullable OutputSink outputs() {
-    return outputs;
+  public boolean ownsPlanter(BlockPos pos) {
+    return live != null && live.ownsPlanter(pos);
+  }
+
+  public LiveMultiblock.PoolTotals totals() {
+    return live == null ? LiveMultiblock.PoolTotals.NONE : live.totals();
+  }
+
+  public @Nullable EnergyHandler energy() {
+    return live == null ? null : live.energy();
   }
 
   public @Nullable ResourceHandler<ItemResource> items() {
-    return items;
-  }
-
-  public MeStatus meStatus() {
-    return me == null || me.isRemoved() ? MeStatus.NONE : me.status();
-  }
-
-  public boolean allPartsLoaded() {
-    return level != null
-        && (multiblock == null || multiblock.all().stream().allMatch(level::isLoaded));
+    return live == null ? null : live.items();
   }
 
   @Override
@@ -169,21 +116,18 @@ public class CoreBlockEntity extends BlockEntity {
     }
     lastScan = result;
     if (result.problem() == Problem.WAITING_FOR_CHUNKS) {
-      // The multiblock is kept so a structure with an unloaded part pauses instead of unforming,
-      // while the pools are dropped so nothing touches a block entity in an unloaded chunk.
-      power = null;
-      fertilizer = null;
-      outputs = null;
-      me = null;
-      items = null;
+      // The multiblock is kept so an unloaded part does not stop its planters, while the pools are
+      // dropped so nothing touches a block entity in an unloaded chunk.
+      live = live == null ? null : LiveMultiblock.paused(live.multiblock());
     } else {
-      Multiblock previous = multiblock;
-      multiblock = result.formed() ? Multiblock.from(result) : null;
+      LiveMultiblock previous = live;
+      live =
+          result.formed()
+              ? LiveMultiblock.running(level, Multiblock.from(result), this::markPoolsStale)
+              : null;
       if (previous != null) {
-        stopPlanters(
-            level, previous.planters(), multiblock == null ? List.of() : multiblock.planters());
+        stopPlanters(level, previous.planters(), live == null ? List.of() : live.planters());
       }
-      buildPools(level);
     }
     level.invalidateCapabilities(worldPosition);
     setChanged();
@@ -193,8 +137,8 @@ public class CoreBlockEntity extends BlockEntity {
   // ACTIVE and GROWING.
   @Override
   public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-    if (level != null && multiblock != null) {
-      stopPlanters(level, multiblock.planters(), List.of());
+    if (level != null && live != null) {
+      stopPlanters(level, live.planters(), List.of());
     }
   }
 
@@ -207,44 +151,6 @@ public class CoreBlockEntity extends BlockEntity {
         planter.stopFromCore();
       }
     }
-  }
-
-  private void buildPools(Level level) {
-    if (multiblock == null) {
-      power = null;
-      fertilizer = null;
-      outputs = null;
-      me = null;
-      items = null;
-      return;
-    }
-    power =
-        new PowerPool(
-            blockEntities(level, multiblock.power(), PowerBlockEntity.class), this::markPoolsStale);
-    fertilizer =
-        new FertilizerPool(
-            blockEntities(level, multiblock.fertilizer(), FertilizerBlockEntity.class),
-            this::markPoolsStale);
-    BlockPos mePos = multiblock.me();
-    me = mePos != null && level.getBlockEntity(mePos) instanceof MeLink link ? link : null;
-    outputs =
-        new OutputSink(
-            blockEntities(level, multiblock.export(), ExportBlockEntity.class),
-            me,
-            this::markPoolsStale);
-    items = DoorwayHandlers.items(fertilizer, outputs);
-  }
-
-  private static <T extends BlockEntity> List<T> blockEntities(
-      Level level, List<BlockPos> positions, Class<T> type) {
-    List<T> found = new ArrayList<>();
-    for (BlockPos pos : positions) {
-      BlockEntity blockEntity = level.getBlockEntity(pos);
-      if (type.isInstance(blockEntity)) {
-        found.add(type.cast(blockEntity));
-      }
-    }
-    return found;
   }
 
   private static PartType typeAt(Level level, BlockPos pos) {
