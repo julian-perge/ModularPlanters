@@ -41,3 +41,5 @@ replay_pid*
 ### Claude Code
 
 .mcp.json
+.agents/
+.codex/
