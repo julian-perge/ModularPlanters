@@ -173,14 +173,17 @@ public final class LiveMultiblockTests {
         .thenWaitUntil(
             () ->
                 helper.assertValueEqual(
-                    core.live() != null ? core.totals().fertilizer() : -1, 20, "both blocks pooled"))
+                    core.live() != null ? core.totals().fertilizer() : -1,
+                    20,
+                    "both blocks pooled"))
         .thenExecute(
             () -> {
               before[0] = core.live();
               helper.getLevel().destroyBlock(helper.absolutePos(secondFertilizer), false);
             })
         .thenWaitUntil(
-            () -> helper.assertTrue(core.live() != before[0], "the Core built a new live multiblock"))
+            () ->
+                helper.assertTrue(core.live() != before[0], "the Core built a new live multiblock"))
         .thenExecute(
             () -> {
               helper.assertValueEqual(core.totals().fertilizer(), 10, "bone meal left");
@@ -221,7 +224,7 @@ public final class LiveMultiblockTests {
   }
 
   // The positions are absolute, like the ones a scan gives the Core, and the Core of the rig scans
-  // the same blocks on its own, so the live multiblock under test is never the one the rig's Core holds.
+  // the same blocks on its own, so the live multiblock under test is never the Core's own.
   private static Multiblock multiblockOf(GameTestHelper helper, Fixtures.Rig rig) {
     return new Multiblock(
         List.of(helper.absolutePos(rig.power())),
