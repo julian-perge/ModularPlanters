@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01WxdapFbsomRKBGHFaxmBRS",
+  "agent_id": "acf1f8f7747682325",
+  "subagent_type": "general-purpose",
+  "task_description": "Code review: Standards axis",
+  "token_usage": {
+    "input_tokens": 14,
+    "cache_creation_tokens": 97615,
+    "cache_read_tokens": 491726,
+    "output_tokens": 6010,
+    "api_call_count": 7
+  },
+  "started_at": "2026-11-06T16:18:47.689702-05:00",
+  "completed_at": "2026-11-06T16:19:44.914709-05:00"
+}
