@@ -40,13 +40,14 @@ test:
 gametest *flags:
     ./gradlew runGameTestServer "$@"
 
-[doc('Run the unit tests, then the in-game tests with all dev mods, without AE2 and without Applied Flux, the three ways CI runs them')]
+[doc('Run the unit tests, then the in-game tests with all dev mods, without AE2, without Applied Flux and without Jade, the four ways CI runs them')]
 [group('gradle')]
 check:
     ./gradlew test
     ./gradlew runGameTestServer
     ./gradlew runGameTestServer -PnoAe2
     ./gradlew runGameTestServer -PnoAppliedFlux
+    ./gradlew runGameTestServer -PnoJade
 
 [doc('Start a dev client, for example: just client -PnoPowah')]
 [group('gradle')]

@@ -66,7 +66,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        flags: ["", "-PnoAe2", "-PnoAppliedFlux"]
+        flags: ["", "-PnoAe2", "-PnoAppliedFlux", "-PnoJade"]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v6

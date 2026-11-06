@@ -14,24 +14,24 @@ The first build downloads Minecraft, NeoForge and the dev mods, so it takes a fe
 
 Run `just` to list the recipes. Each one wraps a Gradle task or a script in `tools/`, so `./gradlew runClient` and the rest still work without just.
 
-| Command                        | What it does                                                                                              |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| `just build`                   | Compiles, runs the unit tests and builds the jar into `build/libs/`                                       |
-| `just test`                    | Runs the unit tests in `src/test`                                                                         |
-| `just gametest`                | Starts a headless server that runs the in-game tests in `src/main/java/.../gametest` and exits            |
-| `just check`                   | Runs the unit tests, then the in-game tests with every dev mod, with `-PnoAe2` and with `-PnoAppliedFlux` |
-| `just client`                  | Starts a dev client with the mod and the dev mods below                                                   |
-| `just server`                  | Starts a dev dedicated server with no GUI                                                                 |
-| `just data`                    | Regenerates `src/generated/resources` (recipes, loot tables, lang, models)                                |
-| `just gradle-update <version>` | Upgrades the Gradle wrapper to that version                                                               |
-| `just lint`                    | Runs every pre-commit hook on every file                                                                  |
-| `just fmt`                     | Formats the Java, Markdown, YAML and JSON files in place                                                  |
-| `just ci-lint`                 | Lints the GitHub workflows with actrun and zizmor                                                         |
-| `just ci`                      | Runs the Build workflow locally in Docker with local-ci, uncommitted changes included                     |
-| `just logo`                    | Redraws the logo from the block textures                                                                  |
-| `just compress <files>`        | Compresses PNG screenshots with pngquant and oxipng                                                       |
-| `just changelog <tag>`         | Prints the changelog notes for one release                                                                |
-| `just release-check`           | Checks that the version is ready to tag, then dry-runs the publish                                        |
+| Command                        | What it does                                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `just build`                   | Compiles, runs the unit tests and builds the jar into `build/libs/`                                                        |
+| `just test`                    | Runs the unit tests in `src/test`                                                                                          |
+| `just gametest`                | Starts a headless server that runs the in-game tests in `src/main/java/.../gametest` and exits                             |
+| `just check`                   | Runs the unit tests, then the in-game tests with every dev mod, with `-PnoAe2`, with `-PnoAppliedFlux` and with `-PnoJade` |
+| `just client`                  | Starts a dev client with the mod and the dev mods below                                                                    |
+| `just server`                  | Starts a dev dedicated server with no GUI                                                                                  |
+| `just data`                    | Regenerates `src/generated/resources` (recipes, loot tables, lang, models)                                                 |
+| `just gradle-update <version>` | Upgrades the Gradle wrapper to that version                                                                                |
+| `just lint`                    | Runs every pre-commit hook on every file                                                                                   |
+| `just fmt`                     | Formats the Java, Markdown, YAML and JSON files in place                                                                   |
+| `just ci-lint`                 | Lints the GitHub workflows with actrun and zizmor                                                                          |
+| `just ci`                      | Runs the Build workflow locally in Docker with local-ci, uncommitted changes included                                      |
+| `just logo`                    | Redraws the logo from the block textures                                                                                   |
+| `just compress <files>`        | Compresses PNG screenshots with pngquant and oxipng                                                                        |
+| `just changelog <tag>`         | Prints the changelog notes for one release                                                                                 |
+| `just release-check`           | Checks that the version is ready to tag, then dry-runs the publish                                                         |
 
 Run `just check` and `just lint` before opening a pull request. After changing anything in `datagen`, also run `just data` and commit the result. The Build workflow runs all of these on every push and pull request, and fails if `runData` would change `src/generated`.
 
