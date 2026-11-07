@@ -88,7 +88,7 @@ configurations {
 }
 
 dependencies {
-    implementation "curse.maven:agritech-evolved-1287394:9155589"
+    implementation "maven.modrinth:agritech-evolved:2.2.0.6+neoforge-mc26.1.2"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:${ae2_version}"
     compileOnly "curse.maven:applied-flux-965012:${appflux_file}"
@@ -101,7 +101,7 @@ dependencies {
         localRuntime "org.appliedenergistics:guideme:${guideme_version}"
         if (!project.hasProperty('noAppliedFlux')) {
             localRuntime "curse.maven:applied-flux-965012:${appflux_file}"
-            localRuntime "curse.maven:glodium-957920:${glodium_file}"
+            localRuntime "maven.modrinth:glodium:${glodium_version}"
         }
     }
 
