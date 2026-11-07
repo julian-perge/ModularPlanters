@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01BB6ubiobuN7yx4aCQhNfhK",
+  "agent_id": "acd0b015ce922be8f",
+  "subagent_type": "general-purpose",
+  "task_description": "Research Prism auto-launch testing",
+  "token_usage": {
+    "input_tokens": 220,
+    "cache_creation_tokens": 234673,
+    "cache_read_tokens": 16235589,
+    "output_tokens": 62675,
+    "api_call_count": 108
+  },
+  "started_at": "2026-11-07T10:24:52.371605-05:00",
+  "completed_at": "2026-11-07T10:41:32.110136-05:00"
+}
