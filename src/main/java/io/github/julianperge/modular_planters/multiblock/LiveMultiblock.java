@@ -9,9 +9,11 @@ import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.transfer.CombinedResourceHandler;
 import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -132,8 +134,17 @@ public final class LiveMultiblock {
     TickContext context =
         new TickContext(
             level, level.getRandom(), AteBridge.numbers(), power, fertilizer.budget(), outputs);
+    // Level#getBlockEntity adds a short load ticket on every call, which would keep each planter's
+    // chunk loaded for as long as the Core ticks, so the planter is read from its chunk only while
+    // that chunk is already loaded.
     for (BlockPos pos : multiblock.planters()) {
-      if (level.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
+      LevelChunk chunk =
+          level
+              .getChunkSource()
+              .getChunkNow(
+                  SectionPos.blockToSectionCoord(pos.getX()),
+                  SectionPos.blockToSectionCoord(pos.getZ()));
+      if (chunk != null && chunk.getBlockEntity(pos) instanceof PlanterBlockEntity planter) {
         planter.tickFromCore(context);
       }
     }

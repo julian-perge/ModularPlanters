@@ -2,8 +2,11 @@ package io.github.julianperge.modular_planters.gametest;
 
 import com.misterd.agritechevolved.integration.PlanterPostHarvestEvent;
 import com.misterd.agritechevolved.integration.PlanterPreHarvestEvent;
+import io.github.julianperge.modular_planters.blockentity.CoreBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PlanterBlockEntity;
 import io.github.julianperge.modular_planters.blockentity.PlanterStatus;
+import io.github.julianperge.modular_planters.blockentity.PowerBlockEntity;
+import io.github.julianperge.modular_planters.logic.Problem;
 import io.github.julianperge.modular_planters.logic.SeedBin;
 import io.github.julianperge.modular_planters.registry.MPBlocks;
 import java.util.ArrayList;
@@ -17,9 +20,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -52,6 +57,87 @@ public final class PlanterLifecycleTests {
     into.put(
         "planter_load_clamps_bad_values",
         new TestCase(20, PlanterLifecycleTests::planterLoadClampsBadValues));
+    into.put(
+        "unloaded_part_pauses_the_multiblock_until_it_loads",
+        new TestCase(400, PlanterLifecycleTests::unloadedPartPausesTheMultiblockUntilItLoads));
+  }
+
+  // GameTest chunks are force-loaded, and a force-loaded chunk keeps the chunks within two of it
+  // loaded as well, so this test builds its multiblock far from the test grid and loads those
+  // chunks with its own tickets. The Planter Core's ticket keeps only the chunks next to its own
+  // loaded, so removing the far chunk's ticket leaves the far Planter Block unloaded, the same as
+  // when a player walks away from a build that crosses a chunk border.
+  private static void unloadedPartPausesTheMultiblockUntilItLoads(GameTestHelper helper) {
+    ServerLevel level = helper.getLevel();
+    ChunkPos origin = ChunkPos.containing(helper.absolutePos(BlockPos.ZERO));
+    ChunkPos coreChunk = new ChunkPos(origin.x(), origin.z() - 200);
+    ChunkPos farChunk = new ChunkPos(coreChunk.x() + 2, coreChunk.z());
+    level.getChunkSource().addTicketWithRadius(TicketType.FORCED, coreChunk, 1);
+    level.getChunkSource().addTicketWithRadius(TicketType.FORCED, farChunk, 1);
+    BlockPos core =
+        new BlockPos(
+            coreChunk.x() * 16 + 15,
+            helper.absolutePos(BlockPos.ZERO).getY() + 1,
+            coreChunk.z() * 16 + 8);
+    BlockPos near = core.south();
+    BlockPos far = core.east(17);
+    level.setBlockAndUpdate(core, MPBlocks.CORE.get().defaultBlockState());
+    level.setBlockAndUpdate(core.east(), MPBlocks.POWER.get().defaultBlockState());
+    ((PowerBlockEntity) level.getBlockEntity(core.east())).setStored(4_000_000);
+    level.setBlockAndUpdate(core.east(2), MPBlocks.EXPORT.get().defaultBlockState());
+    for (int i = 3; i < 17; i++) {
+      level.setBlockAndUpdate(core.east(i), MPBlocks.FRAME.get().defaultBlockState());
+    }
+    level.setBlockAndUpdate(far, MPBlocks.PLANTER.get().defaultBlockState());
+    level.setBlockAndUpdate(near, MPBlocks.PLANTER.get().defaultBlockState());
+    CoreBlockEntity coreEntity = (CoreBlockEntity) level.getBlockEntity(core);
+    PlanterBlockEntity farPlanter = (PlanterBlockEntity) level.getBlockEntity(far);
+    PlanterBlockEntity nearPlanter = (PlanterBlockEntity) level.getBlockEntity(near);
+    Fixtures.plant(farPlanter, 4, 4, 4);
+    Fixtures.plant(nearPlanter, 4, 4, 4);
+    int[] progressWhenUnloaded = {0, 0};
+    helper
+        .startSequence()
+        .thenWaitUntil(
+            () -> helper.assertTrue(farPlanter.seeds().progress(0) > 0, "far planter grows"))
+        .thenExecute(
+            () -> level.getChunkSource().removeTicketWithRadius(TicketType.FORCED, farChunk, 1))
+        .thenWaitUntil(() -> helper.assertTrue(!level.isLoaded(far), "far chunk unloaded"))
+        .thenWaitUntil(
+            () ->
+                helper.assertValueEqual(
+                    coreEntity.lastScan().problem(), Problem.WAITING_FOR_CHUNKS, "problem"))
+        .thenExecute(
+            () -> {
+              progressWhenUnloaded[0] = farPlanter.seeds().progress(0);
+              progressWhenUnloaded[1] = nearPlanter.seeds().progress(0);
+            })
+        .thenIdle(40)
+        .thenExecute(
+            () -> {
+              helper.assertTrue(coreEntity.multiblock() != null, "multiblock kept while waiting");
+              helper.assertTrue(coreEntity.planters().contains(far), "far planter still listed");
+              helper.assertValueEqual(
+                  farPlanter.seeds().progress(0), progressWhenUnloaded[0], "far progress paused");
+              helper.assertValueEqual(
+                  nearPlanter.seeds().progress(0), progressWhenUnloaded[1], "near progress paused");
+              level.getChunkSource().addTicketWithRadius(TicketType.FORCED, farChunk, 1);
+            })
+        .thenWaitUntil(
+            () -> helper.assertTrue(coreEntity.lastScan().formed(), "formed after the reload"))
+        .thenWaitUntil(
+            () ->
+                helper.assertTrue(
+                    farPlanter.seeds().progress(0) > progressWhenUnloaded[0]
+                        && nearPlanter.seeds().progress(0) > progressWhenUnloaded[1],
+                    "both planters grow again"))
+        .thenExecute(
+            () -> {
+              helper.assertTrue(coreEntity.ownsPlanter(far), "far planter owned again");
+              level.getChunkSource().removeTicketWithRadius(TicketType.FORCED, coreChunk, 1);
+              level.getChunkSource().removeTicketWithRadius(TicketType.FORCED, farChunk, 1);
+            })
+        .thenSucceed();
   }
 
   private static void holdTwoStacksOfCobblestone(GameTestHelper helper, Fixtures.Rig rig) {
