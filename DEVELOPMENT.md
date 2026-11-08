@@ -74,6 +74,11 @@ The workflow reads the repository secrets `CURSEFORGE_API_KEY` and `MODRINTH_API
 
 If an upload fails, for example because a site is down, use "Re-run failed jobs" on that workflow run. A fix that needs a code change is released as a new version with a new tag. A tag that was pushed is never moved.
 
-## Screenshots with Structure Lab
+## Screenshots and client checks with Structure Lab
 
-`-PstructureLabJar=<path to jar>` adds Structure Lab to a dev run. It places a structure file in a flat world and saves screenshots from set camera angles, which is how the world shots in `docs/media/` were taken. It is a local build that isn't published, so leave the switch out unless you have the jar. It needs a world created with the "Structure Lab" world type.
+`-PstructureLabJar=<path to jar>` adds Structure Lab to a dev run. It is a local build that isn't published, so leave the switch out unless you have the jar. It has two uses:
+
+- It places a structure file in a flat world and saves screenshots from set camera angles, which is how the world shots in `docs/media/` were taken. This needs a world created with the "Structure Lab" world type.
+- Its local bridge drives any world from a script. It can create a new creative world, run commands, aim the player at a block, read the Jade tooltip, open the Oracle Index book, take a screenshot with the HUD and any open screen, and quit. That is how the Jade and Oracle Index checks run without a person at the keyboard.
+
+`JAVA_TOOL_OPTIONS=-Xmx2G just client -PstructureLabJar=<path to jar>` is enough memory for these runs.
