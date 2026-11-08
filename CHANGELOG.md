@@ -2,6 +2,18 @@
 
 Each heading is a release tag, `<minecraft version>-<mod version>`, and its notes go to GitHub, CurseForge and Modrinth.
 
+## 26.1.2-0.2.0
+
+- Planter chunks can now unload while the Planter Core keeps ticking. Before, the core kept every planter chunk loaded. A multiblock with a part in an unloaded chunk now pauses, keeping its progress, until that chunk loads again.
+- The blocks have shorter names, since the mod name already says Modular Planters. Existing worlds keep their blocks.
+  - Modular Planter Core is now Planter Core
+  - Modular Planter Block is now Planter Block
+  - Modular Planter Power Block is now Power Block
+  - Modular Planter Fertilizer Block is now Fertilizer Block
+  - Modular Planter Export Block is now Export Block
+  - Modular Planter ME Block is now ME Block
+  - Modular Planter Frame is now Planter Frame
+
 ## 26.1.2-0.1.0
 
 First release, for Minecraft 26.1.2 and Agritech: Evolved 2.2.0 or newer.
