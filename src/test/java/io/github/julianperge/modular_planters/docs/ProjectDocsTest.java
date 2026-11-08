@@ -43,8 +43,8 @@ class ProjectDocsTest {
   private static final String RAW =
       "https://raw.githubusercontent.com/julian-perge/ModularPlanters/";
 
-  private static final Pattern BARE_BLOCK_NAME =
-      Pattern.compile("(?<!Modular )Planter (Core|Block|Power|Fertilizer|Export|ME|Frame)");
+  private static final Pattern OLD_BLOCK_NAME =
+      Pattern.compile("Modular Planter (Core|Block|Power|Fertilizer|Export|ME|Frame)");
   private static final Pattern MARKDOWN_TARGET =
       Pattern.compile("\\]\\(([^)\\s]+)(?:\\s+\"[^\"]*\")?\\)");
   private static final Pattern HTML_TARGET = Pattern.compile("(?:src|href)=\"([^\"]+)\"");
@@ -84,12 +84,16 @@ class ProjectDocsTest {
     }
   }
 
+  // The changelog's released entries keep the block names those releases shipped with.
   @Test
   void blockNamesAreInGame() throws IOException {
     for (Path doc : existing()) {
-      Matcher matcher = BARE_BLOCK_NAME.matcher(Files.readString(doc));
+      if (doc.equals(Path.of("CHANGELOG.md"))) {
+        continue;
+      }
+      Matcher matcher = OLD_BLOCK_NAME.matcher(Files.readString(doc));
       if (matcher.find()) {
-        fail(doc + " uses the short name \"" + matcher.group() + "\" instead of the in-game name");
+        fail(doc + " uses the old name \"" + matcher.group() + "\" instead of the in-game name");
       }
     }
   }

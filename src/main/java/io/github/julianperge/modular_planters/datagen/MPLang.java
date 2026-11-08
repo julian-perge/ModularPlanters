@@ -14,15 +14,15 @@ public class MPLang extends LanguageProvider {
   protected void addTranslations() {
     add("itemGroup.modular_planters", "Modular Planters");
     add("oracle_index.title.modular_planters", "Modular Planters");
-    addBlock(MPBlocks.CORE, "Modular Planter Core");
-    addBlock(MPBlocks.FRAME, "Modular Planter Frame");
-    addBlock(MPBlocks.POWER, "Modular Planter Power Block");
-    addBlock(MPBlocks.FERTILIZER, "Modular Planter Fertilizer Block");
-    addBlock(MPBlocks.EXPORT, "Modular Planter Export Block");
+    addBlock(MPBlocks.CORE, "Planter Core");
+    addBlock(MPBlocks.FRAME, "Planter Frame");
+    addBlock(MPBlocks.POWER, "Power Block");
+    addBlock(MPBlocks.FERTILIZER, "Fertilizer Block");
+    addBlock(MPBlocks.EXPORT, "Export Block");
     add("container.modular_planters.fertilizer", "Fertilizer Storage");
     add("container.modular_planters.export", "Export Storage");
-    addBlock(MPBlocks.PLANTER, "Modular Planter Block");
-    add("container.modular_planters.planter", "Modular Planter");
+    addBlock(MPBlocks.PLANTER, "Planter Block");
+    add("container.modular_planters.planter", "Planter Block");
     add("modular_planters.status.idle", "Idle");
     add("modular_planters.status.growing", "Growing");
     add("modular_planters.status.short_on_soil", "Short on soil");
@@ -33,7 +33,7 @@ public class MPLang extends LanguageProvider {
     add("modular_planters.screen.more_combos", "and %s more combinations");
     add("modular_planters.screen.upgraded", "%s/%s seeds upgraded");
     add("modular_planters.screen.back_to_core", "Back to core");
-    add("container.modular_planters.core", "Modular Planter Core");
+    add("container.modular_planters.core", "Planter Core");
     add("modular_planters.screen.core.formed", "FORMED %s / %s");
     add("modular_planters.screen.core.problem", "%s (%s, %s, %s)");
     add("modular_planters.screen.core.power", "POWER");
@@ -66,7 +66,7 @@ public class MPLang extends LanguageProvider {
     add("modular_planters.jade.growing", "%s/%s seeds growing");
     add("config.jade.plugin_modular_planters.core", "Modular Planters core");
     add("config.jade.plugin_modular_planters.planter", "Modular Planters planter block");
-    add("block.modular_planters.me", "Modular Planter ME Block");
+    add("block.modular_planters.me", "ME Block");
     add("modular_planters.screen.me.filter", "Fertilizer from ME");
     add("modular_planters.screen.me.status", "Status: %s");
     add("modular_planters.me_status.none", "None");

@@ -1,9 +1,9 @@
 {
-  "core.mdx": "Modular Planter Core",
-  "planter.mdx": "Modular Planter Block",
-  "power.mdx": "Modular Planter Power Block",
-  "fertilizer.mdx": "Modular Planter Fertilizer Block",
-  "export.mdx": "Modular Planter Export Block",
-  "me.mdx": "Modular Planter ME Block",
-  "frame.mdx": "Modular Planter Frame"
+  "core.mdx": "Planter Core",
+  "planter.mdx": "Planter Block",
+  "power.mdx": "Power Block",
+  "fertilizer.mdx": "Fertilizer Block",
+  "export.mdx": "Export Block",
+  "me.mdx": "ME Block",
+  "frame.mdx": "Planter Frame"
 }

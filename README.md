@@ -26,7 +26,7 @@
 
 ## About
 
-Modular Planters is an addon for Agritech: Evolved that replaces rows of Advanced Planters with one multiblock. A Modular Planter Block grows up to 64 seeds, and every Modular Planter Block in the multiblock shares one power supply, one fertilizer supply and one output store. One connection to the Modular Planter Core runs the whole multiblock.
+Modular Planters is an addon for Agritech: Evolved that replaces rows of Advanced Planters with one multiblock. A Planter Block grows up to 64 seeds, and every Planter Block in the multiblock shares one power supply, one fertilizer supply and one output store. One connection to the Planter Core runs the whole multiblock.
 
 It needs Minecraft 26.1.2, NeoForge 26.1.2.116 or newer, and Agritech: Evolved 2.2.0 or newer. AE2, Applied Flux, Jade, Oracle Index and Logistics Networks are optional.
 

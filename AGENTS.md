@@ -15,7 +15,7 @@ The repo is public, and each push also sends Entire session logs to `origin`, so
 - The mod must load with any optional mod missing.
 - Keep save keys and registry ids as they are, because renaming breaks existing worlds. The save key `soil_and_modules` keeps its old name, and ATE's own names stay as ATE has them.
 - Keep merged history as it is, because `.git-blame-ignore-revs` names the reformat commit e1a9a58, and a squash or rebase breaks that.
-- Player-facing text uses the block names from `en_us.json`, "upgrades" instead of "modules", and "Advanced Planter" instead of "Powered Planter".
+- Player-facing text uses the block names from `en_us.json`, "upgrades" instead of "modules", and "Advanced Planter" instead of "Powered Planter". Those names are Planter Core, Planter Block, Power Block, Fertilizer Block, Export Block, ME Block and Planter Frame. They started with "Modular Planter" before 2026-11-07, and released changelog entries and ADRs keep the old names.
 
 ## Read the doc that matches the task
 

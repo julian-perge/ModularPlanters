@@ -19,7 +19,7 @@ body:
       description: The steps that make the issue happen. This field is almost always needed.
       placeholder: |
         1. Build a multiblock with...
-        2. Put ... in the Modular Planter Block
+        2. Put ... in the Planter Block
         3. See the result described above
     validations:
       required: true
