@@ -27,16 +27,9 @@ The repo is public, and each push also sends Entire session logs to `origin`, so
 - [Docs, wiki and store pages](docs/agents/docs-and-wiki.md): before editing `wiki/` or `docs/description.md`.
 - [Build and tooling](docs/agents/build-and-tooling.md): before changing CI, hooks or the Gradle setup, or before using `entire graph` for a refactor.
 
-## Agent skills
+## Workflow
 
-### Issue tracker
-
-Issues live in GitHub Issues for julian-perge/ModularPlanters, through the `gh` CLI. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-The five default labels: needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+- Tasks are tracked in GitHub Issues for julian-perge/ModularPlanters, with the `gh` CLI. `/agent-skills:plan` creates one sub-issue per task. `tasks/` is git-ignored scratch.
+- Specs are files at `spec/<issue>-<slug>.md`, not `SPEC.md`.
+- ADRs go in `docs/adr/`. Read `GLOSSARY.md` and `docs/adr/` (those that exist) before design work.
+- Start each `/agent-skills` stage with `agent-skills brief <stage> <n>`. It prints every rule of `docs/agents/workflow.md` that the stage needs, so do not read that file in a stage. Before other work in this repo, read all of `docs/agents/workflow.md`.
